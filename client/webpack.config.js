@@ -31,7 +31,7 @@ const config = {
       compress: { warnings: false },
       output: {comments: false },
       mangle: false,
-      sourcemap: false,
+      sourcemap: true,
       minimize: true,
       mangle: { except: ['$super', '$', 'exports', 'require', '$q', '$ocLazyLoad'] }
     }),

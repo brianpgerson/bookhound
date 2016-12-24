@@ -7,10 +7,6 @@ const AuthenticationController = require('./controllers/authentication'),
 const requireAuth = passport.authenticate('jwt', { session: false });
 const requireLogin = passport.authenticate('local', { session: false });
 
-// Constants for role types
-const REQUIRE_ADMIN = "Admin",
-      REQUIRE_MEMBER = "Normal";
-
 module.exports = function(app) {
   // Initializing route groups
   const apiRoutes = express.Router(),
@@ -29,6 +25,11 @@ module.exports = function(app) {
   // Login route
   authRoutes.post('/login', requireLogin, AuthenticationController.login);
 
-// Set url for API group routes
+  // Set url for API group routes
   app.use('/api', apiRoutes);
+
+  // Test protected route
+  apiRoutes.get('/protected', requireAuth, (req, res) => {
+    res.send({ content: 'The protected test route is functional!' });
+  });
 };

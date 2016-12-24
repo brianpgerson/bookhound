@@ -4,6 +4,7 @@
   "description": "It's the R part of the NERD",
   "main": "index.js",
   "dependencies": {
+    "axios": "^0.13.1",
     "react": "^15.4.1",
     "react-cookie": "^1.0.4",
     "react-dom": "^15.4.1",
