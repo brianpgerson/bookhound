@@ -1,7 +1,9 @@
 const AuthenticationController = require('./controllers/authentication'),
       express = require('express'),
       passportService = require('./config/passport'),
-      passport = require('passport');
+      passport = require('passport'),
+      ROLE_NORMAL = require('./constants').ROLE_NORMAL,
+      ROLE_ADMIN = require('./constants').ROLE_ADMIN;
 
 // Middleware to require login/auth
 const requireAuth = passport.authenticate('jwt', { session: false });
@@ -25,6 +27,16 @@ module.exports = function(app) {
   // Login route
   authRoutes.post('/login', requireLogin, AuthenticationController.login);
 
+  // Password reset request route (generate/send token)
+  authRoutes.post('/forgot-password', AuthenticationController.forgotPassword);
+
+  // Password reset route (change password using token)
+  authRoutes.post('/reset-password/:token', AuthenticationController.verifyToken);
+
+  //=========================
+  // User Routes
+  //=========================
+
   // Set url for API group routes
   app.use('/api', apiRoutes);
 
@@ -32,4 +44,5 @@ module.exports = function(app) {
   apiRoutes.get('/protected', requireAuth, (req, res) => {
     res.send({ content: 'The protected test route is functional!' });
   });
+
 };

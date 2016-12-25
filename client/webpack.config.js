@@ -1,4 +1,5 @@
 const webpack = require('webpack');
+const path = require('path');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 
 const config = {
@@ -8,11 +9,19 @@ const config = {
     path: __dirname,
     filename: 'bundle.js'
   },
+  devtool: "source-map",
   module: {
     loaders: [{
       exclude: /node_modules/,
       test: /\.(js|jsx)$/,
       loader: 'babel'
+    },
+    {
+    test: /\.(jpe?g|png|gif|svg)$/i,
+    loaders: [
+        'file?hash=sha512&digest=hex&name=[hash].[ext]',
+        'image-webpack?bypassOnDebug&optimizationLevel=7&interlaced=false'
+      ]
     },
     {
       test: /\.scss$/,

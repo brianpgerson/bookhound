@@ -1,16 +1,18 @@
 import React, { Component } from 'react';
+import FooterTemplate from './template/footer';
+import HeaderTemplate from './template/header'
 
 class App extends Component {
   render() {
     return (
       <div>
-      <p>Header here</p>
+      <HeaderTemplate logo="Your Site" />
 
       <div className="container">
         {this.props.children}
       </div>
 
-      <p>Footer here</p>
+      <FooterTemplate />
       </div>
     );
   }

@@ -1,38 +1,15 @@
 import axios from 'axios';
-import { browserHistory } from 'react-router';
 import cookie from 'react-cookie';
+import errorHandler from './error-actions';
+
 import { AUTH_USER,
          AUTH_ERROR,
-         UNAUTH_USER,
-         PROTECTED_TEST } from './types';
+         PROTECTED_TEST,
+         UNAUTH_USER } from './types';
+
 
 const API_URL = 'http://localhost:3000/api';
-export const CLIENT_ROOT_URL = 'http://localhost:8080';
-
-export function errorHandler(dispatch, error, type) {
-  let errorMessage = '';
-
-  if(error.data.error) {
-    errorMessage = error.data.error;
-  } else if(error.data) {
-    errorMessage = error.data;
-  } else {
-    errorMessage = error;
-  }
-
-  if(error.status === 401) {
-    dispatch({
-      type: type,
-      payload: 'You are not authorized to do this. Please login and try again.'
-    });
-    logoutUser();
-  } else {
-    dispatch({
-      type: type,
-      payload: errorMessage
-    });
-  }
-}
+const CLIENT_ROOT_URL = 'http://localhost:8080';
 
 export function loginUser({ email, password }) {
   return function(dispatch) {
@@ -70,6 +47,39 @@ export function logoutUser() {
     window.location.href = CLIENT_ROOT_URL + '/login';
   }
 }
+
+export function getForgotPasswordToken({ email }) {
+  return function (dispatch) {
+    axios.post(`${API_URL}/auth/forgot-password`, { email })
+    .then((response) => {
+      dispatch({
+        type: FORGOT_PASSWORD_REQUEST,
+        payload: response.data.message,
+      });
+    })
+    .catch((error) => {
+      errorHandler(dispatch, error.response, AUTH_ERROR);
+    });
+  };
+}
+
+export function resetPassword(token, { password }) {
+  return function (dispatch) {
+    axios.post(`${API_URL}/auth/reset-password/${token}`, { password })
+    .then((response) => {
+      dispatch({
+        type: RESET_PASSWORD_REQUEST,
+        payload: response.data.message,
+      });
+      // Redirect to login page on successful password reset
+      browserHistory.push('/login');
+    })
+    .catch((error) => {
+      errorHandler(dispatch, error.response, AUTH_ERROR);
+    });
+  };
+}
+
 
 export function protectedTest() {
   return function(dispatch) {

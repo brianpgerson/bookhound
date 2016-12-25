@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import * as actions from '../actions';
+import * as authActions from '../actions/auth-actions';
 
 class Dashboard extends Component {
 
@@ -31,4 +31,4 @@ function mapStateToProps(state) {
   return { content: state.auth.content };
 }
 
-export default connect(mapStateToProps, actions)(Dashboard);
+export default connect(mapStateToProps, authActions)(Dashboard);
