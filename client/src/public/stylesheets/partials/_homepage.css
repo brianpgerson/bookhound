@@ -1,0 +1,43 @@
+#banner {
+  border-bottom: none;
+  margin-top: -20px;
+  color: white;
+}
+
+#banner h1 {
+  font-size: 6em;
+  letter-spacing: 1px;
+}
+
+.hero-overlay {
+  height: 100%;
+  width: 100%;
+  background-color: rgba(0,0,0,.5);
+}
+
+.panel-heading h3{
+  color: black;
+}
+
+.hero-border {
+  height: 85%;
+  width: 85%;
+  margin: 0px auto;
+  border: 5px solid ghostwhite;
+}
+
+.hero-unit {
+  position: relative;
+  height: 500px;
+  background: url("./bookstack.jpg");
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-position: bottom;
+  background-size: cover;
+  text-align: center;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.1);
+}
+
+.hero-image {
+  max-height: 300px;
+}

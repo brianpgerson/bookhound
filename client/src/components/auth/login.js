@@ -27,20 +27,24 @@ class Login extends Component {
     const { handleSubmit } = this.props;
 
     return (
-      <div>
-        <form onSubmit={handleSubmit(this.handleFormSubmit.bind(this))}>
-          {this.renderAlert()}
-          <div>
-            <label>Email</label>
-            <Field name="email" className="form-control" component="input" type="text" />
-          </div>
-          <div>
-            <label>Password</label>
-            <Field name="password" className="form-control" component="input" type="password" />
-          </div>
-          <button type="submit" className="btn btn-primary">Login</button>
-        </form>
-        <Link to="/forgot-password">Forgot Password?</Link>
+      <div className="row">
+        <div className="col-md-6 col-md-offset-3">
+          <form onSubmit={handleSubmit(this.handleFormSubmit.bind(this))}>
+            {this.renderAlert()}
+            <div className="form-group">
+              <label>Email</label>
+              <Field name="email" className="form-control" component="input" type="text" />
+            </div>
+            <div className="form-group">
+              <label>Password</label>
+              <Field name="password" className="form-control" component="input" type="password" />
+            </div>
+            <div className="form-group">
+              <button type="submit" className="btn btn-primary">Login</button>
+            </div>
+          </form>
+          <Link to="/forgot-password">Forgot Password?</Link>
+        </div>
       </div>
     );
   }

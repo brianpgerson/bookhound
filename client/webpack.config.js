@@ -7,47 +7,44 @@ const config = {
   entry: './src/index.js',
   output: {
     path: __dirname,
+    publicPath: 'http://localhost:8080/',
     filename: 'bundle.js'
   },
-  devtool: "source-map",
   module: {
-    loaders: [{
+    loaders: [
+    {
       exclude: /node_modules/,
       test: /\.(js|jsx)$/,
-      loader: 'babel'
+      loader: 'babel',
     },
-    {
-    test: /\.(jpe?g|png|gif|svg)$/i,
-    loaders: [
-        'file?hash=sha512&digest=hex&name=[hash].[ext]',
-        'image-webpack?bypassOnDebug&optimizationLevel=7&interlaced=false'
-      ]
-    },
-    {
-      test: /\.scss$/,
-      loader: ExtractTextPlugin.extract('css!sass')
-    }]
+    { test: /\.scss$/,
+      loader: ExtractTextPlugin.extract('css!sass') },
+    { test: /\.css$/, loader: "style-loader!css-loader" },
+    { test: /\.(png|jpg|jpeg)$/,
+      loader: "file-loader?name=[name].[ext]" }
+    ],
   },
+  devtool: 'source-map',
   devServer: {
     historyApiFallback: true,
-    contentBase: './'
+    contentBase: './',
   },
   plugins: [
-    new webpack.DefinePlugin({ 'process.env':{ 'NODE_ENV': JSON.stringify('production') } }),
+    new webpack.DefinePlugin({ 'process.env': { NODE_ENV: JSON.stringify('production') } }),
     new webpack.optimize.DedupePlugin(),
     new webpack.optimize.OccurenceOrderPlugin(),
     new webpack.optimize.UglifyJsPlugin({
       compress: { warnings: false },
-      output: {comments: false },
+      output: { comments: false },
       mangle: false,
       sourcemap: true,
       minimize: true,
-      mangle: { except: ['$super', '$', 'exports', 'require', '$q', '$ocLazyLoad'] }
+      mangle: { except: ['$super', '$', 'exports', 'require', '$q', '$ocLazyLoad'] },
     }),
     new ExtractTextPlugin('src/public/stylesheets/app.css', {
-      allChunks: true
-    })
-  ]
+      allChunks: true,
+    }),
+  ],
 };
 
 module.exports = config;

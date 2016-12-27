@@ -4,12 +4,16 @@
 // Modals
 @import "partials/modal";
 
+/*$bg-img: url("./bookstack.jpg");*/
+
 // Homepage
 @import "partials/homepage";
 
 // Body
 $font-stack: 'Open Sans', sans-serif;
 $main-background: #EFEFEF;
+$blue: #337ab7;
+$white: #fff;
 
 // Navigation
 $hover-background: #E7E7E7;
@@ -18,6 +22,52 @@ $hover-text: #555;
 body {
   background: $main-background;
   padding-top: 70px;
+}
+
+.panel {
+  min-height: 270px;
+}
+
+.left {
+  float: left;
+}
+
+.header-padded {
+  padding: 15px 0;
+}
+
+.blue {
+  background-color: $blue;
+  color: white;
+}
+
+.white {
+  background-color: $white;
+}
+
+.push-down {
+  margin-top: 40px;
+}
+
+.thick-border {
+  border: 5px solid;
+}
+
+.black-border {
+  border-color: black;
+}
+
+.white-boarder {
+  border-color: white;
+}
+
+.med-height {
+  max-height: 300px;
+}
+
+.vertical-center {
+  display: flex;
+  align-items: center;
 }
 
 .navbar-default .navbar-nav>li>a:hover {
