@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { Link } from 'react-router';
 const doggy = require('../../public/stylesheets/doggy.png');
 
 class HomePage extends Component {
@@ -24,10 +25,12 @@ class HomePage extends Component {
 						<h3>Welcome to bookhound!</h3>
 						<p>bookhound is a simple, straightforward way to build your barkshelf...er, bookshelf! The app works quietly behind the scenes to pick out, order, and deliver all the fresh literature you want, right to your doorstep. Choose from curated wishlists, create your own, or let bookhound simply pick your next favorite book.
 						</p>
-						<a className="btn btn-primary" href="#" role="button">Let's Go!</a>
+						<Link to="register">
+							<button className="btn btn-primary">Let's Go!</button>
+						</Link>
 					</div>
 				</section>
-				<section className="row">
+				<section className="row push-down">
 					<h2 className="text-center white thick-border black-border header-padded">How It Works</h2>
 				</section>
 				<section className="row">
