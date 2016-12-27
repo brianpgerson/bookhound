@@ -45,5 +45,8 @@ server/node_modules
 # Output of 'npm pack'
 *.tgz
 
+# Environment variables
+.env
+
 # Yarn Integrity file
 .yarn-integrity
