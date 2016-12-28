@@ -19,9 +19,20 @@ $white: #fff;
 $hover-background: #E7E7E7;
 $hover-text: #555;
 
+html {
+  height: 100%;
+  box-sizing: border-box;
+}
+
 body {
   background: $main-background;
   padding-top: 70px;
+  min-height: 100%;
+  position: relative;
+}
+
+.wrapper {
+  min-height: 100%;
 }
 
 .panel {
@@ -83,6 +94,16 @@ ul.footer-nav {
     display:inline-block;
     padding-right:5px;
   }
+}
+
+footer {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  padding: 1rem;
+  background-color: #efefef;
+  text-align: center;
 }
 
 .footer-nav li::after {

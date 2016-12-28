@@ -65,6 +65,8 @@ class HomePage extends Component {
 			          </div>
 			        </div>
 			    </section>
+			    <section className="row push-down">
+				</section>
 			</div>
 		</div>
     );
