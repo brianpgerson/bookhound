@@ -42,9 +42,9 @@ module.exports = function(app) {
 
   apiRoutes.use('/signup', signupRoutes);
 
-  signupRoutes.post('/address', AddressController.saveAddress);
+  signupRoutes.post('/address', requireAuth, AddressController.saveAddress);
 
-  signupRoutes.post('/wishlist', WishlistController.saveWishlist);
+  signupRoutes.post('/wishlist', requireAuth, WishlistController.saveWishlist);
 
   //=========================
   // User Routes
