@@ -51,7 +51,7 @@ class Register extends Component {
     if(this.props.errorMessage) {
       return (
         <div>
-          <span><strong>Error!</strong> {this.props.errorMessage}</span>
+          <span><strong>Error:</strong> {this.props.errorMessage}</span>
         </div>
       );
     }

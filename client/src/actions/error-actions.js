@@ -4,7 +4,7 @@ export function receiveError(dispatch, error) {
  	let errorMessage;
    	// NOT AUTHENTICATED ERROR
   	if (error.status === 401) {
-   		errorMessage = 'You are not authorized to do this.';
+   		errorMessage = 'Your credentials are incorrect.';
   	} else {
   		errorMessage = error.message ? error.message : error.statusText;
   	}

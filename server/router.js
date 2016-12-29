@@ -1,5 +1,6 @@
 const AuthenticationController = require('./controllers/authentication'),
       AddressController = require('./controllers/address'),
+      WishlistController = require('./controllers/wishlist'),
       express = require('express'),
       passportService = require('./config/passport'),
       passport = require('passport'),
@@ -36,12 +37,14 @@ module.exports = function(app) {
   authRoutes.post('/reset-password/:token', AuthenticationController.verifyToken);
 
   //=========================
-  // Address Routes
+  // Signup Routes
   //=========================
 
   apiRoutes.use('/signup', signupRoutes);
 
   signupRoutes.post('/address', AddressController.saveAddress);
+
+  signupRoutes.post('/wishlist', WishlistController.saveWishlist);
 
   //=========================
   // User Routes

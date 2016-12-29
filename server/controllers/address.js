@@ -1,6 +1,5 @@
 const Address = require('../models/address');
 const AuthController = require('./authentication');
-const setAddressInfo = require('../helpers').setAddressInfo;
 const _ = require('lodash');
 
 function getAddress(requestBody) {
@@ -19,13 +18,10 @@ function getAddress(requestBody) {
   return valid ? address : valid;
 }
 
-//= =======================================
-// Address Routes
-//= =======================================
 exports.saveAddress = function (req, res, next) {
   let address = getAddress(req.body);
   if (!address) {
-    res.status(422).send({error: 'You are missing a required address field'});
+    res.status(422).send({ error: 'You are missing a required address field' });
     return;
   }
 
@@ -37,8 +33,6 @@ exports.saveAddress = function (req, res, next) {
       if (err) {
         return next(err);
       }
-
-      console.log('address saved!');
 
       res.status(201).json({
         address: savedAddress
