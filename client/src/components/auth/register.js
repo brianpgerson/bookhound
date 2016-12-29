@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Field, reduxForm } from 'redux-form';
 import { registerUser } from '../../actions/auth-actions';
+import { clearErrors } from '../../actions/error-actions';
 
 const form = reduxForm({
   form: 'register',
@@ -42,6 +43,10 @@ class Register extends Component {
     this.props.registerUser(formProps);
   }
 
+  componentWillUnmount() {
+    this.props.clearErrors();
+  }
+
   renderAlert() {
     if(this.props.errorMessage) {
       return (
@@ -57,33 +62,34 @@ class Register extends Component {
 
     return (
       <section className="container">
-        <div className="col-md-6 col-md-offset-3">
-          <form onSubmit={handleSubmit(this.handleFormSubmit.bind(this))}>
-          {this.renderAlert()}
-          <div className="row">
-            <div className="col-md-6">
-              <label>First Name</label>
-              <Field name="firstName" className="form-control" component={renderField} type="text" />
-            </div>
-            <div className="col-md-6">
-              <label>Last Name</label>
-              <Field name="lastName" className="form-control" component={renderField} type="text" />
-            </div>
-          </div>
-            <div className="row">
-              <div className="col-md-12">
+        <div className="row">
+          <h1 className="text-center">Sign Up</h1>
+        </div>
+        <div className="row">
+          <div className="col-md-6 col-md-offset-3">
+            <form onSubmit={handleSubmit(this.handleFormSubmit.bind(this))}>
+              {this.renderAlert()}
+              <div className="form-group">
+                <label>First Name</label>
+                <Field name="firstName" className="form-control" component={renderField} type="text" />
+              </div>
+              <div className="form-group">
+                <label>Last Name</label>
+                <Field name="lastName" className="form-control" component={renderField} type="text" />
+              </div>
+              <div className="form-group">
                 <label>Email</label>
                 <Field name="email" className="form-control" component={renderField} type="text" />
               </div>
-            </div>
-            <div className="row">
-              <div className="col-md-12">
+              <div className="form-group">
                 <label>Password</label>
                 <Field name="password" className="form-control" component={renderField} type="password" />
               </div>
-            </div>
-            <button type="submit" className="btn btn-primary">Register</button>
-          </form>
+              <div className="form-group">
+                <button type="submit" className="btn btn-primary">Register</button>
+              </div>
+            </form>
+          </div>
         </div>
       </section>
     );
@@ -92,9 +98,9 @@ class Register extends Component {
 
 function mapStateToProps(state) {
   return {
-    errorMessage: state.auth.error,
+    errorMessage: state.error.message,
     message: state.auth.message
   };
 }
 
-export default connect(mapStateToProps, { registerUser })(form(Register));
+export default connect(mapStateToProps, { registerUser, clearErrors })(form(Register));

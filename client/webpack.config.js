@@ -35,11 +35,13 @@ const config = {
     new webpack.optimize.OccurenceOrderPlugin(),
     new webpack.optimize.UglifyJsPlugin({
       compress: { warnings: false },
+      compress: false,
       output: { comments: false },
       mangle: false,
       sourcemap: true,
-      minimize: true,
-      mangle: { except: ['$super', '$', 'exports', 'require', '$q', '$ocLazyLoad'] },
+      // minimize: true,
+      minimize: false,
+      // mangle: { except: ['$super', '$', 'exports', 'require', '$q', '$ocLazyLoad'] },
     }),
     new ExtractTextPlugin('src/public/stylesheets/app.css', {
       allChunks: true,

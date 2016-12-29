@@ -13,6 +13,8 @@ import Logout from './components/auth/logout';
 import ForgotPassword from './components/auth/forgot-password';
 import ResetPassword from './components/auth/reset-password';
 
+import Address from './components/signup/address';
+
 import Dashboard from './components/dashboard';
 import RequireAuth from './components/auth/require-auth';
 
@@ -20,6 +22,7 @@ export default (
   <Route path="/" component={App}>
     <IndexRoute component={HomePage} />
     <Route path="register" component={Register} />
+    <Route path="address" component={Address} />
     <Route path="login" component={Login} />
     <Route path="dashboard" component={Dashboard} />
     <Route path="logout" component={Logout} />

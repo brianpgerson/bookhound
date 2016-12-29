@@ -15,6 +15,36 @@ function generateToken(user) {
   });
 }
 
+exports.me = function(req) {
+  if (req.headers && req.headers.authorization) {
+    var authorization = req.headers.authorization,
+        decoded;
+    decoded = jwt.verify(authorization, config.secret);
+    return User.findById(decoded._id).then(function(user){
+        return user;
+    });
+  }
+}
+
+exports.currentUser = function(req, res){
+  if (req.headers && req.headers.authorization) {
+      var authorization = headers.authorization,
+          decoded;
+      try {
+          decoded = jwt.verify(authorization, secret.secretToken);
+      } catch (e) {
+          return res.status(401).send('unauthorized');
+      }
+      var userId = decoded._id;
+      // Fetch the user by id
+      User.findById(userId).then(function(user){
+          // Do something with the user
+          return res.send(200).json({currentUser: user});
+      });
+  }
+  return res.send(500);
+}
+
 //= =======================================
 // Login Route
 //= =======================================
@@ -32,7 +62,6 @@ exports.login = function (req, res, next) {
 // Registration Route
 //= =======================================
 exports.register = function (req, res, next) {
-  console.log("FUN!");
   // Check for registration errors
   const email = req.body.email;
   const firstName = req.body.firstName;
@@ -69,7 +98,6 @@ exports.register = function (req, res, next) {
       profile: { firstName, lastName }
     });
 
-    console.log(user)
     user.save((err, user) => {
       if (err) {
         return next(err);
@@ -189,3 +217,4 @@ exports.verifyToken = function (req, res, next) {
     });
   });
 };
+

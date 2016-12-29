@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import { Field, reduxForm } from 'redux-form';
 import { Link } from 'react-router';
 import { loginUser } from '../../actions/auth-actions';
+import { clearErrors } from '../../actions/error-actions';
 
 const form = reduxForm({
   form: 'login',
@@ -11,6 +12,10 @@ const form = reduxForm({
 class Login extends Component {
   handleFormSubmit(formProps) {
     this.props.loginUser(formProps);
+  }
+
+  componentWillUnmount() {
+    this.props.clearErrors();
   }
 
   renderAlert() {
@@ -52,10 +57,10 @@ class Login extends Component {
 
 function mapStateToProps(state) {
   return {
-    errorMessage: state.auth.error,
+    errorMessage: state.error.message,
     message: state.auth.message,
     authenticated: state.auth.authenticated,
   };
 }
 
-export default connect(mapStateToProps, { loginUser })(form(Login));
+export default connect(mapStateToProps, { loginUser, clearErrors })(form(Login));

@@ -1,9 +1,8 @@
 import axios from 'axios';
 import cookie from 'react-cookie';
-import errorHandler from './error-actions';
-
+import { receiveError } from './error-actions';
 import { AUTH_USER,
-         AUTH_ERROR,
+         ERROR,
          PROTECTED_TEST,
          UNAUTH_USER } from './types';
 
@@ -20,7 +19,7 @@ export function loginUser({ email, password }) {
       window.location.href = CLIENT_ROOT_URL + '/dashboard';
     })
     .catch((error) => {
-      errorHandler(dispatch, error.response, AUTH_ERROR)
+      receiveError(dispatch, error.response, ERROR)
     });
     }
   }
@@ -31,10 +30,10 @@ export function registerUser({ email, firstName, lastName, password }) {
     .then(response => {
       cookie.save('token', response.data.token, { path: '/' });
       dispatch({ type: AUTH_USER });
-      window.location.href = CLIENT_ROOT_URL + '/dashboard';
+      window.location.href = CLIENT_ROOT_URL + '/address';
     })
     .catch((error) => {
-      errorHandler(dispatch, error.response, AUTH_ERROR)
+      receiveError(dispatch, error.response, ERROR)
     });
   }
 }
@@ -58,7 +57,7 @@ export function getForgotPasswordToken({ email }) {
       });
     })
     .catch((error) => {
-      errorHandler(dispatch, error.response, AUTH_ERROR);
+      receiveError(dispatch, error.response, ERROR);
     });
   };
 }
@@ -75,7 +74,7 @@ export function resetPassword(token, { password }) {
       browserHistory.push('/login');
     })
     .catch((error) => {
-      errorHandler(dispatch, error.response, AUTH_ERROR);
+      receiveError(dispatch, error.response, ERROR);
     });
   };
 }
@@ -93,7 +92,7 @@ export function protectedTest() {
       });
     })
     .catch((error) => {
-      errorHandler(dispatch, error.response, AUTH_ERROR)
+      receiveError(dispatch, error.response, ERROR)
     });
   }
 }

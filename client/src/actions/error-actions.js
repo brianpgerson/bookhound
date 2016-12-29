@@ -1,25 +1,24 @@
-// import { logoutUser } from './auth-actions';
+import { ERROR, CLEAR_ERRORS } from '../actions/types';
 
-export function errorHandler(dispatch, error, type) {
-  let errorMessage = '';
+export function receiveError(dispatch, error) {
+ 	let errorMessage;
+   	// NOT AUTHENTICATED ERROR
+  	if (error.status === 401) {
+   		errorMessage = 'You are not authorized to do this.';
+  	} else {
+  		errorMessage = error.message ? error.message : error.statusText;
+  	}
 
-  if(error.data.error) {
-    errorMessage = error.data.error;
-  } else if(error.data) {
-    errorMessage = error.data;
-  } else {
-    errorMessage = error;
-  }
+  	dispatch({
+    	type: ERROR,
+	    payload: errorMessage,
+  	});
+}
 
-  if(error.status === 401) {
-    dispatch({
-      type: type,
-      payload: 'You are not authorized to do this. Please login and try again.'
-    });
-  } else {
-    dispatch({
-      type: type,
-      payload: errorMessage
-    });
+export function clearErrors() {
+  return function(dispatch) {
+  	dispatch({
+  		type: CLEAR_ERRORS
+  	});
   }
 }

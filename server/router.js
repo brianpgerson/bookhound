@@ -1,4 +1,5 @@
 const AuthenticationController = require('./controllers/authentication'),
+      AddressController = require('./controllers/address'),
       express = require('express'),
       passportService = require('./config/passport'),
       passport = require('passport'),
@@ -12,7 +13,8 @@ const requireLogin = passport.authenticate('local', { session: false });
 module.exports = function(app) {
   // Initializing route groups
   const apiRoutes = express.Router(),
-        authRoutes = express.Router();
+        authRoutes = express.Router(),
+        signupRoutes = express.Router();
 
   //=========================
   // Auth Routes
@@ -34,6 +36,14 @@ module.exports = function(app) {
   authRoutes.post('/reset-password/:token', AuthenticationController.verifyToken);
 
   //=========================
+  // Address Routes
+  //=========================
+
+  apiRoutes.use('/signup', signupRoutes);
+
+  signupRoutes.post('/address', AddressController.saveAddress);
+
+  //=========================
   // User Routes
   //=========================
 
@@ -44,5 +54,8 @@ module.exports = function(app) {
   apiRoutes.get('/protected', requireAuth, (req, res) => {
     res.send({ content: 'The protected test route is functional!' });
   });
+
+
+
 
 };
