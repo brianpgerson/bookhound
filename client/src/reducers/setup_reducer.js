@@ -2,7 +2,11 @@ import { SAVE_ADDRESS, RECEIVE_PLAID_CONFIG, RECEIVE_USER_SETUP } from '../actio
 
 const INITIAL_STATE = {
 	user: {
-		email: ''
+		email: '',
+		profile: {
+			firstName: '',
+			lastName: ''
+		}
 	},
 	address: {
 		streetAddressOne: '',

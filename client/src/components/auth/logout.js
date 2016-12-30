@@ -8,7 +8,13 @@ class Logout extends Component {
   }
 
   render() {
-    return <div>Sorry to see you go!</div>;
+    return (
+    	<section className="container">
+    		<div className="row">
+    			<div className="text-center">Sorry to see you go!</div>
+    		</div>
+    	</section>
+	);
   }
 }
 

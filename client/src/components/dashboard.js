@@ -73,7 +73,7 @@ class Dashboard extends Component {
       <div>
         <div className="container">
         <section className="row pad-bottom">
-          <h1>Welcome to your Dashboard, {user.email}</h1>
+          <h1>Welcome to your Dashboard, {user.profile.firstName}</h1>
           <p>Here's where you can see your current settings and update anything that needs changing!</p>
         </section>
         <section className="row pad-bottom">

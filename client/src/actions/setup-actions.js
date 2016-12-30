@@ -68,7 +68,7 @@ export function saveAddress(addressFields) {
       .then(response => {
         dispatch({
         	type: SAVE_ADDRESS,
-        	payload: response.payload
+        	payload: response.data.address
         });
         window.location.href = CLIENT_ROOT_URL + '/wishlist';
       })
@@ -90,7 +90,7 @@ export function saveWishlist(wishlistUrl) {
           type: SAVE_WISHLIST,
           payload: response.payload
         });
-        window.location.href = CLIENT_ROOT_URL;
+        window.location.href = CLIENT_ROOT_URL + '/bank';
       })
       .catch((error) => {
         console.log(error);

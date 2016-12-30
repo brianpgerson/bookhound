@@ -11,7 +11,7 @@ const AuthController = require('./authentication');
 //= =======================================
 exports.getSetup = function (req, res) {
   AuthController.me(req).then(function (currentUser) {
-    let userSetup = {user: {email: currentUser.email}};
+    let userSetup = _.assign({}, {user: _.pick(currentUser, ['email', 'profile'])});
     const userId = currentUser._id.toString();
 
     let promisifiedAddress = Address.findOne({userId: userId}).exec();
