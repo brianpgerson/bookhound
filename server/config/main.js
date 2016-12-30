@@ -6,5 +6,10 @@ module.exports = {
 	database: process.env.DATABASE_URL || 'mongodb://localhost/db_name',
 	mailgun_priv_key: process.env.MAILGUN_PRIVATE_KEY,
   	// Configuring Mailgun domain for sending transactional email
-  	mailgun_domain: 'mg.booky.com'
+  	mailgun_domain: 'mg.booky.com',
+  	plaid: {
+  		public: process.env.PLAIDPUBLIC,
+		client: process.env.PLAIDCLIENT,
+		secret: process.env.PLAIDSECRET
+	}
 };

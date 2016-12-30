@@ -12,9 +12,10 @@ import Logout from './components/auth/logout';
 import ForgotPassword from './components/auth/forgot-password';
 import ResetPassword from './components/auth/reset-password';
 
-import Register from './components/signup/register';
-import Address from './components/signup/address';
-import Wishlist from './components/signup/wishlist';
+import Register from './components/setup/register';
+import Address from './components/setup/address';
+import Wishlist from './components/setup/wishlist';
+import Bank from './components/setup/bank';
 
 import Dashboard from './components/dashboard';
 import RequireAuth from './components/auth/require-auth';
@@ -29,6 +30,7 @@ export default (
     <Route path="register" component={Register} />
     <Route path="address" component={RequireAuth(Address)} />
     <Route path="wishlist" component={RequireAuth(Wishlist)} />
+    <Route path="bank" component={RequireAuth(Bank)} />
     <Route path="dashboard" component={RequireAuth(Dashboard)} />
     <Route path="*" component={NotFoundPage} />
   </Route>

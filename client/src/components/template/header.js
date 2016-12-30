@@ -7,12 +7,9 @@ class HeaderTemplate extends Component {
     if (this.props.authenticated) {
       return [
         <li key={`${1}header`}>
-          <Link to="/">Home</Link>
-        </li>,
-        <li key={`${2}header`}>
           <Link to="dashboard">Dashboard</Link>
         </li>,
-        <li key={`${3}header`}>
+        <li key={`${2}header`}>
           <Link to="logout">Logout</Link>
         </li>,
       ];

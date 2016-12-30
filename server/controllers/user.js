@@ -1,21 +1,29 @@
-const User = require('../models/user');
-const setUserInfo = require('../helpers').setUserInfo;
+const AuthController = require('./authentication');
+      User = require('../models/user'),
+      Address = require('../models/address'),
+      Wishlist = require('../models/wishlist'),
+      Bank = require('../models/bank'),
+      _ = require('lodash'),
+      Promise = require("bluebird");
 
 //= =======================================
 // User Routes
 //= =======================================
-exports.viewProfile = function (req, res, next) {
-  const userId = req.params.userId;
+exports.getSetup = function (req, res) {
+  AuthController.me(req).then(function (currentUser) {
+    let userSetup = {user: {email: currentUser.email}};
+    const userId = currentUser._id.toString();
 
-  if (req.user._id.toString() !== userId) { return res.status(401).json({ error: 'You are not authorized to view this user profile.' }); }
-  User.findById(userId, (err, user) => {
-    if (err) {
-      res.status(400).json({ error: 'No user could be found for this ID.' });
-      return next(err);
-    }
+    let promisifiedAddress = Address.findOne({userId: userId}).exec();
+    let promisifiedWishlist = Wishlist.findOne({userId: userId}).exec();
+    let promisifiedBank = Bank.findOne({userId: userId}).exec();
 
-    const userToReturn = setUserInfo(user);
-
-    return res.status(200).json({ user: userToReturn });
+    Promise.all([promisifiedAddress, promisifiedWishlist, promisifiedBank])
+      .spread((address, wishlist, bank) => {
+        userSetup.address = _.pick(address, ['streetAddressOne', 'streetAddressTwo', 'state', 'city', 'zip']);
+        userSetup.wishlist = _.pick(wishlist, ['id']);
+        userSetup.bank = bank !== null;
+        return res.status(200).json(userSetup);
+      })
   });
 };

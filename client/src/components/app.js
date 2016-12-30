@@ -6,7 +6,7 @@ class App extends Component {
   render() {
     return (
       <div>
-      <HeaderTemplate logo="BookHound" />
+      <HeaderTemplate logo="bookhound" />
 
       <div>
         {this.props.children}

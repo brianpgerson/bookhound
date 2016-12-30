@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import DropdownList from 'react-widgets/lib/DropdownList'
 import { Field, reduxForm } from 'redux-form';
 import { states } from '../../constants/constants'
-import { saveAddress } from '../../actions/signup-actions';
+import { saveAddress } from '../../actions/setup-actions';
 import { clearErrors } from '../../actions/error-actions';
 import * as _ from 'lodash';
 

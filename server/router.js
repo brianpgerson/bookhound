@@ -1,6 +1,8 @@
 const AuthenticationController = require('./controllers/authentication'),
       AddressController = require('./controllers/address'),
+      UserController = require('./controllers/user');
       WishlistController = require('./controllers/wishlist'),
+      BankController = require('./controllers/bank'),
       express = require('express'),
       passportService = require('./config/passport'),
       passport = require('passport'),
@@ -15,7 +17,8 @@ module.exports = function(app) {
   // Initializing route groups
   const apiRoutes = express.Router(),
         authRoutes = express.Router(),
-        signupRoutes = express.Router();
+        setupRoutes = express.Router(),
+        bankRoutes = express.Router();
 
   //=========================
   // Auth Routes
@@ -40,11 +43,12 @@ module.exports = function(app) {
   // Signup Routes
   //=========================
 
-  apiRoutes.use('/signup', signupRoutes);
-
-  signupRoutes.post('/address', requireAuth, AddressController.saveAddress);
-
-  signupRoutes.post('/wishlist', requireAuth, WishlistController.saveWishlist);
+  apiRoutes.use('/setup', setupRoutes);
+  setupRoutes.post('/address', requireAuth, AddressController.saveAddress);
+  setupRoutes.post('/wishlist', requireAuth, WishlistController.saveWishlist);
+  setupRoutes.post('/exchange-token', requireAuth, BankController.exchange);
+  setupRoutes.get('/plaid', requireAuth, BankController.getPlaidConfig);
+  setupRoutes.get('/user', requireAuth, UserController.getSetup);
 
   //=========================
   // User Routes

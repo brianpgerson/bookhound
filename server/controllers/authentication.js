@@ -17,32 +17,13 @@ function generateToken(user) {
 
 exports.me = function(req) {
   if (req.headers && req.headers.authorization) {
-    var authorization = req.headers.authorization,
+    var authorization = req.headers.authorization.slice(4),
         decoded;
     decoded = jwt.verify(authorization, config.secret);
     return User.findById(decoded._id).then(function(user){
         return user;
     });
   }
-}
-
-exports.currentUser = function(req, res){
-  if (req.headers && req.headers.authorization) {
-      var authorization = headers.authorization,
-          decoded;
-      try {
-          decoded = jwt.verify(authorization, secret.secretToken);
-      } catch (e) {
-          return res.status(401).send('unauthorized');
-      }
-      var userId = decoded._id;
-      // Fetch the user by id
-      User.findById(userId).then(function(user){
-          // Do something with the user
-          return res.send(200).json({currentUser: user});
-      });
-  }
-  return res.send(500);
 }
 
 //= =======================================

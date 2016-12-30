@@ -2,11 +2,11 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Field, reduxForm } from 'redux-form';
 import { Link } from 'react-router';
-import { saveWishlist } from '../../actions/signup-actions';
+import { saveWishlist } from '../../actions/setup-actions';
 import { clearErrors } from '../../actions/error-actions';
 
 const form = reduxForm({
-  form: 'signup',
+  form: 'wishlist',
   validate
 });
 
@@ -55,7 +55,7 @@ class Wishlist extends Component {
           <div className="row">
             <h1 className="text-center">Enter a Wishlist</h1>
             <p className="text-center col-md-6 col-md-offset-3">
-              This part is important to get right. First, make sure you have a <a href="https://www.amazon.com/gp/help/customer/display.html?nodeId=501094" target="_blank">public wishlist</a> for bookhound to use, and ensure that it has at least a few books. Then, when you're sure it's ready to go, add the URL here. It should look like: <em>https://www.amazon.com/gp/registry/wishlist/295PIKOOQBKVU/ref=cm_wl_list_o_1?</em>.
+              This part is important to get right. First, make sure you have a <a href="https://www.amazon.com/gp/help/customer/display.html?nodeId=501094" target="_blank">public wishlist</a> for bookhound to use, and ensure that it has at least a few books. Then, when you're sure it's ready to go, add the URL here. It should look like: <em>https://www.amazon.com/gp/registry/wishlist/295PIKOOQBKVU</em>.
             </p>
           </div>
         </section>
