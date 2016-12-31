@@ -29,6 +29,10 @@ const UserSchema = new Schema({
     enum: [ROLE_NORMAL, ROLE_ADMIN],
     default: ROLE_NORMAL
   },
+  stripe: {
+    customerId: { type: String },
+    accountId: { type: String }
+  },
   resetPasswordToken: { type: String },
   resetPasswordExpires: { type: Date }
 },

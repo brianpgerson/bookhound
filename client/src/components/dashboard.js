@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { Link } from 'react-router';
 import { connect } from 'react-redux';
 import * as setupActions from '../actions/setup-actions';
 
@@ -21,11 +22,17 @@ class Dashboard extends Component {
           <p><strong>City: </strong>{address.city}</p>
           <p><strong>State: </strong>{address.state}</p>
           <p><strong>Zip: </strong>{address.zip}</p>
-          <p><button className="btn btn-default">Update Address</button></p>
+          <p><Link to="address"><button className="btn btn-default">Update Address</button></Link></p>
         </div>
       );
     } else {
-      return '';
+      return (
+        <div className="col-md-4">
+          <h4>Current Shipping Address</h4>
+          <p className="bad-text">You haven't set a shipping address yet!</p>
+          <p><Link to="address"><button className="btn btn-default">Add Address</button></Link></p>
+        </div>
+      );
     }
   }
 
@@ -35,14 +42,14 @@ class Dashboard extends Component {
         <div className="col-md-4">
           <h4>Bank Account Information</h4>
           <p className="good-text">Your bank account is currently connected</p>
-          <p><button className="btn btn-default">Update Bank</button></p>
+          <p><Link to="bank"><button className="btn btn-default">Update Bank</button></Link></p>
         </div>
       )
     } else {
-      <div className="col-md-4">
+      return <div className="col-md-4">
         <h4>Bank Account Information</h4>
         <p className="bad-text">You haven't connected a bank account yet!</p>
-        <p><button className="btn btn-default">Connect Bank</button></p>
+        <p><Link to="bank"><button className="btn btn-default">Connect Bank</button></Link></p>
       </div>
     }
   }
@@ -52,23 +59,22 @@ class Dashboard extends Component {
       return (
         <div className="col-md-4">
           <h4>Wishlist Information</h4>
-          <p className="good-text">Your wishlist account is connected</p>
+          <p className="good-text">Your wishlist is connected</p>
           <p><a href={wishlist} target="_blank">{wishlist}</a></p>
-          <p><button className="btn btn-default">Update Wishlist</button></p>
+          <p><Link to="wishlist"><button className="btn btn-default">Update Wishlist</button></Link></p>
         </div>
       )
     } else {
-      <div className="col-md-4">
-        <h4>Bank Account Information</h4>
+      return <div className="col-md-4">
+        <h4>WishList Information</h4>
         <p className="bad-text">You haven't added a wishlist yet!</p>
-        <p><button className="btn btn-default">Update Wishlist</button></p>
+        <p><Link to="wishlist"><button className="btn btn-default">Add Wishlist</button></Link></p>
       </div>
     }
   }
 
   render() {
     const {user, address, bank, wishlist} = this.props.setup;
-    console.log(this.props.setup);
     return (
       <div>
         <div className="container">

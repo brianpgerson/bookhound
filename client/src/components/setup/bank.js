@@ -22,32 +22,39 @@ class Bank extends Component {
                 className="btn btn-primary"
                 style={{}}
                 onSuccess={this.handleOnSuccess.bind(this)}/>) :
-      (<button className="btn-primary btn">Open Linky</button>);
+      (<button className="btn-primary btn">Open Link</button>);
    }
 
   render() {
+    const { bank } = this.props;
     return (
       <div>
-         <section className="container">
+        <h1 className="text-center">{bank ? 'Update Your Bank' : 'Connect Your Bank'}</h1>
+        <section className="container">
           <div className="row">
-            <h1 className="text-center">Connect Your Bank</h1>
-            <p className="text-center col-md-4 col-md-offset-4">
-            bookhound uses Plaid to securely and conveniently connect to bank accounts without the need for microdeposits.
-            </p>
+            <div className="col-md-4 col-md-offset-4 is-white-background form-panel">
+              <div className="row">
+                <div>
+                  bookhound uses Plaid to securely and conveniently connect to bank accounts without the need for microdeposits.
+                </div>
+              </div>
+              <hr />
+              <div className="row">
+                {this.renderLink()}
+              </div>
+            </div>
           </div>
         </section>
-          <section className="container">
-            <div className="row flex-center">
-              {this.renderLink()}
-            </div>
-        </section>
-       </div>
+      </div>
     );
   }
 }
 
 function mapStateToProps(state) {
-  return { plaidPublicKey: state.setup.plaid.public };
+  return {
+    plaidPublicKey: state.setup.plaid.public,
+    bank: state.setup.bank
+  };
 }
 
 export default connect(mapStateToProps, { getPlaidConfig, exchangeToken })(Bank);

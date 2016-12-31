@@ -1,10 +1,9 @@
 const AuthController = require('./authentication');
-      User = require('../models/user'),
-      Address = require('../models/address'),
-      Wishlist = require('../models/wishlist'),
-      Bank = require('../models/bank'),
-      _ = require('lodash'),
-      Promise = require("bluebird");
+const User = require('../models/user');
+const Address = require('../models/address');
+const Wishlist = require('../models/wishlist');
+const _ = require('lodash');
+const Promise = require("bluebird");
 
 //= =======================================
 // User Routes
@@ -16,13 +15,12 @@ exports.getSetup = function (req, res) {
 
     let promisifiedAddress = Address.findOne({userId: userId}).exec();
     let promisifiedWishlist = Wishlist.findOne({userId: userId}).exec();
-    let promisifiedBank = Bank.findOne({userId: userId}).exec();
 
-    Promise.all([promisifiedAddress, promisifiedWishlist, promisifiedBank])
-      .spread((address, wishlist, bank) => {
+    Promise.all([promisifiedAddress, promisifiedWishlist])
+      .spread((address, wishlist) => {
         userSetup.address = _.pick(address, ['streetAddressOne', 'streetAddressTwo', 'state', 'city', 'zip']);
         userSetup.wishlist = _.pick(wishlist, ['id']);
-        userSetup.bank = bank !== null;
+        userSetup.bank = !!currentUser.stripe.customerId;
         return res.status(200).json(userSetup);
       })
   });

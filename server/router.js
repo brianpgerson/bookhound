@@ -17,8 +17,7 @@ module.exports = function(app) {
   // Initializing route groups
   const apiRoutes = express.Router(),
         authRoutes = express.Router(),
-        setupRoutes = express.Router(),
-        bankRoutes = express.Router();
+        setupRoutes = express.Router();
 
   //=========================
   // Auth Routes
@@ -61,8 +60,5 @@ module.exports = function(app) {
   apiRoutes.get('/protected', requireAuth, (req, res) => {
     res.send({ content: 'The protected test route is functional!' });
   });
-
-
-
 
 };

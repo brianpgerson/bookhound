@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import DropdownList from 'react-widgets/lib/DropdownList'
 import { Field, reduxForm } from 'redux-form';
 import { states } from '../../constants/constants'
-import { saveAddress } from '../../actions/setup-actions';
+import { saveAddress, updateAddress } from '../../actions/setup-actions';
 import { clearErrors } from '../../actions/error-actions';
 import * as _ from 'lodash';
 
@@ -45,8 +45,14 @@ function validate(formProps) {
 }
 
 class Address extends Component {
+
   handleFormSubmit(formProps) {
-    this.props.saveAddress(formProps);
+    const {saveAddress, address} = this.props;
+    if (!!address.streetAddressOne) {
+      updateAddress(formProps);
+    } else {
+      saveAddress(formProps);
+    }
   }
 
   componentWillUnmount() {
@@ -64,49 +70,55 @@ class Address extends Component {
   }
 
   render() {
-    const { handleSubmit } = this.props;
+    const { handleSubmit, address } = this.props;
 
     return (
       <div>
+        <h1 className="text-center">{!!address.streetAddressOne ? 'Update Your Address' : 'Enter Your Address'}</h1>
         <section className="container">
           <div className="row">
-            <h1 className="text-center">What's Your Address?</h1>
-            <p className="text-center col-md-6 col-md-offset-3">
-            Let us know where to ship your books. You can always update this later, but for now, try and pick a place where you don't need to know about deliveries in advance. Please note that bookhound only ships to US states and territories currently</p>
-          </div>
-        </section>
-        <section className="container">
-          <div className="row">
-            <div className="col-md-6 col-md-offset-3">
-              <form onSubmit={handleSubmit(this.handleFormSubmit.bind(this))}>
-                {this.renderAlert()}
-                <div className="form-group">
-                    <label>Street Address 1</label>
-                    <Field name="streetAddressOne" className="form-control" component={renderField} type="text" />
+            <div className="col-md-4 col-md-offset-4 is-white-background form-panel">
+              <div className="row">
+                <div>
+                  Let us know where to ship your books. You can always update this later, but for now, try and pick a place where you don't need to know about deliveries in advance. Please note that bookhound only ships to US states and territories currently.
                 </div>
-                <div className="form-group">
-                    <label>Street Address 2</label>
-                    <Field name="streetAddressTwo" className="form-control" component={renderField} type="text" />
+              </div>
+              <hr />
+              <div className="row">
+                <div>
+                  <form onSubmit={handleSubmit(this.handleFormSubmit.bind(this))}>
+                    {this.renderAlert()}
+                    <div className="form-group">
+                        <label>Street Address 1</label>
+                        <Field name="streetAddressOne" className="form-control" component={renderField} type="text" />
+                    </div>
+                    <div className="form-group">
+                        <label>Street Address 2</label>
+                        <Field name="streetAddressTwo" className="form-control" component={renderField} type="text" />
+                    </div>
+                    <div className="form-group">
+                        <label>City</label>
+                        <Field name="city" className="form-control" component={renderField} type="text" />
+                    </div>
+                    <div className="form-group">
+                        <Field name="state" component={renderSelectField} label="State">
+                          { states.map(state => <option value={state.abbreviation}>{state.name}</option>) }
+                        </Field>
+                    </div>
+                    <div className="form-group">
+                        <label>Zip Code</label>
+                        <Field name="zip" className="form-control" component={renderField} type="text" />
+                    </div>
+                    <div className="form-group">
+                        <button type="submit" className="btn btn-primary">Save Address</button>
+                    </div>
+                  </form>
                 </div>
-                <div className="form-group">
-                    <label>City</label>
-                    <Field name="city" className="form-control" component={renderField} type="text" />
-                </div>
-                <div className="form-group">
-                    <Field name="state" component={renderSelectField} label="State">
-                      { states.map(state => <option value={state.abbreviation}>{state.name}</option>) }
-                    </Field>
-                </div>
-                <div className="form-group">
-                    <label>Zip Code</label>
-                    <Field name="zip" className="form-control" component={renderField} type="text" />
-                </div>
-                <div className="form-group">
-                    <button type="submit" className="btn btn-primary">Save Address</button>
-                </div>
-              </form>
+              </div>
             </div>
           </div>
+        </section>
+        <section className="row push-down">
         </section>
       </div>
     );
@@ -116,8 +128,9 @@ class Address extends Component {
 function mapStateToProps(state) {
   return {
     errorMessage: state.error.message,
-    message: state.auth.message
+    message: state.auth.message,
+    address: state.setup.address
   };
 }
 
-export default connect(mapStateToProps, { saveAddress, clearErrors })(form(Address));
+export default connect(mapStateToProps, { saveAddress, updateAddress, clearErrors })(form(Address));

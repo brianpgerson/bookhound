@@ -1,8 +1,8 @@
-const Bank = require('../models/bank');
-const AuthController = require('./authentication');
-const config = require('../config/main');
-const _ = require('lodash');
-const plaid = require('plaid');
+const AuthController = require('./authentication'),
+	  config = require('../config/main'),
+	  _ = require('lodash'),
+	  plaid = require('plaid'),
+	  stripe = require("stripe")(config.stripe.secret);
 
 exports.getPlaidConfig = function (req, res) {
 	 return res.status(200).json({public: config.plaid.public});
@@ -18,25 +18,46 @@ exports.exchange = function (req, res) {
 		conf.secret,
 		plaid.environments.tartan);
 
+	console.log('made plaid');
+
 	AuthController.me(req).then(function (currentUser) {
+		console.log('got me', currentUser);
+
 	    const userId = currentUser._id;
 
 		plaidClient.exchangeToken(public_token, account_id, function (err, exchangeTokenRes) {
+			console.log('got token', exchangeTokenRes);
+
 			if (!!err) {
 				return res.status(500).json({error: err});;
 			} else {
-				let newBank = new Bank({
-					userId: userId,
-					accessToken: exchangeTokenRes.access_token,
-					stripeAccessToken: exchangeTokenRes.stripe_bank_account_token,
-					accountId: account_id });
+				const accessToken = exchangeTokenRes.access_token;
+				const stripeBankToken = exchangeTokenRes.stripe_bank_account_token;
 
-				console.log(newBank)
 
-				newBank.save().then(bank => {
-					console.log(bank);
-				}).catch(err => {
-					console.log(err);
+				stripe.customers.create({
+				  	source: stripeBankToken,
+				  	description: "Example customer"
+				}, function(err, customer) {
+					console.log('stripe', arguments);
+
+					if (err) {
+						return res.status(500).json({error: err});;
+					} else {
+						const stripeInfo = {
+							customerId: customer.id,
+							accountId: stripeBankToken
+						};
+
+						currentUser.stripe = stripeInfo;
+						currentUser.save(function (err, updatedUser) {
+							if (err) {
+								return res.status(500).json({error: err});;
+							} else {
+								return res.status(200).send("success!");
+							}
+						})
+					}
 				});
 			}
 		});

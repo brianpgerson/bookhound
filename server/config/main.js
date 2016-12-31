@@ -11,5 +11,9 @@ module.exports = {
   		public: process.env.PLAIDPUBLIC,
 		client: process.env.PLAIDCLIENT,
 		secret: process.env.PLAIDSECRET
+	},
+	stripe: {
+		secret: process.env.STRIPESECRET,
+		public: process.env.STRIPEPUBLIC
 	}
 };

@@ -52,7 +52,7 @@ class HomePage extends Component {
 					<section className="row">
 				        <div className="col-md-4">
 				          <div className="panel">
-				            <div className="panel-heading white"><h3>Connect Your Bank</h3></div>
+				            <div className="panel-heading is-white-background"><h3>Connect Your Bank</h3></div>
 				            <div className="panel-body">
 				            	Connect your bank account and let bookhound go to work analyzing your cash flow.
 				            	When we're sure the timing is right, we'll withdraw small amounts of money, putting it aside to fund your next book order.
@@ -62,7 +62,7 @@ class HomePage extends Component {
 				        </div>
 				      	<div className="col-md-4">
 				        	<div className="panel">
-				            <div className="panel-heading white"><h3>Choose a Style</h3></div>
+				            <div className="panel-heading is-white-background"><h3>Choose a Style</h3></div>
 				            <div className="panel-body">
 				            	Want a preset list of books? Create one with your Amazon account and bookhound will pull from that.
 				            	Feeling a little more <em>laissez faire</em>? Pick a few genres and let bookhound pick your next favorite book.
@@ -72,7 +72,7 @@ class HomePage extends Component {
 				        </div>
 				      	<div className="col-md-4">
 				        	<div className="panel">
-				            <div className="panel-heading white"><h3>Read Real Books</h3></div>
+				            <div className="panel-heading is-white-background"><h3>Read Real Books</h3></div>
 				            <div className="panel-body">
 				            	bookhound isn't interested in buying you e-books. We want to help you build a collection of real, tangible books that smell like paper and binding glue for you to read, display, share, and pass down over the years. We believe the world needs more bookshelves.
 				            </div>

@@ -79,6 +79,26 @@ export function saveAddress(addressFields) {
     }
   };
 
+  export function updateAddress(addressFields) {
+  const token = getToken();
+  return function(dispatch) {
+      axios.put(`${API_URL}/setup/address`, addressFields, {
+        headers: { 'Authorization': token }
+      })
+      .then(response => {
+        dispatch({
+          type: SAVE_ADDRESS,
+          payload: response.data.address
+        });
+        window.location.href = CLIENT_ROOT_URL + '/dashboard';
+      })
+      .catch((error) => {
+        console.log(error);
+        receiveError(dispatch, error);
+      });
+    }
+  };
+
 export function saveWishlist(wishlistUrl) {
   const token = getToken();
   return function(dispatch) {
@@ -91,6 +111,26 @@ export function saveWishlist(wishlistUrl) {
           payload: response.payload
         });
         window.location.href = CLIENT_ROOT_URL + '/bank';
+      })
+      .catch((error) => {
+        console.log(error);
+        receiveError(dispatch, error);
+      });
+    }
+  };
+
+  export function updateWishlist(wishlistUrl) {
+  const token = getToken();
+  return function(dispatch) {
+      axios.put(`${API_URL}/setup/wishlist`, wishlistUrl, {
+        headers: { 'Authorization': token }
+      })
+      .then(response => {
+        dispatch({
+          type: SAVE_WISHLIST,
+          payload: response.payload
+        });
+        window.location.href = CLIENT_ROOT_URL + '/dashboard';
       })
       .catch((error) => {
         console.log(error);

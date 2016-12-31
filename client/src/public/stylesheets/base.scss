@@ -9,6 +9,8 @@
 // Homepage
 @import "partials/homepage";
 
+@import "partials/forms";
+
 // Body
 $font-stack: 'Open Sans', sans-serif;
 $main-background: #EFEFEF;
@@ -57,7 +59,7 @@ body {
   color: white;
 }
 
-.white {
+.is-white-background {
   background-color: $white;
 }
 

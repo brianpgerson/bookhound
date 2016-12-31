@@ -61,37 +61,49 @@ class Register extends Component {
     const { handleSubmit } = this.props;
 
     return (
-      <section className="container">
-        <div className="row">
-          <h1 className="text-center">Sign Up</h1>
-        </div>
-        <div className="row">
-          <div className="col-md-6 col-md-offset-3">
-            <form onSubmit={handleSubmit(this.handleFormSubmit.bind(this))}>
-              {this.renderAlert()}
-              <div className="form-group">
-                <label>First Name</label>
-                <Field name="firstName" className="form-control" component={renderField} type="text" />
+       <div>
+        <h1 className="text-center">Sign Up</h1>
+        <section className="container">
+          <div className="row">
+            <div className="col-md-4 col-md-offset-4 is-white-background form-panel">
+              <div className="row">
+                <div>
+                  Welcome to bookhound!
+                </div>
               </div>
-              <div className="form-group">
-                <label>Last Name</label>
-                <Field name="lastName" className="form-control" component={renderField} type="text" />
+              <hr />
+              <div className="row">
+                <div>
+                  <form onSubmit={handleSubmit(this.handleFormSubmit.bind(this))}>
+                  {this.renderAlert()}
+                  <div className="form-group">
+                    <label>First Name</label>
+                    <Field name="firstName" className="form-control" component={renderField} type="text" />
+                  </div>
+                  <div className="form-group">
+                    <label>Last Name</label>
+                    <Field name="lastName" className="form-control" component={renderField} type="text" />
+                  </div>
+                  <div className="form-group">
+                    <label>Email</label>
+                    <Field name="email" className="form-control" component={renderField} type="text" />
+                  </div>
+                  <div className="form-group">
+                    <label>Password</label>
+                    <Field name="password" className="form-control" component={renderField} type="password" />
+                  </div>
+                  <div className="form-group">
+                    <button type="submit" className="btn btn-primary">Register</button>
+                  </div>
+                </form>
+                </div>
               </div>
-              <div className="form-group">
-                <label>Email</label>
-                <Field name="email" className="form-control" component={renderField} type="text" />
-              </div>
-              <div className="form-group">
-                <label>Password</label>
-                <Field name="password" className="form-control" component={renderField} type="password" />
-              </div>
-              <div className="form-group">
-                <button type="submit" className="btn btn-primary">Register</button>
-              </div>
-            </form>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+        <section className="row push-down">
+        </section>
+      </div>
     );
   }
 }
