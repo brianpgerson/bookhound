@@ -8,6 +8,10 @@ exports.getPlaidConfig = function (req, res) {
 	 return res.status(200).json({public: config.plaid.public});
 }
 
+exports.ping = function (msg) {
+	console.log(msg, 'from banks!');
+}
+
 exports.exchange = function (req, res) {
 	const conf = config.plaid;
 	const public_token = req.body.token;

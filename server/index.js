@@ -7,6 +7,7 @@ const express = require('express'),
   logger = require('morgan'),
   router = require('./router'),
   mongoose = require('mongoose'),
+  scheduleJobs = require('./scheduled/jobs'),
   config = require('./config/main');
 
 // Database Setup
@@ -40,6 +41,9 @@ app.use((req, res, next) => {
 
 // Import routes to be served
 router(app);
+
+// Start scheduled jobs
+scheduleJobs.init();
 
 // necessary for testing
 module.exports = server;
