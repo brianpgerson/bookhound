@@ -46,7 +46,9 @@ module.exports = function(app) {
 
   apiRoutes.use('/setup', setupRoutes);
   setupRoutes.post('/address', requireAuth, addUserToReq, AddressController.saveAddress);
+  setupRoutes.put('/address', requireAuth, addUserToReq, AddressController.updateAddress);
   setupRoutes.post('/wishlist', requireAuth, addUserToReq, WishlistController.saveWishlist);
+  setupRoutes.put('/wishlist', requireAuth, addUserToReq, WishlistController.updateWishlist);
   setupRoutes.post('/exchange-token', requireAuth, addUserToReq, BankController.exchange);
   setupRoutes.get('/plaid', requireAuth, BankController.getPlaidConfig);
   setupRoutes.get('/user', requireAuth, addUserToReq, UserController.getSetup);

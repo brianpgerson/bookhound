@@ -28,4 +28,29 @@ exports.saveWishlist = function (req, res, next) {
       wishlist: savedWishlist
     });
   });
+}
+
+exports.updateWishlist = function (req, res, next) {
+  let newWishlist = getWishlist(req.body);
+  const currentUser = req.currentUser;
+  console.log('fun')
+
+  if (!newWishlist.id) {
+    res.status(422).send({ error: 'Wishlist is invalid' });
+    return;
+  }
+
+  Wishlist.findOneAndUpdate(
+    {userId: currentUser._id},
+    newWishlist,
+    {runValidators: true},
+    function (err, modifiedWishlist) {
+      if (err) {
+        res.status(422).send({ error: 'Error saving wishlist' });
+      } else {
+        res.status(201).json({
+          wishlist: modifiedWishlist
+        });
+      }
+  });
 };

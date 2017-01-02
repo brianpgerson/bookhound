@@ -43,7 +43,8 @@ export default function (state = INITIAL_STATE, action) {
      			address: action.payload.address,
      			user: action.payload.user,
      			bank: action.payload.bank,
-     			wishlist: 'https://www.amazon.com/gp/registry/wishlist/' + action.payload.wishlist.id
+     			wishlist: action.payload.wishlist.id ?
+     			'https://www.amazon.com/gp/registry/wishlist/' + action.payload.wishlist.id : ''
      		}
 	}
 

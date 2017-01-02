@@ -3,7 +3,9 @@ import { connect } from 'react-redux';
 import DropdownList from 'react-widgets/lib/DropdownList'
 import { Field, reduxForm } from 'redux-form';
 import { states } from '../../constants/constants'
-import { saveAddress, updateAddress } from '../../actions/setup-actions';
+import { saveAddress,
+         updateAddress,
+         getUserSetup } from '../../actions/setup-actions';
 import { clearErrors } from '../../actions/error-actions';
 import * as _ from 'lodash';
 
@@ -46,8 +48,13 @@ function validate(formProps) {
 
 class Address extends Component {
 
+  constructor(props) {
+    super(props);
+    this.props.getUserSetup();
+  }
+
   handleFormSubmit(formProps) {
-    const {saveAddress, address} = this.props;
+    const {saveAddress, updateAddress, address} = this.props;
     if (!!address.streetAddressOne) {
       updateAddress(formProps);
     } else {
@@ -133,4 +140,4 @@ function mapStateToProps(state) {
   };
 }
 
-export default connect(mapStateToProps, { saveAddress, updateAddress, clearErrors })(form(Address));
+export default connect(mapStateToProps, { saveAddress, updateAddress, getUserSetup, clearErrors })(form(Address));

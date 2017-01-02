@@ -3,7 +3,8 @@ import { connect } from 'react-redux';
 import { Field, reduxForm } from 'redux-form';
 import { Link } from 'react-router';
 import { saveWishlist,
-         updateWishlist } from '../../actions/setup-actions';
+         updateWishlist,
+         getUserSetup } from '../../actions/setup-actions';
 import { clearErrors } from '../../actions/error-actions';
 
 const form = reduxForm({
@@ -29,8 +30,14 @@ function validate(formProps) {
 }
 
 class Wishlist extends Component {
+
+  constructor(props) {
+    super(props);
+    this.props.getUserSetup();
+  }
+
   handleFormSubmit(formProps) {
-    const { wishlist, saveWishlist } = this.props;
+    const { wishlist, saveWishlist, updateWishlist } = this.props;
     if (!!wishlist) {
       updateWishlist(formProps);
     } else {
@@ -94,4 +101,4 @@ function mapStateToProps(state) {
   };
 }
 
-export default connect(mapStateToProps, { saveWishlist, updateWishlist, clearErrors })(form(Wishlist));
+export default connect(mapStateToProps, { saveWishlist, updateWishlist, getUserSetup, clearErrors })(form(Wishlist));

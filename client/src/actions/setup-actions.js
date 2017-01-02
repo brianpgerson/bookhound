@@ -11,15 +11,13 @@ const API_URL = 'http://localhost:3000/api';
 const CLIENT_ROOT_URL = 'http://localhost:8080';
 
 function getToken() {
-  return cookie.load('token');
+  return {headers: { 'Authorization': cookie.load('token')}};
 };
 
 export function getPlaidConfig() {
-  const token = getToken();
+  const jwt = getToken();
   return function(dispatch) {
-    axios.get(`${API_URL}/setup/plaid`, {
-        headers: { 'Authorization': token }
-      })
+    axios.get(`${API_URL}/setup/plaid`, jwt)
     .then(response => {
       dispatch({
         type: RECEIVE_PLAID_CONFIG,
@@ -30,11 +28,9 @@ export function getPlaidConfig() {
 }
 
 export function exchangeToken(tokenMetadata) {
-  const token = getToken();
+  const jwt = getToken();
   return function(dispatch) {
-    axios.post(`${API_URL}/setup/exchange-token`, tokenMetadata, {
-        headers: { 'Authorization': token }
-    }).then(response => {
+    axios.post(`${API_URL}/setup/exchange-token`, tokenMetadata, jwt).then(response => {
       debugger;
     }).catch(err =>{
       debugger;
@@ -43,11 +39,9 @@ export function exchangeToken(tokenMetadata) {
 }
 
 export function getUserSetup() {
-  const token = getToken();
+  const jwt = getToken();
   return function(dispatch) {
-    axios.get(`${API_URL}/setup/user`, {
-        headers: { 'Authorization': token }
-    }).then(response => {
+    axios.get(`${API_URL}/setup/user`, jwt).then(response => {
       dispatch({
         type: RECEIVE_USER_SETUP,
         payload: response.data
@@ -60,11 +54,9 @@ export function getUserSetup() {
 }
 
 export function saveAddress(addressFields) {
-  const token = getToken();
+  const jwt = getToken();
   return function(dispatch) {
-      axios.post(`${API_URL}/setup/address`, addressFields, {
-        headers: { 'Authorization': token }
-      })
+      axios.post(`${API_URL}/setup/address`, addressFields, jwt)
       .then(response => {
         dispatch({
         	type: SAVE_ADDRESS,
@@ -79,12 +71,10 @@ export function saveAddress(addressFields) {
     }
   };
 
-  export function updateAddress(addressFields) {
-  const token = getToken();
+export function updateAddress(addressFields) {
+  const jwt = getToken();
   return function(dispatch) {
-      axios.put(`${API_URL}/setup/address`, addressFields, {
-        headers: { 'Authorization': token }
-      })
+      axios.put(`${API_URL}/setup/address`, addressFields, jwt)
       .then(response => {
         dispatch({
           type: SAVE_ADDRESS,
@@ -100,11 +90,9 @@ export function saveAddress(addressFields) {
   };
 
 export function saveWishlist(wishlistUrl) {
-  const token = getToken();
+  const jwt = getToken();
   return function(dispatch) {
-      axios.post(`${API_URL}/setup/wishlist`, wishlistUrl, {
-        headers: { 'Authorization': token }
-      })
+      axios.post(`${API_URL}/setup/wishlist`, wishlistUrl, jwt)
       .then(response => {
         dispatch({
           type: SAVE_WISHLIST,
@@ -119,12 +107,10 @@ export function saveWishlist(wishlistUrl) {
     }
   };
 
-  export function updateWishlist(wishlistUrl) {
-  const token = getToken();
+export function updateWishlist(wishlistUrl) {
+  const jwt = getToken();
   return function(dispatch) {
-      axios.put(`${API_URL}/setup/wishlist`, wishlistUrl, {
-        headers: { 'Authorization': token }
-      })
+      axios.put(`${API_URL}/setup/wishlist`, wishlistUrl, jwt)
       .then(response => {
         dispatch({
           type: SAVE_WISHLIST,
