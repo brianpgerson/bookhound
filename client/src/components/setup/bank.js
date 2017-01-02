@@ -12,6 +12,16 @@ class Bank extends Component {
     this.props.getPlaidConfig();
   }
 
+  renderAlert() {
+    if (this.props.errorMessage) {
+      return (
+        <div>
+          <span><strong>Error:</strong> {this.props.errorMessage}</span>
+        </div>
+      );
+    }
+  }
+
   renderLink() {
     return this.props.plaidPublicKey ?
       (<PlaidLink publicKey={this.props.plaidPublicKey}
@@ -39,6 +49,7 @@ class Bank extends Component {
                 </div>
               </div>
               <hr />
+              {this.renderAlert()}
               <div className="row">
                 {this.renderLink()}
               </div>

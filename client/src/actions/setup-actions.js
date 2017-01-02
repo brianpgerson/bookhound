@@ -31,9 +31,10 @@ export function exchangeToken(tokenMetadata) {
   const jwt = getToken();
   return function(dispatch) {
     axios.post(`${API_URL}/setup/exchange-token`, tokenMetadata, jwt).then(response => {
-      debugger;
-    }).catch(err =>{
-      debugger;
+      window.location.href = CLIENT_ROOT_URL + '/dashboard';
+    }).catch(error =>{
+      console.log(error);
+      receiveError(dispatch, error);
     })
   }
 }

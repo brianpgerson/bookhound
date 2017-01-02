@@ -1,6 +1,7 @@
 const AuthController = require('./authentication'),
 	  config = require('../config/main'),
 	  _ = require('lodash'),
+	  User = require('../models/user'),
 	  plaid = require('plaid'),
 	  stripe = require("stripe")(config.stripe.secret);
 
@@ -23,11 +24,7 @@ exports.exchange = function (req, res) {
 		conf.secret,
 		plaid.environments.tartan);
 
-    const userId = currentUser._id;
-
 	plaidClient.exchangeToken(public_token, account_id, function (err, exchangeTokenRes) {
-		console.log('got token', exchangeTokenRes);
-
 		if (!!err) {
 			return res.status(500).json({error: err});;
 		} else {
@@ -39,24 +36,27 @@ exports.exchange = function (req, res) {
 			  	source: stripeBankToken,
 			  	description: "Example customer"
 			}, function(err, customer) {
-				console.log('stripe', arguments);
-
 				if (err) {
 					return res.status(500).json({error: err});;
 				} else {
 					const stripeInfo = {
 						customerId: customer.id,
-						accountId: stripeBankToken
+						stripeBankToken: stripeBankToken,
+						exchangeToken: accessToken
 					};
 
 					currentUser.stripe = stripeInfo;
-					currentUser.save(function (err, updatedUser) {
-						if (err) {
-							return res.status(500).json({error: err});;
-						} else {
-							return res.status(200).send("success!");
-						}
-					})
+					User.findOneAndUpdate(
+						{_id: currentUser._id},
+						currentUser,
+						{runValidators: true},
+						function (err, updatedUser) {
+							if (err) {
+								return res.status(500).json({error: err});;
+							} else {
+								return res.status(200).send("success!");
+							}
+					});
 				}
 			});
 		}

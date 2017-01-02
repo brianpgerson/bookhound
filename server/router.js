@@ -59,10 +59,4 @@ module.exports = function(app) {
 
   // Set url for API group routes
   app.use('/api', apiRoutes);
-
-  // Test protected route
-  apiRoutes.get('/protected', requireAuth, (req, res) => {
-    res.send({ content: 'The protected test route is functional!' });
-  });
-
 };
