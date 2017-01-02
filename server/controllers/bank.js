@@ -13,6 +13,7 @@ exports.ping = function (msg) {
 }
 
 exports.exchange = function (req, res) {
+	const currentUser = req.currentUser;
 	const conf = config.plaid;
 	const public_token = req.body.token;
 	const account_id = req.body.metadata.account_id
@@ -22,50 +23,44 @@ exports.exchange = function (req, res) {
 		conf.secret,
 		plaid.environments.tartan);
 
-	console.log('made plaid');
+    const userId = currentUser._id;
 
-	AuthController.me(req).then(function (currentUser) {
-		console.log('got me', currentUser);
+	plaidClient.exchangeToken(public_token, account_id, function (err, exchangeTokenRes) {
+		console.log('got token', exchangeTokenRes);
 
-	    const userId = currentUser._id;
-
-		plaidClient.exchangeToken(public_token, account_id, function (err, exchangeTokenRes) {
-			console.log('got token', exchangeTokenRes);
-
-			if (!!err) {
-				return res.status(500).json({error: err});;
-			} else {
-				const accessToken = exchangeTokenRes.access_token;
-				const stripeBankToken = exchangeTokenRes.stripe_bank_account_token;
+		if (!!err) {
+			return res.status(500).json({error: err});;
+		} else {
+			const accessToken = exchangeTokenRes.access_token;
+			const stripeBankToken = exchangeTokenRes.stripe_bank_account_token;
 
 
-				stripe.customers.create({
-				  	source: stripeBankToken,
-				  	description: "Example customer"
-				}, function(err, customer) {
-					console.log('stripe', arguments);
+			stripe.customers.create({
+			  	source: stripeBankToken,
+			  	description: "Example customer"
+			}, function(err, customer) {
+				console.log('stripe', arguments);
 
-					if (err) {
-						return res.status(500).json({error: err});;
-					} else {
-						const stripeInfo = {
-							customerId: customer.id,
-							accountId: stripeBankToken
-						};
+				if (err) {
+					return res.status(500).json({error: err});;
+				} else {
+					const stripeInfo = {
+						customerId: customer.id,
+						accountId: stripeBankToken
+					};
 
-						currentUser.stripe = stripeInfo;
-						currentUser.save(function (err, updatedUser) {
-							if (err) {
-								return res.status(500).json({error: err});;
-							} else {
-								return res.status(200).send("success!");
-							}
-						})
-					}
-				});
-			}
-		});
-	})
+					currentUser.stripe = stripeInfo;
+					currentUser.save(function (err, updatedUser) {
+						if (err) {
+							return res.status(500).json({error: err});;
+						} else {
+							return res.status(200).send("success!");
+						}
+					})
+				}
+			});
+		}
+})
 };
 
 

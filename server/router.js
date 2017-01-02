@@ -2,6 +2,7 @@ const AuthenticationController = require('./controllers/authentication'),
       AddressController = require('./controllers/address'),
       UserController = require('./controllers/user');
       WishlistController = require('./controllers/wishlist'),
+      helpers = require('./helpers'),
       BankController = require('./controllers/bank'),
       express = require('express'),
       passportService = require('./config/passport'),
@@ -12,6 +13,7 @@ const AuthenticationController = require('./controllers/authentication'),
 // Middleware to require login/auth
 const requireAuth = passport.authenticate('jwt', { session: false });
 const requireLogin = passport.authenticate('local', { session: false });
+const addUserToReq = helpers.addUserToReq;
 
 module.exports = function(app) {
   // Initializing route groups
@@ -43,11 +45,11 @@ module.exports = function(app) {
   //=========================
 
   apiRoutes.use('/setup', setupRoutes);
-  setupRoutes.post('/address', requireAuth, AddressController.saveAddress);
-  setupRoutes.post('/wishlist', requireAuth, WishlistController.saveWishlist);
-  setupRoutes.post('/exchange-token', requireAuth, BankController.exchange);
+  setupRoutes.post('/address', requireAuth, addUserToReq, AddressController.saveAddress);
+  setupRoutes.post('/wishlist', requireAuth, addUserToReq, WishlistController.saveWishlist);
+  setupRoutes.post('/exchange-token', requireAuth, addUserToReq, BankController.exchange);
   setupRoutes.get('/plaid', requireAuth, BankController.getPlaidConfig);
-  setupRoutes.get('/user', requireAuth, UserController.getSetup);
+  setupRoutes.get('/user', requireAuth, addUserToReq, UserController.getSetup);
 
   //=========================
   // User Routes

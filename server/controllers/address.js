@@ -20,25 +20,22 @@ function getAddress(requestBody) {
 
 exports.saveAddress = function (req, res, next) {
   let address = getAddress(req.body);
+  const currentUser = req.currentUser;
   if (!address) {
     res.status(422).send({ error: 'You are missing a required address field' });
     return;
   }
 
-  AuthController.me(req).then(function (currentUser) {
-    address.userId = currentUser._id;
-    const newAddress = new Address(address);
+  address.userId = currentUser._id;
+  const newAddress = new Address(address);
 
-    newAddress.save((err, savedAddress) => {
-      if (err) {
-        return next(err);
-      }
+  newAddress.save((err, savedAddress) => {
+    if (err) {
+      return next(err);
+    }
 
-      res.status(201).json({
-        address: savedAddress
-      });
+    res.status(201).json({
+      address: savedAddress
     });
-  }).catch(function (err) {
-    console.log(err);
-  })
+  });
 };
