@@ -32,7 +32,9 @@ const UserSchema = new Schema({
   stripe: {
     customerId: { type: String },
     stripeBankToken: { type: String },
-    exchangeToken: { type: String}
+    accountId: { type: String },
+    accessToken: { type: String},
+    lastCharge: { type: Date }
   },
   resetPasswordToken: { type: String },
   resetPasswordExpires: { type: Date }

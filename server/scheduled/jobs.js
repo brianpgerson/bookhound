@@ -7,7 +7,7 @@ module.exports = {
 
     // Kick off the job
     const job = schedule.scheduleJob(rule, function() {
-      Bank.ping('cool');
+      Bank.findEligibleAccounts();
     });
   },
 

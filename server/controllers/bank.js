@@ -1,16 +1,39 @@
 const AuthController = require('./authentication'),
 	  config = require('../config/main'),
 	  _ = require('lodash'),
+	  transactionParser = require('./transactionParser');
 	  User = require('../models/user'),
 	  plaid = require('plaid'),
+	  moment = require('moment'),
 	  stripe = require("stripe")(config.stripe.secret);
+
+function getUserAccountInfo(user) {
+	return transactionParser.getUserInfo(user.stripe);
+}
 
 exports.getPlaidConfig = function (req, res) {
 	 return res.status(200).json({public: config.plaid.public});
 }
 
-exports.ping = function (msg) {
-	console.log(msg, 'from banks!');
+exports.findEligibleAccounts = function () {
+	var cutoff = moment().startOf('day').subtract(3, 'days');
+	User.find({
+	  'stripe.lastCharge': {
+	    $gte: cutoff.toDate(),
+	  }
+	}, function (err, users) {
+		if (users.length > 1231230) {
+			let newCharges = {};
+			_.each(users, function (user) {
+				const { balancesOverTime,
+					  	averageWithdrawalSize,
+					  	averageWithdrawalFrequency,
+					  	lowestRecentBalance,
+					  	currentBalance
+					  } = getUserAccountInfo(user);
+			});
+		}
+	});
 }
 
 exports.exchange = function (req, res) {
@@ -31,7 +54,6 @@ exports.exchange = function (req, res) {
 			const accessToken = exchangeTokenRes.access_token;
 			const stripeBankToken = exchangeTokenRes.stripe_bank_account_token;
 
-
 			stripe.customers.create({
 			  	source: stripeBankToken,
 			  	description: "Example customer"
@@ -42,7 +64,9 @@ exports.exchange = function (req, res) {
 					const stripeInfo = {
 						customerId: customer.id,
 						stripeBankToken: stripeBankToken,
-						exchangeToken: accessToken
+						accountId: account_id,
+						accessToken: accessToken,
+						lastCharge: new Date()
 					};
 
 					currentUser.stripe = stripeInfo;
@@ -60,7 +84,7 @@ exports.exchange = function (req, res) {
 				}
 			});
 		}
-})
+	})
 };
 
 
