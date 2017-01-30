@@ -1,17 +1,14 @@
 'use strict'
 
 const AuthController = require('./authentication'),
+	  bluebird = require('bluebird'),
 	  config = require('../config/main'),
 	  _ = require('lodash'),
-	  transactionParser = require('./transactionParser'),
+	  transactionParser = bluebird.promisifyAll(require('./transactionParser')),
 	  User = require('../models/user'),
 	  plaid = require('plaid'),
 	  moment = require('moment'),
 	  stripe = require("stripe")(config.stripe.secret);
-
-function getBasicUserAccountInfo(user) {
-	return transactionParser.getBasicUserInfo(user.stripe);
-}
 
 exports.getPlaidConfig = function (req, res) {
 	 return res.status(200).json({public: config.plaid.public});
@@ -19,18 +16,19 @@ exports.getPlaidConfig = function (req, res) {
 
 exports.findEligibleAccounts = function () {
 	var cutoff = moment().startOf('day').subtract(3, 'days');
+	console.log('finding usres');
 	User.find({
 	  'stripe.lastCharge': {
-	    $gte: cutoff.toDate(),
+	    $lte: cutoff.toDate(),
 	  }
 	}, function (err, users) {
-		if (users.length > 1231230) {
-			let newCharges = {};
-			_.each(users, function (user) {
-				const basicUserAccountInfo = getBasicUserAccountInfo(user);
-				const decisionInfo = getDecisionInfo(basicUserAccountInfo);
-			});
-		}
+		let newCharges = {};
+		_.each(users, function (user) {
+			transactionParser.getBasicUserInfo(user.stripe).then(function (basicUserInfo) {
+				var amountToExtract = transactionParser.getDecisionInfo(basicUserInfo)
+				console.log('wow, fun', amountToExtract);
+			})
+		});
 	});
 }
 

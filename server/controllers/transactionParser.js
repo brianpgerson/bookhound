@@ -1,6 +1,7 @@
 'use strict'
 
-const plaid = require('plaid');
+const bluebird = require('bluebird');
+const plaid = bluebird.promisifyAll(require('plaid'));
 const _ = require('lodash');
 const moment = require('moment');
 const config = require('../config/main');
@@ -11,7 +12,7 @@ exports.getBasicUserInfo = function (financialData) {
 	let accessToken = financialData.accessToken;
 	let accountId = financialData.accountId;
 
-	plaidClient.getConnectUser(accessToken, {}, function (err, response) {
+	return plaidClient.getConnectUserAsync(accessToken, {}).then(function (response) {
 		const selectedAccountTransactions = _.filter(response.transactions, function (transaction) {
 			return transaction._account === accountId;
 		});
@@ -24,106 +25,141 @@ exports.getBasicUserInfo = function (financialData) {
 			return moment(txn.date)
 		});
 
-		const oneYearAgo = moment(new Date()).subtract(1, 'years');
-		const threeMonthsAgo = moment(newDate()).subtract(3, 'months');
-		const today = moment(new Date());
-		const days = today.diff(oneYearAgo, 'days');
+		const oneYearAgo = moment().subtract(1, 'years');
+		const threeMonthsAgo = moment().subtract(3, 'months');
+		const days = moment().diff(oneYearAgo, 'days');
+		let oneYearBalances = {currentBalance: selectedAccount.balance.available};
 
-		let pastYear = {currentBalance: selectedAccount.balance.available};
-
-		let oneYearBalances = _.reduce(sortedTransactions, function(memo, txn, index) {
+		let transactionsByDate = _.reduce(sortedTransactions, function(memo, txn, index) {
 			memo[txn.date] = txn.amount;
 			return memo;
-		}, pastYear);
+		}, {});
 
-		let threeMonthsBalances = _.pickBy(oneYearBalances, function(balance, date) {
-			return moment(date).isAfter(threeMonthsAgo);
-		});
+		// let threeMonthsBalances = _.pickBy(oneYearBalances, function(balance, date) {
+		// 	console.log(date);
+		// 	return moment(date).isAfter(threeMonthsAgo);
+		// });
+
 
 		_.times(days, function(index) {
-			const today = today.format('YYYY-MM-DD');
-			const dayBefore = today.add(1, 'day').format('YYYY-MM-DD');
+			const today = moment().subtract(index, 'days').format('YYYY-MM-DD');
+			const mostRecentlyParsedDate = moment(today).add(1, 'days').format('YYYY-MM-DD');
 			let newBalance;
 
 			if (index === 0) {
-				newBalance = oneYearBalances[today] ? oneYearBalances.currentBalance - oneYearBalances[today] : oneYearBalances.currentBalance;
-			} else if (oneYearBalances[today]) {
-				newBalance = oneYearBalances[dayBefore] - oneYearBalances[today];
+				newBalance = transactionsByDate[today] ? oneYearBalances.currentBalance - transactionsByDate[today] : oneYearBalances.currentBalance;
+			} else if (transactionsByDate[today]) {
+				newBalance = oneYearBalances[mostRecentlyParsedDate] + transactionsByDate[today];
 			} else {
-				newBalance = oneYearBalances[dayBefore];
+				newBalance = oneYearBalances[mostRecentlyParsedDate];
 			}
 			oneYearBalances[today] = parseFloat(newBalance.toFixed(2));
 		});
 
 		return {
 			sortedTransactions: sortedTransactions,
-			threeMonthsBalances: threeMonthsBalances,
+			// threeMonthsBalances: threeMonthsBalances,
 			oneYearBalances: oneYearBalances,
-			lowestRecentBalance: _.minBy(_.values(threeMonthsBalances)),
-			currentBalance: oneYearBalances[currentBalance]
+			lowestRecentBalance: _.minBy(_.values(oneYearBalances)),
+			currentBalance: oneYearBalances.currentBalance
 		};
 	});
 }
 
 exports.getDecisionInfo = function (basicInfo) {
 	const {sortedTransactions,
-		threeMonthsBalances,
-		oneYearBalances,
 		currentBalance,
 		lowestRecentBalance} = basicInfo;
-
-	let smallTransactions = {};
-	let medTransactions = {};
-	let largeTransactions = {};
-
-	const today = moment(new Date());
 	let extractAmount;
+	let txnsBySize = { small: 0, medium: 0, large: 0};
 	let safeDelta = currentBalance - lowestRecentBalance;
 
-	const rawTransactionAmounts = _.reduce(sortedTransactions, function (memo, txn) {
+	if (sortedTransactions.length < 10 && safeDelta > 0) {
+		extractAmount = getExtractAmount(safeDelta);
+	}
+
+	const rawTransactionAmounts = getRawTransactionAmounts(sortedTransactions);
+	const splitOutTransactions = getSplitTransactions(sortedTransactions, rawTransactionAmounts);
+	const averageTransactionsBySize = getAverageTransactionsBySize(splitOutTransactions, _.clone(txnsBySize));
+	const transactionFrequencies = getTransactionFrequencies(splitOutTransactions, _.clone(txnsBySize));
+	const longestFrequency = _.max(_.values([transactionFrequencies]));
+	let likelyWithdrawals = getLikelyWithdrawals(transactionFrequencies, averageTransactionsBySize, _.clone(txnsBySize));
+
+	const sortedWithinLongestFrequency = _.filter(sortedTransactions, function (txn) {
+		return moment().diff(moment(txn.date), 'days') <= longestFrequency;
+	});
+
+	likelyWithdrawals = updateLikelywithdrawals(likelyWithdrawals, sortedWithinLongestFrequency);
+
+	_.each(likelyWithdrawals, function (futureWithdrawalAmount) {
+		safeDelta -= futureWithdrawalAmount;
+	});
+
+	if (safeDelta > 0) {
+		extractAmount = getExtractAmount(safeDelta);
+	}
+
+	return extractAmount;
+}
+
+function getLikelyWithdrawals(transactionFrequencies, averageTransactionsBySize, txns) {
+	_.each(txns, function (value, size) {
+		txns[size] = transactionFrequencies[size] > 1 ?
+			averageTransactionsBySize[size] :
+			((1 / transactionFrequencies[size]) * averageTransactionsBySize[size]);
+	});
+	return txns;
+}
+
+function getAverageTransactionsBySize(splitOutTransactions, txns) {
+	_.each(txns, function (value, size) {
+		txns[size] = _.meanBy(_.values(splitOutTransactions[size], 'amount'));
+	});
+	return txns;
+}
+
+function getTransactionFrequencies(splitOutTransactions, txns) {
+	_.each(txns, function (freq, size) {
+		txns[size] = averageDaysBetweenTransactions(splitOutTransactions[size])
+	});
+	return txns;
+}
+
+function getRawTransactionAmounts (sortedTransactions) {
+	 return _.reduce(sortedTransactions, function (memo, txn) {
 		if (txn.amount > 0) {
 			memo.push(txn.amount);
 		}
 		return memo;
 	}, []);
+}
 
-	if (rawTransactionAmounts.length < 10 && safeDelta > 0) {
-		return getExtractAmount(safeDelta);
-	}
-
+function getSplitTransactions(sortedTransactions, rawTransactionAmounts) {
 	let oneYearStats = new Stats().push(rawTransactionAmounts);
 	const lowerThird = oneYearStats.percentile(33);
 	const upperThird = oneYearStats.percentile(67);
+	const splitOutTransactions = {
+		small: {},
+		medium: {},
+		large: {}
+	};
 
 	_.each(sortedTransactions, function (txn) {
 		const amount = txn.amount;
 		if (amount <= lowerThird) {
-			smallTransactions[txn.date] = txn;
+			splitOutTransactions.small[txn.date] = txn;
 		} else if (amount > lowerThird && amount < upperThird){
-			medTransactions[txn.date] = txn;
+			splitOutTransactions.medium[txn.date] = txn;
 		} else {
-			largeTransactions[txn.date] = txn;
+			splitOutTransactions.large[txn.date] = txn;
 		}
 	});
 
-	const avgSmallTxn = _.meanBy(_.values(smallTransactions, 'amount'));
-	const avgMedTxn = _.meanBy(_.values(medTransactions, 'amount'));
-	const avgLargeTxn = _.meanBy(_.values(largeTransactions, 'amount'));
+	return splitOutTransactions;
+}
 
-	const smallTxnFrequency = averageDaysBetweenTransactions(smallTransactions);
-	const medTxnFrequency = averageDaysBetweenTransactions(medTransactions);
-	const largeTxnFrequency = averageDaysBetweenTransactions(largeTransactions);
-	const longestFrequency = _.max([smallTxnFrequency, medTxnFrequency, largeTxnFrequency]);
-
-	const likelyWithdrawals = {
-		small: smallTxnFrequency > 1 ? avgSmallTxn : ((1 / smallTxnFrequency) * avgSmallTxn),
-		medium: medTxnFrequency > 1 ? avgMedTxn : ((1 / medTxnFrequency) * avgMedTxn),
-		large: largeTxnFrequency > 1 ? avgLargeTxn : ((1 / largeTxnFrequency) * avgLargeTxn)
-	};
-
-	const sortedWithinLongestFrequency = _.filter(sortedTransactions, function (txn) {
-		return today.diff(moment(txn.date), 'days') <= longestFrequency;
-	});
+function updateLikelywithdrawals(likelyWithdrawals, sortedWithinLongestFrequency) {
+	const today = moment();
 
 	_.each(sortedWithinLongestFrequency, function (txn) {
 		const amount = txn.amount;
@@ -134,7 +170,7 @@ exports.getDecisionInfo = function (basicInfo) {
 			}
 		} else if (medTxnFrequency > 1 && amount > lowerThird && amount < upperThird) {
 			if (today.diff(txnDate, 'days') <= medTxnFrequency) {
-				likelyWithdrawals.med = 0;
+				likelyWithdrawals.medium = 0;
 			}
 		} else if (largeTxnFrequency > 1) {
 			if (today.diff(txnDate, 'days') <= largeTxnFrequency) {
@@ -142,22 +178,13 @@ exports.getDecisionInfo = function (basicInfo) {
 			}
 		}
 	});
-
-	_.each(likelyWithdrawals, function (futureWithdrawalAmount) {
-		safeDelta -= futureWithdrawalAmount;
-	});
-
-	if (safeDelta > 0) {
-		return getExtractAmount(safeDelta);
-	}
-
-	return extractAmount;
+	return likelyWithdrawals
 }
 
 function getExtractAmount (safeDelta) {
 	const extractPercentage = .01;
 	const percentageOfSafeDelta = safeDelta * extractPercentage;
-	extractAmount = percentageOfSafeDelta > config.globalMax ?
+	return percentageOfSafeDelta > config.globalMax ?
 		config.globalMax : percentageOfSafeDelta;
 }
 
