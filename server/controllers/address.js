@@ -1,3 +1,4 @@
+'use strict'
 const Address = require('../models/address');
 const AuthController = require('./authentication');
 const _ = require('lodash');

@@ -1,3 +1,5 @@
+'use strict'
+
 require('dotenv').config();
 
 // Importing Node modules and initializing Express

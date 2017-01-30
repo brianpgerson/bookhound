@@ -1,3 +1,5 @@
+'use strict'
+
 const ROLE_NORMAL = require('./constants').ROLE_NORMAL;
 const ROLE_ADMIN = require('./constants').ROLE_ADMIN;
 const AuthController = require('./controllers/authentication');

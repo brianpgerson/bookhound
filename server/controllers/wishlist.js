@@ -1,3 +1,5 @@
+'use strict'
+
 const Wishlist = require('../models/wishlist');
 const AuthController = require('./authentication');
 const _ = require('lodash');

@@ -15,5 +15,6 @@ module.exports = {
 	stripe: {
 		secret: process.env.STRIPESECRET,
 		public: process.env.STRIPEPUBLIC
-	}
+	},
+	globalMax: 5
 };
