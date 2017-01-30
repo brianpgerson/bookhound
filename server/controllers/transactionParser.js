@@ -87,7 +87,10 @@ exports.getDecisionInfo = function (basicInfo) {
 		return memo;
 	}, []);
 
-	// TODO: think through absurd low # of transactions
+	if (rawTransactionAmounts.length < 10 && safeDelta > 0) {
+		return getExtractAmount(safeDelta);
+	}
+
 	let oneYearStats = new Stats().push(rawTransactionAmounts);
 	const lowerThird = oneYearStats.percentile(33);
 	const upperThird = oneYearStats.percentile(67);
@@ -145,13 +148,17 @@ exports.getDecisionInfo = function (basicInfo) {
 	});
 
 	if (safeDelta > 0) {
-		const extractPercentage = .01;
-		const percentageOfSafeDelta = safeDelta * extractPercentage;
-		extractAmount = percentageOfSafeDelta > config.globalMax ?
-			config.globalMax : percentageOfSafeDelta;
+		return getExtractAmount(safeDelta);
 	}
 
 	return extractAmount;
+}
+
+function getExtractAmount (safeDelta) {
+	const extractPercentage = .01;
+	const percentageOfSafeDelta = safeDelta * extractPercentage;
+	extractAmount = percentageOfSafeDelta > config.globalMax ?
+		config.globalMax : percentageOfSafeDelta;
 }
 
 // TODO: handle < one day
