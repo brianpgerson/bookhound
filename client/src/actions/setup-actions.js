@@ -1,14 +1,11 @@
 import axios from 'axios';
 import cookie from 'react-cookie';
+import {API_URL, CLIENT_ROOT_URL} from '../constants/constants';
 import { receiveError } from './error-actions';
 import {SAVE_ADDRESS,
         SAVE_WISHLIST,
         RECEIVE_USER_SETUP,
         RECEIVE_PLAID_CONFIG } from './types';
-
-
-const API_URL = 'http://localhost:3000/api';
-const CLIENT_ROOT_URL = 'http://localhost:8080';
 
 function getToken() {
   return {headers: { 'Authorization': cookie.load('token')}};
@@ -31,7 +28,6 @@ export function exchangeToken(tokenMetadata) {
   const jwt = getToken();
   return function(dispatch) {
     axios.post(`${API_URL}/setup/exchange-token`, tokenMetadata, jwt).then(response => {
-      window.location.href = CLIENT_ROOT_URL + '/dashboard';
     }).catch(error =>{
       console.log(error);
       receiveError(dispatch, error);
@@ -63,7 +59,6 @@ export function saveAddress(addressFields) {
         	type: SAVE_ADDRESS,
         	payload: response.data.address
         });
-        window.location.href = CLIENT_ROOT_URL + '/wishlist';
       })
       .catch((error) => {
         console.log(error);
@@ -81,7 +76,6 @@ export function updateAddress(addressFields) {
           type: SAVE_ADDRESS,
           payload: response.data.address
         });
-        window.location.href = CLIENT_ROOT_URL + '/dashboard';
       })
       .catch((error) => {
         console.log(error);
@@ -97,9 +91,8 @@ export function saveWishlist(wishlistUrl) {
       .then(response => {
         dispatch({
           type: SAVE_WISHLIST,
-          payload: response.payload
+          payload: response.data
         });
-        window.location.href = CLIENT_ROOT_URL + '/bank';
       })
       .catch((error) => {
         console.log(error);
@@ -108,6 +101,23 @@ export function saveWishlist(wishlistUrl) {
     }
   };
 
+export function refreshWishlistItems(wishlistUrl) {
+  const jwt = getToken();
+  return function(dispatch) {
+      axios.put(`${API_URL}/setup/wishlist`, wishlistUrl, jwt)
+      .then(response => {
+        dispatch({
+          type: SAVE_WISHLIST,
+          payload: response.data
+        });
+      })
+      .catch((error) => {
+        console.log(error);
+        receiveError(dispatch, error);
+      });
+    }
+}
+
 export function updateWishlist(wishlistUrl) {
   const jwt = getToken();
   return function(dispatch) {
@@ -115,9 +125,8 @@ export function updateWishlist(wishlistUrl) {
       .then(response => {
         dispatch({
           type: SAVE_WISHLIST,
-          payload: response.payload
+          payload: response.data
         });
-        window.location.href = CLIENT_ROOT_URL + '/dashboard';
       })
       .catch((error) => {
         console.log(error);

@@ -3,7 +3,7 @@
 const AuthController = require('./authentication');
 const User = require('../models/user');
 const Address = require('../models/address');
-const Wishlist = require('../models/wishlist');
+const Wishlist = require('../models/wishlist').Wishlist;
 const _ = require('lodash');
 const moment = require('moment');
 const Promise = require("bluebird");
@@ -16,7 +16,6 @@ exports.getSetup = function (req, res) {
   let userSetup = _.assign({}, {user: _.pick(currentUser, ['email', 'profile'])});
   const userId = currentUser._id.toString();
   const date = moment(currentUser.lastCharge);
-  let fakeUser = User.findOne({_id: currentUser._id});
 
   let promisifiedAddress = Address.findOne({userId: userId}).exec();
   let promisifiedWishlist = Wishlist.findOne({userId: userId}).exec();
@@ -24,8 +23,8 @@ exports.getSetup = function (req, res) {
   Promise.all([promisifiedAddress, promisifiedWishlist])
     .spread((address, wishlist) => {
       userSetup.address = _.pick(address, ['streetAddressOne', 'streetAddressTwo', 'state', 'city', 'zip']);
-      userSetup.wishlist = _.pick(wishlist, ['id']);
+      userSetup.wishlist = wishlist;
       userSetup.bank = !!currentUser.stripe.customerId;
-      return res.status(200).json(userSetup);
+      res.status(200).json(userSetup);
     })
 };

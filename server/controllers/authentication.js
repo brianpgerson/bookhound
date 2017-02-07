@@ -51,17 +51,20 @@ exports.register = function (req, res, next) {
 
   // Return error if no email provided
   if (!email) {
-    return res.status(422).send({ error: 'You must enter an email address.' });
+    res.status(422).send({ error: 'You must enter an email address.' });
+    return;
   }
 
   // Return error if full name not provided
   if (!firstName || !lastName) {
-    return res.status(422).send({ error: 'You must enter your full name.' });
+    res.status(422).send({ error: 'You must enter your full name.' });
+    return;
   }
 
   // Return error if no password provided
   if (!password) {
-    return res.status(422).send({ error: 'You must enter a password.' });
+    res.status(422).send({ error: 'You must enter a password.' });
+    return;
   }
 
   User.findOne({ email }, (err, existingUser) => {
@@ -69,7 +72,8 @@ exports.register = function (req, res, next) {
 
       // If user is not unique, return error
     if (existingUser) {
-      return res.status(422).send({ error: 'That email address is already in use.' });
+      res.status(422).send({ error: 'That email address is already in use.' });
+      return;
     }
 
       // If email is unique and password was provided, create account
@@ -115,7 +119,8 @@ exports.roleAuthorization = function (requiredRole) {
         return next();
       }
 
-      return res.status(401).json({ error: 'You are not authorized to view this content.' });
+      res.status(401).json({ error: 'You are not authorized to view this content.' });
+      return;
     });
   };
 };
@@ -159,7 +164,8 @@ exports.forgotPassword = function (req, res, next) {
           // Otherwise, send user email via Mailgun
         mailgun.sendEmail(existingUser.email, message);
 
-        return res.status(200).json({ message: 'Please check your email for the link to reset your password.' });
+        res.status(200).json({ message: 'Please check your email for the link to reset your password.' });
+        return;
       });
     });
   });
@@ -194,7 +200,7 @@ exports.verifyToken = function (req, res, next) {
         // Otherwise, send user email confirmation of password change via Mailgun
       mailgun.sendEmail(resetUser.email, message);
 
-      return res.status(200).json({ message: 'Password changed successfully. Please login with your new password.' });
+      res.status(200).json({ message: 'Password changed successfully. Please login with your new password.' });
     });
   });
 };

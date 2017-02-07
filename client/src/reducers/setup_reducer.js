@@ -1,4 +1,4 @@
-import { SAVE_ADDRESS, RECEIVE_PLAID_CONFIG, RECEIVE_USER_SETUP } from '../actions/types';
+import { SAVE_ADDRESS, RECEIVE_PLAID_CONFIG, RECEIVE_USER_SETUP, SAVE_WISHLIST } from '../actions/types';
 
 const INITIAL_STATE = {
 	user: {
@@ -16,7 +16,10 @@ const INITIAL_STATE = {
 		zip: ''
 	},
 	bank: false,
-	wishlist: '',
+	wishlist: {
+		id: '',
+		items: []
+	},
 	plaid: {
 		public: ''
 	}
@@ -34,6 +37,13 @@ export default function (state = INITIAL_STATE, action) {
 					zip: action.payload.zip
 		      	})
      	};
+     	case SAVE_WISHLIST:
+     		return { ...state,
+     			wishlist: {
+     				id: action.payload.wishlist.id,
+     				items: action.payload.wishlist.items
+     			}
+     		}
      	case RECEIVE_PLAID_CONFIG:
      		return { ...state, plaid: {
      			public: action.payload.public
@@ -43,8 +53,7 @@ export default function (state = INITIAL_STATE, action) {
      			address: action.payload.address,
      			user: action.payload.user,
      			bank: action.payload.bank,
-     			wishlist: action.payload.wishlist.id ?
-     			'https://www.amazon.com/gp/registry/wishlist/' + action.payload.wishlist.id : ''
+     			wishlist: action.payload.wishlist
      		}
 	}
 

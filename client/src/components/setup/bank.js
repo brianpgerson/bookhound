@@ -1,11 +1,14 @@
 import React, { Component } from 'react';
+import { CLIENT_ROOT_URL } from '../../constants/constants';
 import { connect } from 'react-redux';
 import { getPlaidConfig, exchangeToken } from '../../actions/setup-actions';
 const PlaidLink = require('react-plaid-link');
 
 class Bank extends Component {
   handleOnSuccess(token, metadata) {
-    this.props.exchangeToken({token, metadata});
+    this.props.exchangeToken({token, metadata}).then(function (){
+      window.location.href = CLIENT_ROOT_URL + '/dashboard';
+    });
   }
 
   componentWillMount() {

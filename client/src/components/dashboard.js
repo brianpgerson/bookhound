@@ -7,8 +7,21 @@ class Dashboard extends Component {
 
   constructor(props) {
     super(props);
-
     this.props.getUserSetup();
+  }
+
+  refreshWishlist(wishlistUrl) {
+    this.props.refreshWishlistItems({wishlistUrl: wishlistUrl});
+  }
+
+  wishlistItems(wishlist) {
+    const items = wishlist.items;
+    if (items.length === 0) {
+      return (<li>No items in this wishlist yet! Add some then click "Refresh"</li>);
+    }
+    return _.map(items, (item) => {
+      return (<li><a href={item.link} target="_blank">{item.title}</a>: ${(item.price/100).toFixed(2)}</li>);
+    });
   }
 
   renderAddress(address) {
@@ -56,12 +69,19 @@ class Dashboard extends Component {
 
   renderWishlist(wishlist) {
     if (wishlist) {
+      const wishlistUrl = `https://www.amazon.com/gp/registry/wishlist/${wishlist.id}`;
       return (
         <div className="col-md-4">
           <h4>Wishlist Information</h4>
           <p className="good-text">Your wishlist is connected</p>
-          <p><a href={wishlist} target="_blank">{wishlist}</a></p>
-          <p><Link to="wishlist"><button className="btn btn-default">Update Wishlist</button></Link></p>
+          <p><a href={wishlistUrl} target="_blank">{wishlistUrl}</a></p>
+          <ul>
+            {this.wishlistItems(wishlist)}
+          </ul>
+          <p>
+            <Link to="wishlist"><button className="btn btn-default">Change Wishlist</button></Link>
+            <button onClick={() => {this.refreshWishlist(wishlistUrl)}} className="btn btn-default">Refresh Items</button>
+           </p>
         </div>
       )
     } else {

@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import DropdownList from 'react-widgets/lib/DropdownList'
 import { Field, reduxForm } from 'redux-form';
-import { states } from '../../constants/constants'
+import * as constants from '../../constants/constants'
 import { saveAddress,
          updateAddress,
          getUserSetup } from '../../actions/setup-actions';
@@ -55,11 +55,15 @@ class Address extends Component {
 
   handleFormSubmit(formProps) {
     const {saveAddress, updateAddress, address} = this.props;
+    let next;
     if (!!address.streetAddressOne) {
       updateAddress(formProps);
+      next = '/dashboard'
     } else {
       saveAddress(formProps);
+      next = '/wishlist';
     }
+      window.location.href = constants.CLIENT_ROOT_URL + next;
   }
 
   componentWillUnmount() {
@@ -109,7 +113,7 @@ class Address extends Component {
                     </div>
                     <div className="form-group">
                         <Field name="state" component={renderSelectField} label="State">
-                          { states.map(state => <option value={state.abbreviation}>{state.name}</option>) }
+                          { constants.states.map(state => <option value={state.abbreviation}>{state.name}</option>) }
                         </Field>
                     </div>
                     <div className="form-group">

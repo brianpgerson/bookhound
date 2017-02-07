@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Field, reduxForm } from 'redux-form';
+import { CLIENT_ROOT_URL } from '../../constants/constants';
 import { Link } from 'react-router';
 import { saveWishlist,
          updateWishlist,
@@ -38,11 +39,15 @@ class Wishlist extends Component {
 
   handleFormSubmit(formProps) {
     const { wishlist, saveWishlist, updateWishlist } = this.props;
+    let next;
     if (!!wishlist) {
       updateWishlist(formProps);
+      next = '/dashboard';
     } else {
       saveWishlist(formProps);
+      next = '/bank';
     }
+    window.location.href = CLIENT_ROOT_URL + next;
   }
 
   componentWillUnmount() {

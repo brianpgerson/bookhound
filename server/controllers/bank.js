@@ -11,7 +11,7 @@ const AuthController = require('./authentication'),
 	  stripe = require("stripe")(config.stripe.secret);
 
 exports.getPlaidConfig = function (req, res) {
-	 return res.status(200).json({public: config.plaid.public});
+	 res.status(200).json({public: config.plaid.public});
 }
 
 exports.findEligibleAccounts = function () {
@@ -45,7 +45,8 @@ exports.exchange = function (req, res) {
 
 	plaidClient.exchangeToken(public_token, account_id, function (err, exchangeTokenRes) {
 		if (!!err) {
-			return res.status(500).json({error: err});;
+			res.status(500).json({error: err});
+			return;
 		} else {
 
 			const accessToken = exchangeTokenRes.access_token;
@@ -57,7 +58,7 @@ exports.exchange = function (req, res) {
 				} else {
 					stripe.customers.create({
 					  	source: stripeBankToken,
-					  	description: "Example customer"
+					  	description: `Another bookhound customer: ${currentUser.firstName} ${currentUser.firstName}`
 					}, function(err, customer) {
 						if (err) {
 							return res.status(500).json({error: err});;
@@ -79,7 +80,7 @@ exports.exchange = function (req, res) {
 									if (err) {
 										return res.status(500).json({error: err});;
 									} else {
-										return res.status(200).send("success!");
+										res.status(200).send();
 									}
 							});
 						}
