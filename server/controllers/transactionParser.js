@@ -29,22 +29,17 @@ exports.getBasicUserInfo = function (financialData) {
 		const threeMonthsAgo = moment().subtract(3, 'months');
 		const days = moment().diff(oneYearAgo, 'days');
 		let oneYearBalances = {currentBalance: selectedAccount.balance.available};
+		let lowestRecentBalance;
 
 		let transactionsByDate = _.reduce(sortedTransactions, function(memo, txn, index) {
 			memo[txn.date] = txn.amount;
 			return memo;
 		}, {});
 
-		// let threeMonthsBalances = _.pickBy(oneYearBalances, function(balance, date) {
-		// 	console.log(date);
-		// 	return moment(date).isAfter(threeMonthsAgo);
-		// });
-
-
 		_.times(days, function(index) {
 			const today = moment().subtract(index, 'days').format('YYYY-MM-DD');
 			const mostRecentlyParsedDate = moment(today).add(1, 'days').format('YYYY-MM-DD');
-			let newBalance;
+			let newBalance, balance;
 
 			if (index === 0) {
 				newBalance = transactionsByDate[today] ? oneYearBalances.currentBalance - transactionsByDate[today] : oneYearBalances.currentBalance;
@@ -53,14 +48,23 @@ exports.getBasicUserInfo = function (financialData) {
 			} else {
 				newBalance = oneYearBalances[mostRecentlyParsedDate];
 			}
-			oneYearBalances[today] = parseFloat(newBalance.toFixed(2));
+
+			balance = parseFloat(newBalance.toFixed(2));
+			oneYearBalances[today] = balance;
+
+			if (moment(today).isAfter(threeMonthsAgo) &&
+				(_.isUndefined(lowestRecentBalance) ||
+					lowestRecentBalance > balance)) {
+				lowestRecentBalance = balance;
+			}
 		});
+
+
 
 		return {
 			sortedTransactions: sortedTransactions,
-			// threeMonthsBalances: threeMonthsBalances,
 			oneYearBalances: oneYearBalances,
-			lowestRecentBalance: _.minBy(_.values(oneYearBalances)),
+			lowestRecentBalance: lowestRecentBalance,
 			currentBalance: oneYearBalances.currentBalance
 		};
 	});
@@ -85,7 +89,7 @@ exports.getDecisionInfo = function (basicInfo) {
 	const longestFrequency = _.max(_.values([transactionFrequencies]));
 	let likelyWithdrawals = getLikelyWithdrawals(transactionFrequencies, averageTransactionsBySize, _.clone(txnsBySize));
 
-	const sortedWithinLongestFrequency = _.filter(sortedTransactions, function (txn) {
+	const sortedWithinLongestFrequency = _.filter(sortedTransactions, (txn) => {
 		return moment().diff(moment(txn.date), 'days') <= longestFrequency;
 	});
 
@@ -182,7 +186,7 @@ function updateLikelywithdrawals(likelyWithdrawals, sortedWithinLongestFrequency
 }
 
 function getExtractAmount (safeDelta) {
-	const extractPercentage = .01;
+	const extractPercentage = _.random(0.01, 0.04);
 	const percentageOfSafeDelta = safeDelta * extractPercentage;
 	return percentageOfSafeDelta > config.globalMax ?
 		config.globalMax : percentageOfSafeDelta;

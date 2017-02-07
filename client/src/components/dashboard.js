@@ -71,11 +71,12 @@ class Dashboard extends Component {
     if (wishlist) {
       const wishlistUrl = `https://www.amazon.com/gp/registry/wishlist/${wishlist.id}`;
       return (
-        <div className="col-md-4">
+        <div className="col-md-6">
           <h4>Wishlist Information</h4>
-          <p className="good-text">Your wishlist is connected</p>
-          <p><a href={wishlistUrl} target="_blank">{wishlistUrl}</a></p>
-          <ul>
+          <p className="good-text">Your wishlist is currently connected</p>
+          <p>Your Wishlist URL: <a href={wishlistUrl} target="_blank">{wishlistUrl}</a></p>
+          <ul className="wishlist">
+            <li className="bold">Your wishlist contains the following items at these prices:</li>
             {this.wishlistItems(wishlist)}
           </ul>
           <p>
