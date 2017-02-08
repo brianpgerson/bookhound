@@ -4,8 +4,9 @@ const app = require('../index');
 const URI = require('./spec_helper').URI;
 const mongoose = require('mongoose');
 
-const validUser = { password: 'secret', lastName: 'Doe', firstName: 'John', email: 'johndoe@exampledomain.com' };
-
+const validUser = { password: 'secret123', lastName: 'Doe', firstName: 'John', email: 'johndoe@exampledomain.com' };
+const invalidUserEmail = { password: 'secret123', lastName: 'Doe', firstName: 'John', email: 'johndoeexampledomain.com' };
+const invalidUserPassword = { password: 'secret', lastName: 'Doe', firstName: 'John', email: 'john@doeexampledomain.com' };
 
 describe('************* AUTH REGISTRATION *************', () => {
   after((done) => {
@@ -21,9 +22,37 @@ describe('************* AUTH REGISTRATION *************', () => {
       .end((err, res) => {
         if (err) done(err);
 
-        res.body.error.should.be.eql('You must enter an email address.');
+        res.body.error.should.be.eql('You must enter a valid email address.');
         done();
       });
+  });
+
+  it('should FAIL [422] to create a user with crappy email parameters', (done) => {
+   request(app)
+    .post('/api/auth/register')
+    .set('X-Real-IP', URI)
+    .type('form')
+    .send(invalidUserEmail)
+    .expect(422)
+    .end((err, res) => {
+      if (err) done(err);
+      res.body.error.should.be.eql('You must enter a valid email address.');
+      done();
+    });
+  });
+
+  it('should FAIL [422] to create a user with crappy password parameters', (done) => {
+   request(app)
+    .post('/api/auth/register')
+    .set('X-Real-IP', URI)
+    .type('form')
+    .send(invalidUserPassword)
+    .expect(422)
+    .end((err, res) => {
+      if (err) done(err);
+      res.body.error.should.be.eql('You must enter a valid password.');
+      done();
+    });
   });
 
   it('should FAIL [422] to create a user with incomplete parameters', (done) => {
@@ -35,7 +64,7 @@ describe('************* AUTH REGISTRATION *************', () => {
       .expect(422)
       .end((err, res) => {
         if (err) done(err);
-        res.body.error.should.be.eql('You must enter a password.');
+        res.body.error.should.be.eql('You must enter a valid password.');
         done();
       });
   });

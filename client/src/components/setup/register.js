@@ -16,6 +16,14 @@ const renderField = field => (
     </div>
 );
 
+function invalidEmail(email) {
+  return email.indexOf('@') < 0;
+};
+
+function invalidPassword(password) {
+  return password.length < 8 || !/\d/.test(password);
+}
+
 function validate(formProps) {
   const errors = {};
 
@@ -31,8 +39,16 @@ function validate(formProps) {
     errors.email = 'Please enter an email';
   }
 
+  if (!!formProps.email && invalidEmail(formProps.email)) {
+    errors.email = 'Please enter a valid email';
+  }
+
   if (!formProps.password) {
     errors.password = 'Please enter a password';
+  }
+
+  if (!!formProps.password && invalidPassword(formProps.password)) {
+    errors.password = 'Please enter a valid password: at least 8 charactors long and containing at least one number';
   }
 
   return errors;

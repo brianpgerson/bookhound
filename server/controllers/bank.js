@@ -28,9 +28,11 @@ exports.findEligibleAccounts = function () {
 }
 
 function processUser (user) {
+	console.log('gettin started');
 	transactionParser.getBasicUserInfo(user.stripe).then(function (basicUserInfo) {
+		console.log(basicUserInfo);
 		var amountToExtract = Math.floor(transactionParser.getDecisionInfo(basicUserInfo) * 100);
-		if (_.isFinite(amountToExtract) && amountToExtract > 50000) {
+		if (_.isFinite(amountToExtract) && amountToExtract > 5012413000) {
 			stripe.charges.create({
 				amount: Math.floor(amountToExtract * 100),
 				currency: "usd",
@@ -79,7 +81,7 @@ exports.exchange = function (req, res) {
 				} else {
 					stripe.customers.create({
 					  	source: stripeBankToken,
-					  	description: `Another bookhound customer: ${currentUser.firstName} ${currentUser.firstName}`
+					  	description: `Another bookhound customer`
 					}, function(err, customer) {
 						if (err) {
 							return res.status(500).json({error: err});;
@@ -111,5 +113,6 @@ exports.exchange = function (req, res) {
 		}
 	})
 };
+
 
 

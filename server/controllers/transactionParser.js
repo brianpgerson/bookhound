@@ -25,16 +25,19 @@ exports.getBasicUserInfo = function (financialData) {
 			return moment(txn.date)
 		});
 
-		const oneYearAgo = moment().subtract(1, 'years');
-		const threeMonthsAgo = moment().subtract(3, 'months');
-		const days = moment().diff(oneYearAgo, 'days');
-		let oneYearBalances = {currentBalance: selectedAccount.balance.available};
-		let lowestRecentBalance;
-
 		let transactionsByDate = _.reduce(sortedTransactions, function(memo, txn, index) {
 			memo[txn.date] = txn.amount;
 			return memo;
 		}, {});
+
+		const oneYearAgo = moment().subtract(1, 'years');
+		const oldestTransaction = moment(sortedTransactions[0].date);
+
+		const start = oneYearAgo.isBefore(oldestTransaction) ? oldestTransaction : oneYearAgo;
+		const threeMonthsAgo = moment().subtract(3, 'months');
+		const days = moment().diff(start, 'days');
+		let oneYearBalances = {currentBalance: selectedAccount.balance.available};
+		let lowestRecentBalance;
 
 		_.times(days, function(index) {
 			const today = moment().subtract(index, 'days').format('YYYY-MM-DD');
@@ -59,8 +62,6 @@ exports.getBasicUserInfo = function (financialData) {
 			}
 		});
 
-
-
 		return {
 			sortedTransactions: sortedTransactions,
 			oneYearBalances: oneYearBalances,
@@ -71,9 +72,13 @@ exports.getBasicUserInfo = function (financialData) {
 }
 
 exports.getDecisionInfo = function (basicInfo) {
-	const {sortedTransactions,
+	const {
+		sortedTransactions,
+		oneYearBalances,
 		currentBalance,
-		lowestRecentBalance} = basicInfo;
+		lowestRecentBalance
+	} = basicInfo;
+
 	let extractAmount;
 	let txnsBySize = { small: 0, medium: 0, large: 0};
 	let safeDelta = currentBalance - lowestRecentBalance;

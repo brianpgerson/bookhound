@@ -6,6 +6,14 @@ const setUserInfo = require('../helpers').setUserInfo;
 const getRole = require('../helpers').getRole;
 const config = require('../config/main');
 
+function invalidEmail (email) {
+  return email.indexOf('@') < 0;
+}
+
+function invalidPassword (password) {
+  return password.length < 8 || !/\d/.test(password);
+}
+
 // Generate JWT
 // TO-DO Add issuer and audience
 function generateToken(user) {
@@ -49,8 +57,8 @@ exports.register = function (req, res, next) {
   const password = req.body.password;
 
   // Return error if no email provided
-  if (!email) {
-    res.status(422).send({ error: 'You must enter an email address.' });
+  if (!email || invalidEmail(email)) {
+    res.status(422).send({ error: 'You must enter a valid email address.' });
     return;
   }
 
@@ -61,8 +69,8 @@ exports.register = function (req, res, next) {
   }
 
   // Return error if no password provided
-  if (!password) {
-    res.status(422).send({ error: 'You must enter a password.' });
+  if (!password || invalidPassword(password)) {
+    res.status(422).send({ error: 'You must enter a valid password.' });
     return;
   }
 
