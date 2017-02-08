@@ -1,6 +1,7 @@
 module.exports = {
 	port: process.env.PORT || 3000,
 	test_port: 3001,
+  	test_db: 'mern-starter-test',
 	test_env: 'test',
 	secret: process.env.SECRET,
 	database: process.env.DATABASE_URL || 'mongodb://localhost/db_name',
@@ -18,3 +19,4 @@ module.exports = {
 	},
 	globalMax: 5
 };
+

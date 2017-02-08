@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start": "nodemon",
-    "debug": "nodemon --debug-brk"
+    "debug": "nodemon --debug-brk",
+    "test": "mocha -S --ui bdd --require ./tests/spec_helper.js --recursive ./tests --reporter spec"
   },
   "author": "brian",
   "license": "MIT",
@@ -18,6 +19,7 @@
     "jsonwebtoken": "^7.2.1",
     "mailchimp-v3": "^1.0.1",
     "mailgun-js": "^0.7.10",
+    "mocha": "^3.2.0",
     "moment": "^2.13.0",
     "morgan": "^1.7.0",
     "passport": "^0.3.2",
@@ -26,5 +28,9 @@
     "plaid": "^1.1.0",
     "request": "^2.79.0",
     "sendgrid": "^4.7.1"
+  },
+  "devDependencies": {
+    "should": "^11.2.0",
+    "supertest": "^3.0.0"
   }
 }

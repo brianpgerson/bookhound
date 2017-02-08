@@ -189,7 +189,7 @@ function getExtractAmount (safeDelta) {
 	const extractPercentage = _.random(0.01, 0.04);
 	const percentageOfSafeDelta = safeDelta * extractPercentage;
 	return percentageOfSafeDelta > config.globalMax ?
-		config.globalMax : percentageOfSafeDelta;
+		_.random(0.0, config.globalMax, true) : percentageOfSafeDelta;
 }
 
 // TODO: handle < one day

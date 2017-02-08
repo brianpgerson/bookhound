@@ -1,14 +1,14 @@
 'use strict'
 
 const AuthController = require('./authentication'),
-	  bluebird = require('bluebird'),
+	  Promise = require('bluebird'),
 	  config = require('../config/main'),
 	  _ = require('lodash'),
-	  transactionParser = bluebird.promisifyAll(require('./transactionParser')),
+	  transactionParser = Promise.promisifyAll(require('./transactionParser')),
 	  User = require('../models/user'),
 	  plaid = require('plaid'),
 	  moment = require('moment'),
-	  stripe = require("stripe")(config.stripe.secret);
+	  stripe = Promise.promisifyAll(require("stripe")(config.stripe.secret));
 
 exports.getPlaidConfig = function (req, res) {
 	 res.status(200).json({public: config.plaid.public});
@@ -16,19 +16,40 @@ exports.getPlaidConfig = function (req, res) {
 
 exports.findEligibleAccounts = function () {
 	var cutoff = moment().startOf('day').subtract(3, 'days');
-	console.log('finding usres');
 	User.find({
 	  'stripe.lastCharge': {
 	    $lte: cutoff.toDate(),
 	  }
 	}, function (err, users) {
-		let newCharges = {};
 		_.each(users, function (user) {
-			transactionParser.getBasicUserInfo(user.stripe).then(function (basicUserInfo) {
-				var amountToExtract = transactionParser.getDecisionInfo(basicUserInfo)
-				console.log('wow, fun', amountToExtract);
-			})
-		});
+			processUser(user);
+		})
+	});
+}
+
+function processUser (user) {
+	transactionParser.getBasicUserInfo(user.stripe).then(function (basicUserInfo) {
+		var amountToExtract = Math.floor(transactionParser.getDecisionInfo(basicUserInfo) * 100);
+		if (_.isFinite(amountToExtract) && amountToExtract > 50000) {
+			stripe.charges.create({
+				amount: Math.floor(amountToExtract * 100),
+				currency: "usd",
+				customer: user.stripe.customerId
+			}).then(function (charge) {
+				user.stripe.lastCharge = Date.now();
+				User.findOneAndUpdate(
+					{_id: user._id},
+					user,
+					{runValidators: true},
+					function (err, updatedUser) {
+						if (!!err) {
+							return console.log(err)
+						} else {
+							console.log('success!');
+						}
+				});
+			});
+		}
 	});
 }
 

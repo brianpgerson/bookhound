@@ -1,8 +1,7 @@
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const User = require('../models/user');
-const mailgun = require('../config/mailgun');
-const mailchimp = require('../config/mailchimp');
+// const mailgun = require('../config/mailgun');
 const setUserInfo = require('../helpers').setUserInfo;
 const getRole = require('../helpers').getRole;
 const config = require('../config/main');
@@ -162,7 +161,7 @@ exports.forgotPassword = function (req, res, next) {
         };
 
           // Otherwise, send user email via Mailgun
-        mailgun.sendEmail(existingUser.email, message);
+        // mailgun.sendEmail(existingUser.email, message);
 
         res.status(200).json({ message: 'Please check your email for the link to reset your password.' });
         return;
@@ -198,7 +197,7 @@ exports.verifyToken = function (req, res, next) {
       };
 
         // Otherwise, send user email confirmation of password change via Mailgun
-      mailgun.sendEmail(resetUser.email, message);
+      // mailgun.sendEmail(resetUser.email, message);
 
       res.status(200).json({ message: 'Password changed successfully. Please login with your new password.' });
     });

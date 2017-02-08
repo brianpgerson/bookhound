@@ -45,7 +45,9 @@ app.use((req, res, next) => {
 router(app);
 
 // Start scheduled jobs
-scheduleJobs.init();
+if (process.env.NODE_ENV != config.test_env) {
+  scheduleJobs.init();
+}
 
 // necessary for testing
 module.exports = server;
