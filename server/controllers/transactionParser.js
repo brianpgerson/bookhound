@@ -99,7 +99,7 @@ exports.getDecisionInfo = function (basicInfo) {
 	if (safeDelta > 0) {
 		extractAmount = this.getExtractAmount(safeDelta);
 	}
-	return extractAmount;
+	return _.round(extractAmount, 2);
 }
 
 exports.getLikelyWithdrawals = function(transactionFrequencies, averageTransactionsBySize, txns) {

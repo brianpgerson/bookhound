@@ -31,14 +31,33 @@ describe('The transaction parser', () => {
 	  	amountToExtract.should.be.above(low);
 	  	amountToExtract.should.be.below(high);
 	});
+
+	it('should parse a more intense set of transactions many times successfully', () => {
+		const basicInfo = getBasicInfo('big');
+	  	const safeDelta = basicInfo.currentBalance - basicInfo.lowestRecentBalance;
+	  	const high = 5;
+	  	const low = 0;
+
+	  	let nums = [];
+	  	_.times(100, (index) => {
+	  		nums.push(transactionParser.getDecisionInfo(basicInfo));
+	  	});
+
+	  	_.every(nums, (amountToExtract) => {
+		  	amountToExtract.should.be.a.Number();
+		  	amountToExtract.should.be.above(low);
+		  	amountToExtract.should.be.below(high);
+	  	});
+
+	});
 });
 
 function getBasicInfo (type) {
 	return {
-  		currentBalance: testAccountData[type + 'CurrentBalance'],
-  		lowestRecentBalance: testAccountData[type + 'LowestBalance'],
-  		oneYearBalances: testAccountData[type + 'Balance'],
-  		sortedTransactions: testAccountData[type + 'Transactions']
+  		currentBalance: testAccountData[`${type}CurrentBalance`],
+  		lowestRecentBalance: testAccountData[`${type}LowestBalance`],
+  		oneYearBalances: testAccountData[`${type}Balance`],
+  		sortedTransactions: testAccountData[`${type}Transactions`]
   	};
 }
 
