@@ -1,5 +1,5 @@
 const schedule = require('node-schedule'),
-      Bank = require('../controllers/bank');
+      Bank = require('../controllers/bank.controller');
 
 module.exports = {
   scheduleJob: function() {

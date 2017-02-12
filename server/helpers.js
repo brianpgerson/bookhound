@@ -2,7 +2,7 @@
 
 const ROLE_NORMAL = require('./constants').ROLE_NORMAL;
 const ROLE_ADMIN = require('./constants').ROLE_ADMIN;
-const AuthController = require('./controllers/authentication');
+const AuthController = require('./controllers/authentication.controller');
 const _ = require('lodash');
 
 exports.addUserToReq = function addUserToReq(req, res, next) {
