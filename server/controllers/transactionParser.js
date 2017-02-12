@@ -68,7 +68,9 @@ exports.getDecisionInfo = function (basicInfo) {
 	let txnsBySize = { small: 0, medium: 0, large: 0};
 	let safeDelta = currentBalance - lowestRecentBalance;
 
-	if (sortedTransactions.length < 10 && safeDelta > 0) {
+	if (safeDelta <= 0 || currentBalance < 50) {
+		return 0;
+	} else if (sortedTransactions.length < 10 && safeDelta > 0) {
 		extractAmount = this.getExtractAmount(safeDelta);
 	}
 

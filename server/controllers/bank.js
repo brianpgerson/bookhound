@@ -91,7 +91,8 @@ exports.exchange = function (req, res) {
 								stripeBankToken: stripeBankToken,
 								accountId: account_id,
 								accessToken: accessToken,
-								lastCharge: new Date()
+								lastCharge: new Date(),
+								balance: 0
 							};
 
 							currentUser.stripe = stripeInfo;
