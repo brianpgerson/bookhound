@@ -20,11 +20,15 @@ const renderField = field => (
     </div>
 );
 
-function validate(formProps) {
+const validate = formProps => {
   const errors = {};
 
   if (!formProps.wishlistUrl) {
     errors.wishlistUrl = 'Please enter a valid URL';
+  }
+
+  if (!formProps.maxMonthlyOrderFrequency < 1) {
+    errors.maxMonthlyOrderFrequency = 'Max order frequency must be at least 1';
   }
 
   return errors;
@@ -85,6 +89,15 @@ class Wishlist extends Component {
                 <div className="form-group">
                   <label>URL to your Amazon Wishlist</label>
                   <Field name="wishlistUrl" className="form-control" component={renderField} type="text" />
+                </div>
+                 <div className="form-group">
+                    <h5>Preferred Conditions</h5>
+                    <p><label htmlFor="new">New: <Field id="new" name="new" component="input" type="checkbox"/></label></p>
+                    <p><label htmlFor="used">Used: <Field id="used" name="used" component="input" type="checkbox"/></label></p>
+                </div>
+                <div className="form-group">
+                  <label>Max Orders/Month</label>
+                  <Field name="maxMonthlyOrderFrequency" className="form-control" component={renderField} type="number" />
                 </div>
                 <div className="form-group">
                   <button type="submit" className="btn btn-primary">{wishlist ? 'Update Wishlist' : 'Save Wishlist'}</button>

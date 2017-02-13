@@ -1,4 +1,4 @@
-import { SAVE_ADDRESS, RECEIVE_PLAID_CONFIG, RECEIVE_USER_SETUP, SAVE_WISHLIST } from '../actions/types';
+import { SAVE_ADDRESS, RECEIVE_PLAID_CONFIG, RECEIVE_USER_SETUP, SAVE_WISHLIST, SAVE_PREFERENCES } from '../actions/types';
 
 const INITIAL_STATE = {
 	user: {
@@ -22,6 +22,13 @@ const INITIAL_STATE = {
 	},
 	plaid: {
 		public: ''
+	},
+	preferences: {
+		preferredConditions: {
+			new: undefined,
+			used: undefined
+		},
+		maxMonthlyOrderFrequency: 0
 	}
 };
 
@@ -44,6 +51,13 @@ export default function (state = INITIAL_STATE, action) {
      				items: action.payload.wishlist.items
      			}
      		}
+     	case SAVE_PREFERENCES:
+     		return { ...state,
+     			preferences: {
+     				preferredConditions: action.payload.preferences.preferredConditions,
+     				maxMonthlyOrderFrequency: action.payload.preferences.maxMonthlyOrderFrequency
+     			}
+     		}
      	case RECEIVE_PLAID_CONFIG:
      		return { ...state, plaid: {
      			public: action.payload.public
@@ -53,7 +67,8 @@ export default function (state = INITIAL_STATE, action) {
      			address: action.payload.address,
      			user: action.payload.user,
      			bank: action.payload.bank,
-     			wishlist: action.payload.wishlist
+     			wishlist: action.payload.wishlist,
+     			preferences: action.payload.preferences
      		}
 	}
 

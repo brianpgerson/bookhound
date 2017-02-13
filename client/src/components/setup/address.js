@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import DropdownList from 'react-widgets/lib/DropdownList'
 import { Field, reduxForm } from 'redux-form';
 import * as constants from '../../constants/constants'
 import { saveAddress,

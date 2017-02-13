@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router';
+import { Field, reduxForm } from 'redux-form';
+import Preferences from './preferences';
 import { connect } from 'react-redux';
 import * as setupActions from '../actions/setup-actions';
 
@@ -22,6 +24,16 @@ class Dashboard extends Component {
     return _.map(items, (item) => {
       return (<li><a href={item.link} target="_blank">{item.title}</a>: ${(item.price/100).toFixed(2)}</li>);
     });
+  }
+
+  renderAlert() {
+    if(this.props.errorMessage) {
+      return (
+        <div>
+          <span><strong>Error:</strong> {this.props.errorMessage}</span>
+        </div>
+      );
+    }
   }
 
   renderAddress(address) {
@@ -95,13 +107,16 @@ class Dashboard extends Component {
   }
 
   render() {
-    const {user, address, bank, wishlist} = this.props.setup;
+    const {user, address, bank, wishlist, preferences} = this.props.setup;
     return (
       <div>
         <div className="container">
         <section className="row pad-bottom">
           <h1>Welcome to your Dashboard, {user.profile.firstName}</h1>
           <p>Here's where you can see your current settings and update anything that needs changing!</p>
+        </section>
+        <section className="row pad-bottom">
+          <Preferences/>
         </section>
         <section className="row pad-bottom">
           {this.renderAddress(address)}

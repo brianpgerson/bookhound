@@ -4,6 +4,7 @@ import {API_URL, CLIENT_ROOT_URL} from '../constants/constants';
 import { receiveError } from './error-actions';
 import {SAVE_ADDRESS,
         SAVE_WISHLIST,
+        SAVE_PREFERENCES,
         RECEIVE_USER_SETUP,
         RECEIVE_PLAID_CONFIG } from './types';
 
@@ -22,7 +23,7 @@ export function getPlaidConfig() {
       });
     })
   }
-}
+};
 
 export function exchangeToken(tokenMetadata) {
   const jwt = getToken();
@@ -33,7 +34,7 @@ export function exchangeToken(tokenMetadata) {
       receiveError(dispatch, error);
     })
   }
-}
+};
 
 export function getUserSetup() {
   const jwt = getToken();
@@ -48,7 +49,7 @@ export function getUserSetup() {
       receiveError(dispatch, error);
     })
   }
-}
+};
 
 export function saveAddress(addressFields) {
   const jwt = getToken();
@@ -65,7 +66,7 @@ export function saveAddress(addressFields) {
         receiveError(dispatch, error);
       });
     }
-  };
+};
 
 export function updateAddress(addressFields) {
   const jwt = getToken();
@@ -82,7 +83,7 @@ export function updateAddress(addressFields) {
         receiveError(dispatch, error);
       });
     }
-  };
+};
 
 export function saveWishlist(wishlistUrl) {
   const jwt = getToken();
@@ -99,7 +100,7 @@ export function saveWishlist(wishlistUrl) {
         receiveError(dispatch, error);
       });
     }
-  };
+};
 
 export function refreshWishlistItems(wishlistUrl) {
   const jwt = getToken();
@@ -116,7 +117,7 @@ export function refreshWishlistItems(wishlistUrl) {
         receiveError(dispatch, error);
       });
     }
-}
+};
 
 export function updateWishlist(wishlistUrl) {
   const jwt = getToken();
@@ -133,4 +134,21 @@ export function updateWishlist(wishlistUrl) {
         receiveError(dispatch, error);
       });
     }
-  };
+};
+
+export function updatePreferences(preferences) {
+  const jwt = getToken();
+  return function(dispatch) {
+      axios.put(`${API_URL}/setup/preferences`, preferences, jwt)
+      .then(response => {
+        dispatch({
+          type: SAVE_PREFERENCES,
+          payload: response.data
+        });
+      })
+      .catch((error) => {
+        console.log(error);
+        receiveError(dispatch, error);
+      });
+    }
+}
