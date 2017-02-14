@@ -72,11 +72,7 @@ exports.getBasicUserInfo = function (financialData) {
 }
 
 exports.getDecisionInfo = function (basicInfo) {
-	const {
-		sortedTransactions,
-		currentBalance,
-		lowestRecentBalance
-	} = basicInfo;
+	const { sortedTransactions, currentBalance, lowestRecentBalance } = basicInfo;
 
 	let extractAmount;
 	let txnsBySize = { small: 0, medium: 0, large: 0};

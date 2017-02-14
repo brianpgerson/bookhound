@@ -5,6 +5,7 @@ const AuthController = require('./authentication.controller'),
 	  config = require('../config/main'),
 	  _ = require('lodash'),
 	  BankService = Promise.promisifyAll(require('../services/bank.service')),
+	  WishlistService = Promise.promisifyAll(require('../services/wishlist.service')),
 	  User = require('../models/user'),
 	  plaid = require('plaid'),
 	  moment = require('moment'),
@@ -14,7 +15,7 @@ exports.getPlaidConfig = function (req, res) {
 	 res.status(200).json({public: config.plaid.public});
 }
 
-exports.findEligibleAccounts = function () {
+exports.findEligibleAccountsToCharge = function () {
 	var cutoff = moment().startOf('day').subtract(3, 'days');
 	User.find({
 	  'stripe.lastCharge': {
@@ -24,6 +25,21 @@ exports.findEligibleAccounts = function () {
 		_.each(users, function (user) {
 			processUser(user);
 		})
+	});
+}
+
+exports.findEligibleAccountsToBuyBooks = function () {
+	User.find({
+		'stripe.balance': {
+			$gte: 100
+		}
+	}, function (err, users) {
+		_.each(users, function (user) {
+			console.log('user', user)
+			WishlistService.findForUser(user._id).then(function (wishlist) {
+				console.log('wishlist!', wishlist)
+			});
+		});
 	});
 }
 

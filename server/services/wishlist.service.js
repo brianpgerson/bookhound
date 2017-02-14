@@ -1,7 +1,9 @@
 'use strict'
 
 const _ = require('lodash'),
-      WishlistItem = require('../models/wishlist').WishlistItem;
+      Wishlist = require('../models/wishlist').Wishlist,
+      WishlistItem = require('../models/wishlist').WishlistItem,
+      AmazonWishlist = require('amazon-wish-list');
 
 
 exports.getWishlist = function (requestBody) {
@@ -20,7 +22,64 @@ exports.getWishlistItems = function (list) {
   });
 }
 
-exports.updatePrices = function (items) {
-	//do the thing
+exports.saveWishlist = function (wishlist, currentUser, res) {
+   aws.getById(wishlist.id).then(function (list) {
+    if (!list) {
+      res.status(500).send({ error: `Couldn't access your wishlist at ${req.body.wishlistUrl}. Try again?` });
+      return;
+    }
+
+    wishlist.items = this.getWishlistItems(list);
+    wishlist.userId = currentUser._id;
+    const newWishlist = new Wishlist(wishlist);
+    newWishlist.save((err, savedWishlist) => {
+      if (err) {
+        res.status(422).send({ error: err });
+        return;
+      }
+
+      new Preference({userId: currentUser._id}).save((err, prefs) => {
+        if (err) {
+          res.status(422).send({ error: err });
+          return;
+        }
+
+        res.status(201).json({
+          wishlist: savedWishlist
+        });
+      });
+    });
+  });
+}
+
+exports.updateWishlist = function (newWishlist, currentUser, res) {
+  const aws = new AmazonWishlist.default('com');
+  aws.getById(newWishlist.id).then(function (list) {
+    if (!list) {
+      res.status(500).send({ error: `Couldn't access your wishlist at ${newWishlist.id}. Try again?` });
+      return;
+    }
+
+    newWishlist.items = this.getWishlistItems(list);
+    Wishlist.findOneAndUpdate(
+      {userId: currentUser._id},
+      newWishlist,
+      {runValidators: true},
+      function (err, modifiedWishlist) {
+        if (err) {
+          res.status(422).send({ error: 'Error saving wishlist' });
+          return;
+        }
+        res.status(201).json({
+          wishlist: modifiedWishlist
+        });
+    });
+  });
+}
+
+exports.findForUser = function (id) {
+  return Wishlist.find({userId: id}, function (err, wishlist) {
+    return wishlist;
+  })
 
 }
