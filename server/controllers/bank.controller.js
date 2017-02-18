@@ -23,7 +23,7 @@ exports.findEligibleAccountsToCharge = function () {
 	  }
 	}, function (err, users) {
 		_.each(users, function (user) {
-			processUser(user);
+			BankService.processUser(user);
 		})
 	});
 }
@@ -35,39 +35,15 @@ exports.findEligibleAccountsToBuyBooks = function () {
 		}
 	}, function (err, users) {
 		_.each(users, function (user) {
-			console.log('user', user)
-			WishlistService.findForUser(user._id).then(function (wishlist) {
-				console.log('wishlist!', wishlist)
-			});
+			let promisifiedPreferences = Preferences.findOne({userId: userId}).exec();
+  			let promisifiedWishlist = Wishlist.findOne({userId: userId}).exec();
+
+  			Promise.all([promisifiedPreferences, promisifiedWishlist])
+		    .spread((preferences, wishlist) => {
+
+
+		    });
 		});
-	});
-}
-
-function processUser (user) {
-	BankService.getBasicUserInfo(user.stripe).then(function (basicUserInfo) {
-		var amountToExtract = Math.floor(BankService.getDecisionInfo(basicUserInfo) * 100);
-
-		if (_.isFinite(amountToExtract) && amountToExtract > 5012413000) {
-			stripe.charges.create({
-				amount: amountToExtract,
-				currency: "usd",
-				customer: user.stripe.customerId
-			}).then(function (charge) {
-				user.stripe.lastCharge = Date.now();
-				user.stripe.balance += charge.amount;
-				User.findOneAndUpdate(
-					{_id: user._id},
-					user,
-					{runValidators: true},
-					function (err, updatedUser) {
-						if (!!err) {
-							return console.log(err)
-						} else {
-							console.log('success!');
-						}
-				});
-			});
-		}
 	});
 }
 

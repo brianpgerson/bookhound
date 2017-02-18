@@ -6,6 +6,7 @@ const _ = require('lodash');
 const moment = require('moment');
 const config = require('../config/main');
 const Stats = require('fast-stats').Stats;
+const User = require('../models/user');
 const plaidClient = new plaid.Client(config.plaid.client, config.plaid.secret, plaid.environments.tartan);
 
 exports.getBasicUserInfo = function (financialData) {
@@ -112,6 +113,33 @@ exports.getDecisionInfo = function (basicInfo) {
 		extractAmount = this.getExtractAmount(safeDelta);
 	}
 	return _.round(extractAmount, 2);
+}
+
+exports.processUser = function (user) {
+	this.getBasicUserInfo(user.stripe).then(function (basicUserInfo) {
+		var amountToExtract = Math.floor(this.getDecisionInfo(basicUserInfo) * 100);
+
+		if (_.isFinite(amountToExtract) && amountToExtract > 5012413000) {
+			stripe.charges.create({
+				amount: amountToExtract,
+				currency: "usd",
+				customer: user.stripe.customerId
+			}).then(function (charge) {
+				user.stripe.lastCharge = Date.now();
+				user.stripe.balance += charge.amount;
+				User.findOneAndUpdate(
+					{_id: user._id},
+					user,
+					{runValidators: true},
+					function (err, updatedUser) {
+						if (!!err) {
+							return console.log(err)
+						}
+					}
+				);
+			});
+		}
+	});
 }
 
 exports.getLikelyWithdrawals = function(transactionFrequencies, averageTransactionsBySize, txns) {
