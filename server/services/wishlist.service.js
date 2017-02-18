@@ -25,7 +25,7 @@ exports.getWishlistItems = function (list) {
 }
 
 exports.saveWishlist = function (wishlist, currentUser, res) {
-    aws.getById(wishlist.id).then(function (list) {
+    aws.getById(wishlist.id).then(list => {
         if (!list) {
             res.status(500).send({ error: `Couldn't access your wishlist at ${req.body.wishlistUrl}. Try again?` });
             return;
@@ -34,56 +34,53 @@ exports.saveWishlist = function (wishlist, currentUser, res) {
         wishlist.items = this.getWishlistItems(list);
         wishlist.userId = currentUser._id;
         const newWishlist = new Wishlist(wishlist);
-        newWishlist.save().then((savedWishlist) => {
+        newWishlist.save().then(savedWishlist => {
             if (err) {
                 res.status(422).send({ error: err });
                 return;
             }
 
-            new Preference({userId: currentUser._id}).save((err, prefs) => {
-                if (err) {
-                    res.status(422).send({ error: err });
-                    return;
-                }
-
+            new Preference({userId: currentUser._id}).save(prefs => {
                 res.status(201).json({
                     wishlist: savedWishlist
                 });
+            }).catch(err => {
+                res.status(422).send({ error: err });
             });
         });
-    }).catch((err) => {
+    }).catch(err => {
         res.status(500).send({error: err});
     });
 }
 
 exports.updateWishlist = function (newWishlist, currentUser, res) {
-  const aws = new AmazonWishlist.default('com');
-  aws.getById(newWishlist.id).then(function (list) {
-    if (!list) {
-      res.status(500).send({ error: `Couldn't access your wishlist at ${newWishlist.id}. Try again?` });
-      return;
-    }
-
-    newWishlist.items = this.getWishlistItems(list);
-    Wishlist.findOneAndUpdate(
-      {userId: currentUser._id},
-      newWishlist,
-      {runValidators: true},
-      function (err, modifiedWishlist) {
-        if (err) {
-          res.status(422).send({ error: 'Error saving wishlist' });
+    const aws = new AmazonWishlist.default('com');
+    aws.getById(newWishlist.id).then(list => {
+        if (!list) {
+          res.status(500).send({ error: `Couldn't access your wishlist at ${newWishlist.id}. Try again?` });
           return;
         }
-        res.status(201).json({
-          wishlist: modifiedWishlist
-        });
+
+        newWishlist.items = this.getWishlistItems(list);
+        Wishlist.findOneAndUpdate(
+            {userId: currentUser._id},
+            newWishlist,
+            {runValidators: true})
+        .then(modifiedWishlist => {
+            res.status(201).json({
+              wishlist: modifiedWishlist
+            });
+        }).catch(err => {
+            res.status(422).send({error: err});
+        });;
+    }).catch(err => {
+        res.status(500).send({error: err});
     });
-  });
 }
 
 exports.findCheapestPrice = function (item) {
   ZincService.product.getPrices(item)
-  .then((response) => {
+  .then(response => {
     console.log(response)
   })
 }
