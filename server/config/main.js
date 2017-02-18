@@ -17,6 +17,7 @@ module.exports = {
 		secret: process.env.STRIPESECRET,
 		public: process.env.STRIPEPUBLIC
 	},
+	zinc: process.env.ZINCCLIENT,
 	globalMax: 5
 };
 

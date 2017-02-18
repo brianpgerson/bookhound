@@ -13,20 +13,20 @@ exports.getBasicUserInfo = function (financialData) {
 	let accessToken = financialData.accessToken;
 	let accountId = financialData.accountId;
 
-	return plaidClient.getConnectUserAsync(accessToken, {}).then(function (response) {
-		const selectedAccountTransactions = _.filter(response.transactions, function (transaction) {
+	return plaidClient.getConnectUserAsync(accessToken, {}).then((response) => {
+		const selectedAccountTransactions = _.filter(response.transactions, (transaction) => {
 			return transaction._account === accountId;
 		});
 
-		const selectedAccount = _.find(response.accounts, function (acct) {
+		const selectedAccount = _.find(response.accounts, (acct) => {
 			return acct._id === accountId;
 		});
 
-		const sortedTransactions = _.sortBy(selectedAccountTransactions, function (txn) {
+		const sortedTransactions = _.sortBy(selectedAccountTransactions, (txn) => {
 			return moment(txn.date)
 		});
 
-		let transactionsByDate = _.reduce(sortedTransactions, function(memo, txn, index) {
+		let transactionsByDate = _.reduce(sortedTransactions, (memo, txn, index) => {
 			memo[txn.date] = txn.amount;
 			return memo;
 		}, {});
@@ -41,7 +41,7 @@ exports.getBasicUserInfo = function (financialData) {
 		const currentBalance = selectedAccount.balance.available;
 		let lowestRecentBalance;
 
-		_.times(days, function(index) {
+		_.times(days, (index) => {
 			const today = moment().subtract(index, 'days').format('YYYY-MM-DD');
 			const mostRecentlyParsedDate = moment(today).add(1, 'days').format('YYYY-MM-DD');
 			let newBalance, balance;
@@ -105,7 +105,7 @@ exports.getDecisionInfo = function (basicInfo) {
 
 	likelyWithdrawals = updateLikelyWithdrawals(transactionFrequencies, likelyWithdrawals, sortedWithinLongestFrequency, percentiles);
 
-	_.each(likelyWithdrawals, function (futureWithdrawalAmount) {
+	_.each(likelyWithdrawals, (futureWithdrawalAmount) => {
 		safeDelta -= futureWithdrawalAmount;
 	});
 
@@ -116,34 +116,28 @@ exports.getDecisionInfo = function (basicInfo) {
 }
 
 exports.processUser = function (user) {
-	this.getBasicUserInfo(user.stripe).then(function (basicUserInfo) {
-		var amountToExtract = Math.floor(this.getDecisionInfo(basicUserInfo) * 100);
+	var _this = this;
+	_this.getBasicUserInfo(user.stripe).then((basicUserInfo) => {
+		var amountToExtract = Math.floor(_this.getDecisionInfo(basicUserInfo) * 100);
 
 		if (_.isFinite(amountToExtract) && amountToExtract > 5012413000) {
 			stripe.charges.create({
 				amount: amountToExtract,
 				currency: "usd",
 				customer: user.stripe.customerId
-			}).then(function (charge) {
+			}).then((charge) => {
 				user.stripe.lastCharge = Date.now();
 				user.stripe.balance += charge.amount;
-				User.findOneAndUpdate(
-					{_id: user._id},
-					user,
-					{runValidators: true},
-					function (err, updatedUser) {
-						if (!!err) {
-							return console.log(err)
-						}
-					}
-				);
+				User.findOneAndUpdate({_id: user._id}, user, {runValidators: true});
 			});
 		}
+	}).catch((err) => {
+		console.error(err);
 	});
 }
 
 exports.getLikelyWithdrawals = function(transactionFrequencies, averageTransactionsBySize, txns) {
-	_.each(txns, function (value, size) {
+	_.each(txns, (value, size) => {
 		txns[size] = transactionFrequencies[size] > 1 ?
 			averageTransactionsBySize[size] :
 			((1 / transactionFrequencies[size]) * averageTransactionsBySize[size]);
@@ -152,21 +146,21 @@ exports.getLikelyWithdrawals = function(transactionFrequencies, averageTransacti
 }
 
 exports.getAverageTransactionsBySize = function(splitOutTransactions, txns) {
-	_.each(txns, function (value, size) {
+	_.each(txns, (value, size) => {
 		txns[size] = _.meanBy(_.map(_.values(splitOutTransactions[size]), 'amount'));
 	});
 	return txns;
 }
 
 exports.getTransactionFrequencies = function(splitOutTransactions, txns) {
-	_.each(txns, function (freq, size) {
+	_.each(txns, (freq, size) => {
 		txns[size] = averageDaysBetweenTransactions(splitOutTransactions[size])
 	});
 	return txns;
 }
 
 exports.getRawWithdrawalAmount = function (sortedWithdrawals) {
-	 return _.reduce(sortedWithdrawals, function (memo, txn) {
+	 return _.reduce(sortedWithdrawals, (memo, txn) => {
 		if (txn.amount > 0) {
 			memo.push(txn.amount);
 		}
@@ -182,7 +176,7 @@ exports.getTransactionsInSizeBuckets = function(sortedWithdrawals, rawWithdrawal
 		large: {}
 	};
 
-	_.each(sortedWithdrawals, function (txn) {
+	_.each(sortedWithdrawals, (txn) => {
 		const amount = txn.amount;
 		if (amount <= percentiles.lower) {
 			splitOutTransactions.small[txn.date] = txn;
@@ -199,7 +193,7 @@ exports.getTransactionsInSizeBuckets = function(sortedWithdrawals, rawWithdrawal
 function updateLikelyWithdrawals (transactionFrequencies, likelyWithdrawals, sortedWithinLongestFrequency, percentiles) {
 	const today = moment();
 
-	_.each(sortedWithinLongestFrequency, function (txn) {
+	_.each(sortedWithinLongestFrequency, (txn) => {
 		const txnAmount = txn.amount;
 		const txnDate = moment(txn.date);
 		if (txnAmount <= percentiles.lower) {
@@ -228,9 +222,9 @@ exports.getExtractAmount = function (safeDelta) {
 
 function averageDaysBetweenTransactions (transactions) {
 	let daysBetweenTransactions = [];
-	const transactionsArrayByDate = _.sortBy(transactions, function (txn) { return moment(txn.date)});
+	const transactionsArrayByDate = _.sortBy(transactions, (txn) => moment(txn.date));
 
-	_.each(transactionsArrayByDate, function (currentTxn, index) {
+	_.each(transactionsArrayByDate, (currentTxn, index) => {
 		let nextTxn = transactionsArrayByDate[index + 1];
 		if (nextTxn) {
 			daysBetweenTransactions.push(moment(nextTxn.date).diff(moment(currentTxn.date), 'days'));

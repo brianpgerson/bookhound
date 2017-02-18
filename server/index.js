@@ -13,6 +13,7 @@ const express = require('express'),
   config = require('./config/main');
 
 // Database Setup
+mongoose.Promise = require('bluebird'),
 mongoose.connect(config.database);
 
 // Start the server

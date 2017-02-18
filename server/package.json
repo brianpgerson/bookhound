@@ -16,6 +16,7 @@
     "dotenv": "^2.0.0",
     "express": "^4.14.0",
     "fast-stats": "0.0.3",
+    "fetch": "^1.1.0",
     "jsonwebtoken": "^7.2.1",
     "mailchimp-v3": "^1.0.1",
     "mailgun-js": "^0.7.10",
