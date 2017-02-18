@@ -1,11 +1,11 @@
 'use strict'
 
-const _ = require('lodash'),
-      Promise = require('bluebird'),
-      Wishlist = require('../models/wishlist').Wishlist,
-      WishlistItem = require('../models/wishlist').WishlistItem,
-      ZincService = Promise.promisifyAll(require('./zinc.service')),
-      AmazonWishlist = require('amazon-wish-list');
+const AmazonWishlist = require('amazon-wish-list'),
+             Promise = require('bluebird'),
+            Wishlist = require('../models/wishlist').Wishlist,
+        WishlistItem = require('../models/wishlist').WishlistItem,
+         ZincService = Promise.promisifyAll(require('./zinc.service')),
+                   _ = require('lodash');
 
 
 exports.getWishlist = function (requestBody) {

@@ -2,11 +2,9 @@
 
 const Promise = require('bluebird'),
       zincKey = require('../config/main').zinc,
-        fetch = require('node-fetch');
-
+        fetch = require('node-fetch'),
+         auth = 'Basic ' + new Buffer(zincKey + ':').toString('base64');
 fetch.Promise = Promise;
-
-const auth = 'Basic ' + new Buffer(zincKey + ':').toString('base64');
 
 function _request(method, path, data) {
     data = JSON.stringify(data);

@@ -1,17 +1,17 @@
 'use strict'
 
 const AuthController = require('./authentication.controller'),
-	  Promise = require('bluebird'),
-	  config = require('../config/main'),
-	  _ = require('lodash'),
-	  BankService = Promise.promisifyAll(require('../services/bank.service')),
-	  WishlistService = Promise.promisifyAll(require('../services/wishlist.service')),
-	  Preferences = require('../models/preferences'),
-	  Wishlist = require('../models/wishlist').Wishlist,
-	  User = require('../models/user'),
-	  plaid = require('plaid'),
-	  moment = require('moment'),
-	  stripe = Promise.promisifyAll(require("stripe")(config.stripe.secret));
+	  		 Promise = require('bluebird'),
+	  		  config = require('../config/main'),
+	  			   _ = require('lodash'),
+	  	 BankService = Promise.promisifyAll(require('../services/bank.service')),
+  	 WishlistService = Promise.promisifyAll(require('../services/wishlist.service')),
+	 	 Preferences = require('../models/preferences'),
+	  		Wishlist = require('../models/wishlist').Wishlist,
+	  			User = require('../models/user'),
+	  		   plaid = require('plaid'),
+	  	      moment = require('moment'),
+	  	      stripe = Promise.promisifyAll(require("stripe")(config.stripe.secret));
 
 exports.getPlaidConfig = function (req, res) {
 	 res.status(200).json({public: config.plaid.public});
@@ -60,15 +60,15 @@ exports.exchange = function (req, res) {
 		conf.secret,
 		plaid.environments.tartan);
 
-	plaidClient.exchangeToken(public_token, account_id).then((exchangeTokenRes) => {
+	plaidClient.exchangeToken(public_token, account_id).then(exchangeTokenRes => {
 		const accessToken = exchangeTokenRes.access_token;
 		const stripeBankToken = exchangeTokenRes.stripe_bank_account_token;
 
-		plaidClient.upgradeUser(accessToken, 'connect', {}).then((response) => {
+		plaidClient.upgradeUser(accessToken, 'connect', {}).then(response => {
 			stripe.customers.create({
 			  	source: stripeBankToken,
 			  	description: `Another bookhound customer`
-			}).then((customer) => {
+			}).then(customer => {
 				const stripeInfo = {
 					customerId: customer.id,
 					stripeBankToken: stripeBankToken,
@@ -82,12 +82,14 @@ exports.exchange = function (req, res) {
 					{_id: currentUser._id},
 					currentUser,
 					{runValidators: true})
-				.then((updatedUser) => {
+				.then(updatedUser => {
 					res.status(200).send();
+				}).catch(err => {
+					res.status(422).json({error: err});
 				});
 			});
 		});
-	}).catch((err) => {
+	}).catch(err => {
 		res.status(500).json({error: err});
 	});
 };

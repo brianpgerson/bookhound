@@ -1,19 +1,19 @@
 'use strict'
 
-const bluebird = require('bluebird');
-const plaid = bluebird.promisifyAll(require('plaid'));
-const _ = require('lodash');
-const moment = require('moment');
-const config = require('../config/main');
-const Stats = require('fast-stats').Stats;
-const User = require('../models/user');
-const plaidClient = new plaid.Client(config.plaid.client, config.plaid.secret, plaid.environments.tartan);
+const bluebird = require('bluebird'),
+	  	 plaid = bluebird.promisifyAll(require('plaid')),
+  			 _ = require('lodash'),
+  		moment = require('moment'),
+	  	config = require('../config/main'),
+	  	 Stats = require('fast-stats').Stats,
+	  	  User = require('../models/user'),
+   plaidClient = new plaid.Client(config.plaid.client, config.plaid.secret, plaid.environments.tartan);
 
 exports.getBasicUserInfo = function (financialData) {
 	let accessToken = financialData.accessToken;
 	let accountId = financialData.accountId;
 
-	return plaidClient.getConnectUserAsync(accessToken, {}).then((response) => {
+	return plaidClient.getConnectUserAsync(accessToken, {}).then(response => {
 		const selectedAccountTransactions = _.filter(response.transactions, (transaction) => {
 			return transaction._account === accountId;
 		});
@@ -117,7 +117,7 @@ exports.getDecisionInfo = function (basicInfo) {
 
 exports.processUser = function (user) {
 	var _this = this;
-	_this.getBasicUserInfo(user.stripe).then((basicUserInfo) => {
+	_this.getBasicUserInfo(user.stripe).then(basicUserInfo => {
 		var amountToExtract = Math.floor(_this.getDecisionInfo(basicUserInfo) * 100);
 
 		if (_.isFinite(amountToExtract) && amountToExtract > 5012413000) {

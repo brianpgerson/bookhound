@@ -1,15 +1,15 @@
 const AuthenticationController = require('./controllers/authentication.controller'),
-      AddressController = require('./controllers/address.controller'),
-      UserController = require('./controllers/user.controller'),
-      WishlistController = require('./controllers/wishlist.controller'),
-      PreferencesController = require('./controllers/preferences.controller'),
-      helpers = require('./helpers'),
-      BankController = require('./controllers/bank.controller'),
-      express = require('express'),
-      passportService = require('./config/passport'),
-      passport = require('passport'),
-      ROLE_NORMAL = require('./constants').ROLE_NORMAL,
-      ROLE_ADMIN = require('./constants').ROLE_ADMIN;
+             AddressController = require('./controllers/address.controller'),
+                UserController = require('./controllers/user.controller'),
+            WishlistController = require('./controllers/wishlist.controller'),
+         PreferencesController = require('./controllers/preferences.controller'),
+                       helpers = require('./helpers'),
+                BankController = require('./controllers/bank.controller'),
+                       express = require('express'),
+               passportService = require('./config/passport'),
+                      passport = require('passport'),
+                   ROLE_NORMAL = require('./constants').ROLE_NORMAL,
+                    ROLE_ADMIN = require('./constants').ROLE_ADMIN;
 
 // Middleware to require login/auth
 const requireAuth = passport.authenticate('jwt', { session: false });
@@ -17,9 +17,9 @@ const requireLogin = passport.authenticate('local', { session: false });
 const addUserToReq = helpers.addUserToReq;
 
 module.exports = function(app) {
-  // Initializing route groups
-  const apiRoutes = express.Router(),
-        authRoutes = express.Router(),
+    // Initializing route groups
+    const apiRoutes = express.Router(),
+         authRoutes = express.Router(),
         setupRoutes = express.Router();
 
   //=========================

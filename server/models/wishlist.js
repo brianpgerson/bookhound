@@ -1,4 +1,3 @@
-// Importing Node packages required for schema
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
@@ -7,42 +6,38 @@ const Schema = mongoose.Schema;
 //= ===============================
 
 const WishlistItemSchema = new Schema({
-  productId: {
-    type: String,
-    required: true
-  },
-  title: {
-    type: String,
-    required: true
-  },
-  link: {
-    type: String,
-    required: true
-  },
-  price: {
-    type: Number,
-    required: true
-  }
+    productId: {
+        type: String,
+        required: true
+    },
+    title: {
+        type: String,
+        required: true
+    },
+    link: {
+        type: String,
+        required: true
+    },
+    price: {
+        type: Number,
+        required: true
+    }
 });
 
 const WishlistSchema = new Schema({
-  userId: {
-    type: String,
-    required: true,
-  },
-  id: {
-    type: String,
-    required: true
-  },
-  items: [WishlistItemSchema]
+    userId: {
+        type: String,
+        required: true,
+    },
+    id: {
+        type: String,
+        required: true
+    },
+    items: [WishlistItemSchema]
 },
-  {
-    timestamps: true
-  });
-
-//= ===============================
-// Wishlist ORM Methods
-//= ===============================
+    {
+        timestamps: true
+    });
 
 module.exports = {
   Wishlist: mongoose.model('Wishlist', WishlistSchema),
