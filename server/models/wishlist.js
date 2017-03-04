@@ -21,6 +21,14 @@ const WishlistItemSchema = new Schema({
     price: {
         type: Number,
         required: true
+    },
+    shipping: {
+        type: Number,
+        required: true,
+        default: 0
+    },
+    merchantId: {
+        type: String
     }
 });
 

@@ -19,7 +19,8 @@ exports.getWishlistItems = function (list) {
             productId: item.id,
             title: item.title,
             link: item.link,
-            price: item.price
+            price: item.price,
+            shipping: 0
         });
     });
 }
@@ -35,11 +36,6 @@ exports.saveWishlist = function (wishlist, currentUser, res) {
         wishlist.userId = currentUser._id;
         const newWishlist = new Wishlist(wishlist);
         newWishlist.save().then(savedWishlist => {
-            if (err) {
-                res.status(422).send({ error: err });
-                return;
-            }
-
             new Preference({userId: currentUser._id}).save(prefs => {
                 res.status(201).json({
                     wishlist: savedWishlist
@@ -54,11 +50,12 @@ exports.saveWishlist = function (wishlist, currentUser, res) {
 }
 
 exports.updateWishlist = function (newWishlist, currentUser, res) {
+    const _this = this;
     const aws = new AmazonWishlist.default('com');
     aws.getById(newWishlist.id).then(list => {
         if (!list) {
-          res.status(500).send({ error: `Couldn't access your wishlist at ${newWishlist.id}. Try again?` });
-          return;
+            res.status(422).send({ error: `Couldn't access your wishlist at ${newWishlist.id}. Try again?` });
+            return;
         }
 
         newWishlist.items = this.getWishlistItems(list);
@@ -67,20 +64,61 @@ exports.updateWishlist = function (newWishlist, currentUser, res) {
             newWishlist,
             {runValidators: true})
         .then(modifiedWishlist => {
-            res.status(201).json({
-              wishlist: modifiedWishlist
-            });
+            if (_.isEmpty(modifiedWishlist.items)) {
+                res.status(201).json({
+                    wishlist: refreshedWishlist
+                });
+            } else {
+                _this.refreshWishlistItemPrices(modifiedWishlist, currentUser).then(refreshedWishlist => {
+                    res.status(201).json({
+                        wishlist: refreshedWishlist
+                    });
+                }).catch(err => {
+                    res.status(500).send({error: err});
+                });
+            }
         }).catch(err => {
             res.status(422).send({error: err});
-        });;
+        });
     }).catch(err => {
         res.status(500).send({error: err});
     });
 }
 
-exports.findCheapestPrice = function (item) {
-  ZincService.product.getPrices(item)
-  .then(response => {
-    console.log(response)
-  })
+exports.refreshWishlistItemPrices = function (wishlist, user) {
+    return Preferences.findOne({userId: user.id}).then((preferences) => {
+        const items = wishlist.items;
+        return Promise.each(items, (item) => {
+            return WishlistService.findCheapestPrice(item, preferences).then(cheapestOffer => {
+                item.price = cheapestOffer.price;
+                item.shipping = cheapestOffer.ship_price;
+                item.merchantId = cheapestOffer.merchantId;
+                return item.save()
+            });
+        }).then(() => {
+            return wishlist;
+        });
+    });
 }
+
+function findCheapestPrice (item) {
+  return ZincService.product.getPrices(item)
+    .then(response => {
+        let cheapestOffer;
+        _.forEach(response.offers, (offer) => {
+            if (suitableConfition(offer, preferences) && isCheaper(offer, cheapestOffer)) {
+                cheapestOffer = offer;
+            }
+        });
+        return cheapestOffer;
+  });
+}
+
+function isCheaper(candidateOffer, currentCheapest) {
+    return (_.isUndefined(candidateOffer) || currentCheapest < (candidateOffer.price + candidateOffer.ship_price));
+};
+
+function suitableCondition(offer, preferences) {
+    const offerCondition = _.lowerCase(_.first(_.get(offer, 'condition', 'new').split(' ')));
+    return preferences.preferredConditions[offerCondition];
+};

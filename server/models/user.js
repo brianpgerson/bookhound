@@ -31,8 +31,8 @@ const UserSchema = new Schema({
     stripe: {
         customerId: { type: String },
         stripeBankToken: { type: String },
-        accountId: { type: String },
         accessToken: { type: String},
+        accountId: { type: String },
         lastCharge: { type: Date },
         balance: { type: Number }
     },

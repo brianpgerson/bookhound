@@ -6,6 +6,7 @@ const AuthController = require('./authentication.controller'),
 	  			   _ = require('lodash'),
 	  	 BankService = Promise.promisifyAll(require('../services/bank.service')),
   	 WishlistService = Promise.promisifyAll(require('../services/wishlist.service')),
+  	 PurchaseService = Promise.promisifyAll(require('../services/purchase.service')),
 	 	 Preferences = require('../models/preferences'),
 	  		Wishlist = require('../models/wishlist').Wishlist,
 	  			User = require('../models/user'),
@@ -18,33 +19,21 @@ exports.getPlaidConfig = function (req, res) {
 }
 
 exports.findEligibleAccountsToCharge = function () {
-	var cutoff = moment().startOf('day').subtract(3, 'days');
-	User.find({
-	  'stripe.lastCharge': {
-	    $lte: cutoff.toDate(),
-	  }
-	}).then((err, users) => {
+	const cutoff = moment().startOf('day').subtract(3, 'days');
+	User.find({'stripe.lastCharge': {$lte: cutoff.toDate()}}).then(users => {
 		_.each(users, (user) => {
 			BankService.processUser(user);
-		})
-	});
+		});
+	}).catch(err => {
+		console.log('error', err);
+	})
 }
 
 exports.findEligibleAccountsToBuyBooks = function () {
-	User.find({
-		'stripe.balance': {
-			$gte: 100
-		}
-	}).then((users) => {
+	const startOfMonth = moment().startOf('month').toDate();
+	User.find({'stripe.balance': {$gte: 500}}).then(users => {
 		_.each(users, (user) => {
-			let promisifiedPreferences = Preferences.findOne({userId: user.id}).exec();
-  			let promisifiedWishlist = Wishlist.findOne({userId: user.id}).exec();
-
-  			Promise.all([promisifiedPreferences, promisifiedWishlist])
-		    .spread((preferences, wishlist) => {
-		    	const items = wishlist.items;
-		    	_.forEach(items, WishlistService.findCheapestPrice)
-		    });
+			PurchaseService.qualifyPurchaser(user, startOfMonth);
 		});
 	});
 }
