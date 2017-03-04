@@ -17,6 +17,16 @@ module.exports = {
 		secret: process.env.STRIPESECRET,
 		public: process.env.STRIPEPUBLIC
 	},
+	gmail: {
+		mailUser: process.env.GMAIL_USER,
+		mailPass: process.env.GMAIL_PASSWORD,
+		clientId: process.env.GMAIL_CLIENT_ID,
+		clientSecret: process.env.GMAIL_CLIENT_SECRET,
+		refreshToken: process.env.GMAIL_REFRESH_TOKEN,
+		accessToken: process.env.GMAIL_ACCESS_TOKEN,
+		serviceClientId: process.env.SERVICE_CLIENT_ID,
+		servicePrivateKey: process.env.SERVICE_PRIVATE_KEY
+	},
 	zinc: process.env.ZINCCLIENT,
 	globalMax: 5
 };

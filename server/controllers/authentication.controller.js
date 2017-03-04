@@ -1,11 +1,25 @@
 'use strict'
 
 const setUserInfo = require('../helpers').setUserInfo,
+       nodemailer = require('nodemailer'),
               jwt = require('jsonwebtoken'),
            crypto = require('crypto'),
              User = require('../models/user'),
           getRole = require('../helpers').getRole,
            config = require('../config/main');
+
+
+const transporter = nodemailer.createTransport({
+    service: 'Gmail',
+    auth: {
+        type: 'OAuth2',
+        user: `${config.gmail.mailUser}`,
+        clientId: `${config.gmail.clientId}`,
+        clientSecret: `${config.gmail.clientSecret}`,
+        refreshToken: `${config.gmail.refreshToken}`,
+        accessToken: `${config.gmail.accessToken}`
+    }
+});
 
 function invalidEmail (email) {
     return email.indexOf('@') < 0;
@@ -146,18 +160,25 @@ exports.forgotPassword = function (req, res, next) {
                 return next(err);
             });
 
-            const message = {
-                subject: 'Reset Password',
-                text: `${'You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n' +
+            const message = `${'You are receiving this because you (or someone else) have requested a reset of the password for your account.\n\n' +
                 'Please click on the following link, or paste this into your browser to complete the process:\n\n' +
                 'http://'}${req.headers.host}/reset-password/${resetToken}\n\n` +
                 `If you did not request this, please ignore this email and your password will remain unchanged.\n`
+
+            const mailOptions = {
+                from: `${config.gmail.mailUser}`,
+                to: `${email}`,
+                subject: `Your bookhound password reset request has arrived.`,
+                text: message
             };
 
-        // mailgun.sendEmail(existingUser.email, message);
+            transporter.sendMail(mailOptions, function(error, info){
+                if (error) {
+                    return res.send(error);
+                }
+                return res.status(200).json({success: 'Email sent successfully. Please check your inbox to reset your password'});
+            });
 
-            res.status(200).json({ message: 'Please check your email for the link to reset your password.' });
-            return;
         });
     }).catch(err => {
         res.status(422).json({ error: 'Your request could not be processed as entered. Please try again.' });
