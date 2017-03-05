@@ -56,12 +56,19 @@ exports.updateWishlist = function (newWishlist, list, currentUser) {
 }
 
 exports.refreshWishlistItemPrices = function (wishlist, user) {
-    return Preference.findOne({userId: user.id}).then((preferences) => {
+    return Preference.findOne({userId: 'testing'}).then((preferences) => {
+        if (!preferences) {
+            return;
+        }
         return Promise.mapSeries(wishlist.items, (item) => {
             return findCheapestPrice(item, preferences).then(cheapestOffer => {
-                item.price = cheapestOffer.price;
-                item.shipping = cheapestOffer.ship_price;
-                item.merchantId = cheapestOffer.merchantId;
+                if (!cheapestOffer) {
+                    item.unavailable = true;
+                } else {
+                    item.price = cheapestOffer.price;
+                    item.shipping = cheapestOffer.ship_price;
+                    item.merchantId = cheapestOffer.merchantId;
+                }
                 return item;
             });
         }).then((updatedWishlistItems) => {
@@ -80,17 +87,19 @@ exports.refreshWishlistItemPrices = function (wishlist, user) {
 }
 
 function findCheapestPrice (item, preferences) {
-  return ZincService.product.getPrices(item)
-    .then(response => {
-        let cheapestOffer = false;
-        return Promise.each(response.offers, (candidateOffer) => {
-            candidateOffer.price = Math.round(candidateOffer.price * 100);
-            candidateOffer.ship_price = Math.round(candidateOffer.ship_price * 100);
-            if (suitableCondition(candidateOffer, preferences) && isCheaper(candidateOffer, cheapestOffer)) {
-                cheapestOffer = candidateOffer;
+    return ZincService.product.getPrices(item)
+        .then(response => {
+            let cheapestOffer = false;
+            return Promise.each(response.offers, (candidateOffer) => {
+                candidateOffer.price = Math.round(candidateOffer.price * 100);
+                candidateOffer.ship_price = Math.round(candidateOffer.ship_price * 100);
+                if (suitableCondition(candidateOffer, preferences) && isCheaper(candidateOffer, cheapestOffer)) {
+                    cheapestOffer = candidateOffer;
             }
-        }).then(resolved => cheapestOffer);
-  });
+        }).then(resolved => {
+            return cheapestOffer;
+        });
+    });
 }
 
 function isCheaper(candidateOffer, currentCheapest) {

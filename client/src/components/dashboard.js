@@ -22,6 +22,9 @@ class Dashboard extends Component {
       return (<li>No items in this wishlist yet! Add some then click "Refresh"</li>);
     }
     return _.map(items, (item) => {
+      if (item.unavailable) {
+        return (<li><a href={item.link} target="_blank">{item.title}</a>: Not available with your current preferences!</li>)
+      }
       return (<li><a href={item.link} target="_blank">{item.title}</a>: ${(item.price/100).toFixed(2)}</li>);
     });
   }

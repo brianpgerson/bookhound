@@ -29,6 +29,11 @@ const WishlistItemSchema = new Schema({
     },
     merchantId: {
         type: String
+    },
+    unavailable: {
+        type: Boolean,
+        required: true,
+        default: false
     }
 });
 
