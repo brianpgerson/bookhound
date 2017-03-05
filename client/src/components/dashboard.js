@@ -80,7 +80,7 @@ class Dashboard extends Component {
   }
 
   renderWishlist(wishlist) {
-    if (wishlist) {
+    if (wishlist && wishlist.id && !wishlist.updating) {
       const wishlistUrl = `https://www.amazon.com/gp/registry/wishlist/${wishlist.id}`;
       return (
         <div className="col-md-6">
@@ -97,6 +97,12 @@ class Dashboard extends Component {
            </p>
         </div>
       )
+    } else if (_.get(wishlist, 'updating')) {
+      return <div className="col-md-4">
+        <h4>WishList Information</h4>
+        <p className="bad-text">Hang tight! We're updating your wishlist connection</p>
+        <p><button disabled className="btn btn-default">Add Wishlist</button></p>
+      </div>
     } else {
       return <div className="col-md-4">
         <h4>WishList Information</h4>
