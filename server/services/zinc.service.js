@@ -45,7 +45,7 @@ module.exports = {
             return post('https://api.zinc.io/v1/orders', data);
         },
         retrieve: function(order_id) {
-            return get('https://api.zinc.io/v1/orders/' + order_id, {});
+            return get('https://api.zinc.io/v1/orders/' + order_id);
         },
         cancel: function(order_id) {
             return post('https://api.zinc.io/v1/orders/' + order_id + '/cancellation', requestParams);

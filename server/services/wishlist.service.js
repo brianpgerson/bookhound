@@ -1,12 +1,11 @@
 'use strict'
 
-const AmazonWishlist = require('amazon-wish-list'),
-             Promise = require('bluebird'),
-            Wishlist = require('../models/wishlist').Wishlist,
-        WishlistItem = require('../models/wishlist').WishlistItem,
-         ZincService = Promise.promisifyAll(require('./zinc.service')),
-                   _ = require('lodash');
-
+const   Promise = require('bluebird'),
+     Preference = require('../models/preferences'),
+       Wishlist = require('../models/wishlist').Wishlist,
+   WishlistItem = require('../models/wishlist').WishlistItem,
+    ZincService = Promise.promisifyAll(require('./zinc.service')),
+              _ = require('lodash');
 
 exports.getWishlist = function (requestBody) {
     let wishlistUrl = requestBody.wishlistUrl;
@@ -25,97 +24,90 @@ exports.getWishlistItems = function (list) {
     });
 }
 
-exports.saveWishlist = function (wishlist, currentUser, res) {
-    aws.getById(wishlist.id).then(list => {
-        if (!list) {
-            res.status(500).send({ error: `Couldn't access your wishlist at ${req.body.wishlistUrl}. Try again?` });
-            return;
-        }
-
-        wishlist.items = this.getWishlistItems(list);
-        wishlist.userId = currentUser._id;
-        const newWishlist = new Wishlist(wishlist);
-        newWishlist.save().then(savedWishlist => {
-            new Preference({userId: currentUser._id}).save(prefs => {
-                res.status(201).json({
-                    wishlist: savedWishlist
-                });
-            }).catch(err => {
-                res.status(422).send({ error: err });
+exports.saveWishlist = function (wishlist, list, currentUser) {
+    const _this = this;
+    wishlist.items = this.getWishlistItems(list);
+    wishlist.userId = currentUser._id;
+    const newWishlist = new Wishlist(wishlist);
+    return new Preference({userId: currentUser._id}).save().then(prefs => {
+        if (_.isEmpty(newWishlist.items)) {
+            return newWishlist.save().then(savedWishlist => {
+                return savedWishlist;
             });
-        });
-    }).catch(err => {
-        res.status(500).send({error: err});
+        } else {
+            return _this.refreshWishlistItemPrices(newWishlist, currentUser)
+                .then(refreshedWishlist => {
+                    console.log('refreshed', refreshedWishlist);
+                    return refreshedWishlist;
+                });
+        }
     });
 }
 
-exports.updateWishlist = function (newWishlist, currentUser, res) {
+exports.updateWishlist = function (newWishlist, list, currentUser) {
     const _this = this;
-    const aws = new AmazonWishlist.default('com');
-    aws.getById(newWishlist.id).then(list => {
-        if (!list) {
-            res.status(422).send({ error: `Couldn't access your wishlist at ${newWishlist.id}. Try again?` });
-            return;
-        }
 
-        newWishlist.items = this.getWishlistItems(list);
-        Wishlist.findOneAndUpdate(
+    newWishlist.items = this.getWishlistItems(list);
+
+    if (_.isEmpty(newWishlist.items)) {
+        return Wishlist.findOneAndUpdate(
             {userId: currentUser._id},
             newWishlist,
-            {runValidators: true})
-        .then(modifiedWishlist => {
-            if (_.isEmpty(modifiedWishlist.items)) {
-                res.status(201).json({
-                    wishlist: refreshedWishlist
-                });
-            } else {
-                _this.refreshWishlistItemPrices(modifiedWishlist, currentUser).then(refreshedWishlist => {
-                    res.status(201).json({
-                        wishlist: refreshedWishlist
-                    });
-                }).catch(err => {
-                    res.status(500).send({error: err});
-                });
-            }
-        }).catch(err => {
-            res.status(422).send({error: err});
-        });
-    }).catch(err => {
-        res.status(500).send({error: err});
-    });
+            {runValidators: true, new: true}).then(savedWishlist => {
+                return savedWishlist;
+            });
+    } else {
+        return _this.refreshWishlistItemPrices(newWishlist, currentUser)
+            .then(refreshedWishlist => {
+                return refreshedWishlist;
+            });
+    }
 }
 
 exports.refreshWishlistItemPrices = function (wishlist, user) {
-    return Preferences.findOne({userId: user.id}).then((preferences) => {
-        const items = wishlist.items;
-        return Promise.each(items, (item) => {
-            return WishlistService.findCheapestPrice(item, preferences).then(cheapestOffer => {
+    return Preference.findOne({userId: user.id}).then((preferences) => {
+        return Promise.mapSeries(wishlist.items, (item) => {
+            return findCheapestPrice(item, preferences).then(cheapestOffer => {
                 item.price = cheapestOffer.price;
                 item.shipping = cheapestOffer.ship_price;
                 item.merchantId = cheapestOffer.merchantId;
-                return item.save()
+                return item;
             });
-        }).then(() => {
-            return wishlist;
+        }).then((updatedWishlistItems) => {
+            console.log('updated stuff!!!!')
+            wishlist.items = updatedWishlistItems;
+            return Wishlist.findOneAndUpdate(
+                {userId: user._id},
+                wishlist,
+                {   runValidators: true,
+                    new: true,
+                    upsert: true
+                }).then(updated => {
+                    console.log('updated', updated);
+                    return updated;
+                });
         });
     });
 }
 
-function findCheapestPrice (item) {
+function findCheapestPrice (item, preferences) {
   return ZincService.product.getPrices(item)
     .then(response => {
-        let cheapestOffer;
-        _.forEach(response.offers, (offer) => {
-            if (suitableConfition(offer, preferences) && isCheaper(offer, cheapestOffer)) {
-                cheapestOffer = offer;
+        let cheapestOffer = false;
+        return Promise.each(response.offers, (candidateOffer) => {
+            candidateOffer.price = Math.round(candidateOffer.price * 100);
+            candidateOffer.ship_price = Math.round(candidateOffer.ship_price * 100);
+            if (suitableCondition(candidateOffer, preferences) && isCheaper(candidateOffer, cheapestOffer)) {
+                cheapestOffer = candidateOffer;
             }
+        }).then(resolved => {
+            return cheapestOffer;
         });
-        return cheapestOffer;
   });
 }
 
 function isCheaper(candidateOffer, currentCheapest) {
-    return (_.isUndefined(candidateOffer) || currentCheapest < (candidateOffer.price + candidateOffer.ship_price));
+    return (!currentCheapest || (currentCheapest.price + currentCheapest.ship_price) > (candidateOffer.price + candidateOffer.ship_price));
 };
 
 function suitableCondition(offer, preferences) {
