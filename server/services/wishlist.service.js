@@ -31,15 +31,10 @@ exports.saveWishlist = function (wishlist, list, currentUser) {
     const newWishlist = new Wishlist(wishlist);
     return new Preference({userId: currentUser._id}).save().then(prefs => {
         if (_.isEmpty(newWishlist.items)) {
-            return newWishlist.save().then(savedWishlist => {
-                return savedWishlist;
-            });
+            return newWishlist.save().then(savedWishlist => savedWishlist);
         } else {
             return _this.refreshWishlistItemPrices(newWishlist, currentUser)
-                .then(refreshedWishlist => {
-                    console.log('refreshed', refreshedWishlist);
-                    return refreshedWishlist;
-                });
+                .then(refreshedWishlist => refreshedWishlist);
         }
     });
 }
@@ -53,14 +48,10 @@ exports.updateWishlist = function (newWishlist, list, currentUser) {
         return Wishlist.findOneAndUpdate(
             {userId: currentUser._id},
             newWishlist,
-            {runValidators: true, new: true}).then(savedWishlist => {
-                return savedWishlist;
-            });
+            {runValidators: true, new: true}).then(savedWishlist => savedWishlist);
     } else {
         return _this.refreshWishlistItemPrices(newWishlist, currentUser)
-            .then(refreshedWishlist => {
-                return refreshedWishlist;
-            });
+            .then(refreshedWishlist => refreshedWishlist);
     }
 }
 
@@ -74,7 +65,6 @@ exports.refreshWishlistItemPrices = function (wishlist, user) {
                 return item;
             });
         }).then((updatedWishlistItems) => {
-            console.log('updated stuff!!!!')
             wishlist.items = updatedWishlistItems;
             return Wishlist.findOneAndUpdate(
                 {userId: user._id},
@@ -83,7 +73,6 @@ exports.refreshWishlistItemPrices = function (wishlist, user) {
                     new: true,
                     upsert: true
                 }).then(updated => {
-                    console.log('updated', updated);
                     return updated;
                 });
         });
@@ -100,9 +89,7 @@ function findCheapestPrice (item, preferences) {
             if (suitableCondition(candidateOffer, preferences) && isCheaper(candidateOffer, cheapestOffer)) {
                 cheapestOffer = candidateOffer;
             }
-        }).then(resolved => {
-            return cheapestOffer;
-        });
+        }).then(resolved => cheapestOffer);
   });
 }
 
