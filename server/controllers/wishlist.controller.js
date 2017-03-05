@@ -25,7 +25,6 @@ exports.saveWishlist = function (req, res, next) {
         }
 
         WishlistService.saveWishlist(wishlist, list, currentUser).then(wishlist => {
-            console.log('saved it!', wishlist);
             res.status(200).json({wishlist: wishlist});
         }).catch(err => {
             res.status(500).json({error: err});
