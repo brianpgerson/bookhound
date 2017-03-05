@@ -48,11 +48,7 @@ class Preferences extends Component {
   }
 
   isDisabled(type) {
-    var cool = this.props
-    var dog = 'cool';
-    if (dog) {
-      console.log('4')
-    }
+    var cool = this.props;
   }
 
   renderAlert() {

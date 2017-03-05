@@ -5,6 +5,7 @@ const setUserInfo = require('../helpers').setUserInfo,
               jwt = require('jsonwebtoken'),
            crypto = require('crypto'),
              User = require('../models/user'),
+           Mailer = require('../services/mailer.service'),
           getRole = require('../helpers').getRole,
            config = require('../config/main');
 
@@ -160,24 +161,11 @@ exports.forgotPassword = function (req, res, next) {
                 return next(err);
             });
 
-            const message = `${'You are receiving this because you (or someone else) have requested a reset of the password for your account.\n\n' +
-                'Please click on the following link, or paste this into your browser to complete the process:\n\n' +
-                'http://'}${req.headers.host}/reset-password/${resetToken}\n\n` +
-                `If you did not request this, please ignore this email and your password will remain unchanged.\n`
-
-            const mailOptions = {
-                from: `${config.gmail.mailUser}`,
-                to: `${email}`,
-                subject: `Your bookhound password reset request has arrived.`,
-                text: message
-            };
-
-            transporter.sendMail(mailOptions, function(error, info){
-                if (error) {
-                    return res.send(error);
-                }
-                return res.status(200).json({success: 'Email sent successfully. Please check your inbox to reset your password'});
-            });
+            Mailer.sendResetPasswordEmail(req.headers.host, email, resetToken).then(success => {
+                res.status(200).json({success: 'Email sent successfully. Please check your inbox to reset your password'});
+            }).catch(error => {
+                res.send(error);
+            })
 
         });
     }).catch(err => {

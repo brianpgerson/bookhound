@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { Field, reduxForm } from 'redux-form';
 import { CLIENT_ROOT_URL } from '../../constants/constants';
 import Preferences from '../preferences';
-import { Link } from 'react-router';
+import { Link, browserHistory } from 'react-router';
 import { saveWishlist,
          updateWishlist,
          getUserSetup } from '../../actions/setup-actions';
@@ -44,15 +44,18 @@ class Wishlist extends Component {
 
   handleFormSubmit(formProps) {
     const { wishlist, saveWishlist, updateWishlist } = this.props;
+    const isUpdating = _.get(wishlist, 'id', false);
     let next;
-    if (!!wishlist) {
+    if (isUpdating) {
       updateWishlist(formProps);
       next = '/dashboard';
     } else {
       saveWishlist(formProps);
       next = '/bank';
     }
-    window.location.href = CLIENT_ROOT_URL + next;
+
+    browserHistory.push(next);
+
   }
 
   componentWillUnmount() {
@@ -71,10 +74,10 @@ class Wishlist extends Component {
 
   render() {
     const { handleSubmit, wishlist } = this.props;
-
+    const isUpdating = _.get(wishlist, 'id', false);
     return (
       <div>
-        <h1 className="text-center">{!!wishlist ? 'Update Wishlist' : 'Enter a Wishlist'}</h1>
+        <h1 className="text-center">{isUpdating ? 'Update Wishlist' : 'Enter a Wishlist'}</h1>
         <section className="container">
           <div className="row">
             <div className="col-md-4 col-md-offset-4 is-white-background form-panel">
@@ -92,7 +95,7 @@ class Wishlist extends Component {
                   <Field name="wishlistUrl" className="form-control" component={renderField} type="text" />
                 </div>
                 <div className="form-group">
-                  <button type="submit" className="btn btn-primary">{wishlist ? 'Update Wishlist' : 'Save Wishlist'}</button>
+                  <button type="submit" className="btn btn-primary">{isUpdating ? 'Update Wishlist' : 'Save Wishlist'}</button>
                 </div>
               </form>
               </div>

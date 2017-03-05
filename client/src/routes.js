@@ -1,5 +1,5 @@
 import React from 'react';
-import { Route, IndexRoute } from 'react-router';
+import { Router, Route, IndexRoute, browserHistory } from 'react-router';
 
 import App from './components/app';
 import NotFoundPage from './components/pages/not-found-page';
@@ -21,17 +21,19 @@ import Dashboard from './components/dashboard';
 import RequireAuth from './components/auth/require-auth';
 
 export default (
-  <Route path="/" component={App}>
-    <IndexRoute component={HomePage} />
-    <Route path="login" component={Login} />
-    <Route path="logout" component={Logout} />
-    <Route path="forgot-password" component={ForgotPassword} />
-    <Route path="reset-password/:resetToken" component={ResetPassword} />
-    <Route path="register" component={Register} />
-    <Route path="address" component={RequireAuth(Address)} />
-    <Route path="wishlist" component={RequireAuth(Wishlist)} />
-    <Route path="bank" component={RequireAuth(Bank)} />
-    <Route path="dashboard" component={RequireAuth(Dashboard)} />
-    <Route path="*" component={NotFoundPage} />
-  </Route>
+    <Router history={browserHistory}>
+        <Route path="/" component={App}>
+            <IndexRoute component={HomePage} />
+            <Route path="login" component={Login} />
+            <Route path="logout" component={Logout} />
+            <Route path="forgot-password" component={ForgotPassword} />
+            <Route path="reset-password/:resetToken" component={ResetPassword} />
+            <Route path="register" component={Register} />
+            <Route path="address" component={RequireAuth(Address)} />
+            <Route path="wishlist" component={RequireAuth(Wishlist)} />
+            <Route path="bank" component={RequireAuth(Bank)} />
+            <Route path="dashboard" component={RequireAuth(Dashboard)} />
+            <Route path="*" component={NotFoundPage} />
+        </Route>
+    </Router>
 );

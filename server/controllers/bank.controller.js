@@ -12,7 +12,8 @@ const AuthController = require('./authentication.controller'),
 	  			User = require('../models/user'),
 	  		   plaid = require('plaid'),
 	  	      moment = require('moment'),
-	  	      stripe = Promise.promisifyAll(require("stripe")(config.stripe.secret));
+	  	      stripe = Promise.promisifyAll(require("stripe")(config.stripe.secret)),
+	     plaidClient = new plaid.Client(config.plaid.client, config.plaid.secret, plaid.environments.tartan);
 
 exports.getPlaidConfig = function (req, res) {
 	 res.status(200).json({public: config.plaid.public});
@@ -40,14 +41,8 @@ exports.findEligibleAccountsToBuyBooks = function () {
 
 exports.exchange = function (req, res) {
 	const currentUser = req.currentUser;
-	const conf = config.plaid;
 	const public_token = req.body.token;
 	const account_id = req.body.metadata.account_id
-
-	const plaidClient = new plaid.Client(
-		conf.client,
-		conf.secret,
-		plaid.environments.tartan);
 
 	plaidClient.exchangeToken(public_token, account_id).then(exchangeTokenRes => {
 		const accessToken = exchangeTokenRes.access_token;

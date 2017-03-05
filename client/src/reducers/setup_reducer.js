@@ -1,4 +1,12 @@
-import { SAVE_ADDRESS, RECEIVE_PLAID_CONFIG, RECEIVE_USER_SETUP, SAVE_WISHLIST, SAVE_PREFERENCES } from '../actions/types';
+import {
+	SAVE_ADDRESS,
+	RECEIVE_PLAID_CONFIG,
+	RECEIVE_USER_SETUP,
+	SAVE_WISHLIST,
+	WISHLIST_UPDATING,
+	SAVE_PREFERENCES
+} from '../actions/types';
+const _ = require('lodash');
 
 const INITIAL_STATE = {
 	user: {
@@ -17,6 +25,7 @@ const INITIAL_STATE = {
 	},
 	bank: false,
 	wishlist: {
+		updating: false,
 		id: '',
 		items: []
 	},
@@ -44,6 +53,10 @@ export default function (state = INITIAL_STATE, action) {
 					zip: action.payload.zip
 		      	})
      	};
+     	case WISHLIST_UPDATING:
+ 			return { ...state,
+ 				wishlist: _.assign(state.wishlist, {updating: action.payload})
+ 			}
      	case SAVE_WISHLIST:
      		return { ...state,
      			wishlist: {
@@ -59,18 +72,23 @@ export default function (state = INITIAL_STATE, action) {
      			}
      		}
      	case RECEIVE_PLAID_CONFIG:
-     		return { ...state, plaid: {
-     			public: action.payload.public
-     		}}
+     		return { ...state,
+     			plaid: {
+     				public: action.payload.public
+     			}
+     		}
      	case RECEIVE_USER_SETUP:
      		return { ...state,
      			address: action.payload.address,
      			user: action.payload.user,
      			bank: action.payload.bank,
-     			wishlist: action.payload.wishlist,
+     			wishlist: {
+     				id: _.get(action.payload.wishlist, 'id', ''),
+					items: _.get(action.payload.wishlist, 'items', []),
+					updating: state.wishlist.updating
+     			},
      			preferences: action.payload.preferences
      		}
 	}
-
   return state;
 }
