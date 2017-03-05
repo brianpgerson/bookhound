@@ -9,11 +9,11 @@ import {SAVE_ADDRESS,
         RECEIVE_USER_SETUP,
         RECEIVE_PLAID_CONFIG } from './types';
 
-function getToken() {
+function getToken () {
   return {headers: { 'Authorization': cookie.load('token')}};
 };
 
-function startSavingWishlist() {
+function startSavingWishlist () {
   return {
     type: WISHLIST_UPDATING,
     payload: true
@@ -34,7 +34,7 @@ function endSavingWishlist () {
   };
 }
 
-export function getPlaidConfig() {
+export function getPlaidConfig () {
   const jwt = getToken();
   return function(dispatch) {
     axios.get(`${API_URL}/setup/plaid`, jwt)
@@ -47,7 +47,7 @@ export function getPlaidConfig() {
   }
 };
 
-export function exchangeToken(tokenMetadata) {
+export function exchangeToken (tokenMetadata) {
   const jwt = getToken();
   return function(dispatch) {
     axios.post(`${API_URL}/setup/exchange-token`, tokenMetadata, jwt).then(response => {
@@ -58,7 +58,7 @@ export function exchangeToken(tokenMetadata) {
   }
 };
 
-export function getUserSetup() {
+export function getUserSetup () {
   const jwt = getToken();
   return function(dispatch) {
     axios.get(`${API_URL}/setup/user`, jwt).then(response => {
@@ -73,7 +73,7 @@ export function getUserSetup() {
   }
 };
 
-export function saveAddress(addressFields) {
+export function saveAddress (addressFields) {
   const jwt = getToken();
   return function(dispatch) {
       axios.post(`${API_URL}/setup/address`, addressFields, jwt)
@@ -90,7 +90,7 @@ export function saveAddress(addressFields) {
     }
 };
 
-export function updateAddress(addressFields) {
+export function updateAddress (addressFields) {
   const jwt = getToken();
   return function(dispatch) {
       axios.put(`${API_URL}/setup/address`, addressFields, jwt)
@@ -107,7 +107,7 @@ export function updateAddress(addressFields) {
     }
 };
 
-export function saveWishlist(wishlistUrl) {
+export function saveWishlist (wishlistUrl) {
   const jwt = getToken();
   return function(dispatch) {
       dispatch(startSavingWishlist());
@@ -123,7 +123,7 @@ export function saveWishlist(wishlistUrl) {
     }
 };
 
-export function refreshWishlistItems(wishlistUrl) {
+export function refreshWishlistItems (wishlistUrl) {
   const jwt = getToken();
   return function(dispatch) {
       dispatch(startSavingWishlist());
@@ -139,7 +139,7 @@ export function refreshWishlistItems(wishlistUrl) {
     }
 };
 
-export function updateWishlist(wishlistUrl) {
+export function updateWishlist (wishlistUrl) {
   const jwt = getToken();
   return function(dispatch) {
       dispatch(startSavingWishlist());
@@ -155,7 +155,7 @@ export function updateWishlist(wishlistUrl) {
     }
 };
 
-export function updatePreferences(preferences) {
+export function updatePreferences (preferences) {
   const jwt = getToken();
   return function(dispatch) {
       axios.put(`${API_URL}/setup/preferences`, preferences, jwt)

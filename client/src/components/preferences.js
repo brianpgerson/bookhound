@@ -40,7 +40,8 @@ function validate(formProps) {
 
 class Preferences extends Component {
   handleFormSubmit(formProps) {
-    this.props.updatePreferences(formProps);
+    var prefs = _.assign(this.props.preferences, formProps);
+    this.props.updatePreferences(prefs);
   }
 
   componentWillUnmount() {
@@ -103,4 +104,4 @@ function mapStateToProps(state) {
   };
 }
 
-export default connect(mapStateToProps, { setupActions, clearErrors })(form(Preferences));
+export default connect(mapStateToProps, setupActions)(form(Preferences));
