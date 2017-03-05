@@ -4,6 +4,7 @@ import {API_URL, CLIENT_ROOT_URL} from '../constants/constants';
 import { receiveError } from './error-actions';
 import {SAVE_ADDRESS,
         SAVE_WISHLIST,
+        WISHLIST_UPDATING,
         SAVE_PREFERENCES,
         RECEIVE_USER_SETUP,
         RECEIVE_PLAID_CONFIG } from './types';
@@ -11,6 +12,27 @@ import {SAVE_ADDRESS,
 function getToken() {
   return {headers: { 'Authorization': cookie.load('token')}};
 };
+
+function startSavingWishlist() {
+  return {
+    type: WISHLIST_UPDATING,
+    payload: true
+  };
+}
+
+function receiveWishlist (wishlist) {
+  return {
+    type: SAVE_WISHLIST,
+    payload: wishlist
+  };
+}
+
+function endSavingWishlist () {
+  return {
+    type: WISHLIST_UPDATING,
+    payload: false
+  };
+}
 
 export function getPlaidConfig() {
   const jwt = getToken();
@@ -88,12 +110,11 @@ export function updateAddress(addressFields) {
 export function saveWishlist(wishlistUrl) {
   const jwt = getToken();
   return function(dispatch) {
+      dispatch(startSavingWishlist());
       axios.post(`${API_URL}/setup/wishlist`, wishlistUrl, jwt)
       .then(response => {
-        dispatch({
-          type: SAVE_WISHLIST,
-          payload: response.data
-        });
+        dispatch(receiveWishlist(response.data));
+        dispatch(endSavingWishlist());
       })
       .catch((error) => {
         console.log(error);
@@ -105,12 +126,11 @@ export function saveWishlist(wishlistUrl) {
 export function refreshWishlistItems(wishlistUrl) {
   const jwt = getToken();
   return function(dispatch) {
-      axios.put(`${API_URL}/setup/wishlist`, wishlistUrl, jwt)
+      dispatch(startSavingWishlist());
+      axios.put(`${API_URL}/setup/wishlist/refresh`, wishlistUrl, jwt)
       .then(response => {
-        dispatch({
-          type: SAVE_WISHLIST,
-          payload: response.data
-        });
+        dispatch(receiveWishlist(response.data));
+        dispatch(endSavingWishlist());
       })
       .catch((error) => {
         console.log(error);
@@ -122,12 +142,11 @@ export function refreshWishlistItems(wishlistUrl) {
 export function updateWishlist(wishlistUrl) {
   const jwt = getToken();
   return function(dispatch) {
+      dispatch(startSavingWishlist());
       axios.put(`${API_URL}/setup/wishlist`, wishlistUrl, jwt)
       .then(response => {
-        dispatch({
-          type: SAVE_WISHLIST,
-          payload: response.data
-        });
+        dispatch(receiveWishlist(response.data));
+        dispatch(endSavingWishlist());
       })
       .catch((error) => {
         console.log(error);
