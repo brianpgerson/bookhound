@@ -104,4 +104,4 @@ function mapStateToProps(state) {
   };
 }
 
-export default connect(mapStateToProps, setupActions)(form(Preferences));
+export default connect(mapStateToProps, {setupActions, clearErrors})(form(Preferences));
