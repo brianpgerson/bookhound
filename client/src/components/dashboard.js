@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Link } from 'react-router';
+import { Link, browserHistory } from 'react-router';
 import { Field, reduxForm } from 'redux-form';
 import Preferences from './preferences';
 import { connect } from 'react-redux';

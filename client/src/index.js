@@ -17,11 +17,11 @@ const store = createStoreWithMiddleware(reducers);
 const token = cookie.load('token');
 
 if (token) {
-  store.dispatch({ type: AUTH_USER });
+  	store.dispatch({ type: AUTH_USER });
 }
 
 ReactDOM.render(
-  <Provider store={store}>
-    <Router history={browserHistory} routes={routes} />
-  </Provider>,
-  document.querySelector('.wrapper'));
+  	<Provider store={store}>
+    	<Router history={browserHistory} routes={routes} />
+  	</Provider>,
+  	document.querySelector('.wrapper'));

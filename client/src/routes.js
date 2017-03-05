@@ -21,19 +21,17 @@ import Dashboard from './components/dashboard';
 import RequireAuth from './components/auth/require-auth';
 
 export default (
-    <Router history={browserHistory}>
-        <Route path="/" component={App}>
-            <IndexRoute component={HomePage} />
-            <Route path="login" component={Login} />
-            <Route path="logout" component={Logout} />
-            <Route path="forgot-password" component={ForgotPassword} />
-            <Route path="reset-password/:resetToken" component={ResetPassword} />
-            <Route path="register" component={Register} />
-            <Route path="address" component={RequireAuth(Address)} />
-            <Route path="wishlist" component={RequireAuth(Wishlist)} />
-            <Route path="bank" component={RequireAuth(Bank)} />
-            <Route path="dashboard" component={RequireAuth(Dashboard)} />
-            <Route path="*" component={NotFoundPage} />
-        </Route>
-    </Router>
+    <Route path="/" component={App}>
+        <IndexRoute component={HomePage} />
+        <Route path="login" component={Login} />
+        <Route path="logout" component={Logout} />
+        <Route path="forgot-password" component={ForgotPassword} />
+        <Route path="reset-password/:resetToken" component={ResetPassword} />
+        <Route path="register" component={Register} />
+        <Route path="address" component={RequireAuth(Address)} />
+        <Route path="wishlist" component={RequireAuth(Wishlist)} />
+        <Route path="bank" component={RequireAuth(Bank)} />
+        <Route path="dashboard" component={RequireAuth(Dashboard)} />
+        <Route path="*" component={NotFoundPage} />
+    </Route>
 );

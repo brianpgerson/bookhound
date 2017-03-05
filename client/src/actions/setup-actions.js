@@ -1,11 +1,14 @@
 import axios from 'axios';
+import * as _ from 'lodash';
 import cookie from 'react-cookie';
+import { browserHistory } from 'react-router';
 import {API_URL, CLIENT_ROOT_URL} from '../constants/constants';
 import { receiveError } from './error-actions';
 import {SAVE_ADDRESS,
         SAVE_WISHLIST,
         WISHLIST_UPDATING,
         SAVE_PREFERENCES,
+        UNAUTH_USER,
         RECEIVE_USER_SETUP,
         RECEIVE_PLAID_CONFIG } from './types';
 
@@ -67,9 +70,14 @@ export function getUserSetup () {
         payload: response.data
       });
     }).catch(error => {
-      console.log(error);
-      receiveError(dispatch, error);
-    })
+      if (_.get(error, 'response.status') === 401) {
+        dispatch({ type: UNAUTH_USER });
+        browserHistory.push('/login');
+      } else {
+        console.log(error);
+        receiveError(dispatch, error);
+      }
+    });
   }
 };
 
