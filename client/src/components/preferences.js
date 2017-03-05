@@ -31,7 +31,7 @@ function validate(formProps) {
     errors.used = 'Please choose at least one preferred condition.';
   }
 
-  if (formProps.maxMonthlyOrderFrequency && !formProps.maxMonthlyOrderFrequency < 1) {
+  if (formProps.maxMonthlyOrderFrequency && formProps.maxMonthlyOrderFrequency < 1) {
     errors.maxMonthlyOrderFrequency = 'Max order frequency must be at least 1';
   }
 
