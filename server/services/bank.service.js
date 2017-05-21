@@ -7,7 +7,7 @@ const bluebird = require('bluebird'),
 	  	config = require('../config/main'),
 	  	 Stats = require('fast-stats').Stats,
 	  	  User = require('../models/user'),
-   plaidClient = new plaid.Client(config.plaid.client, config.plaid.secret, plaid.environments.tartan);
+   plaidClient = new plaid.Client(config.plaid.client, config.plaid.secret, config.plaid.public, plaid.environments.sandbox);
 
 exports.getBasicUserInfo = function (financialData) {
 	let accessToken = financialData.accessToken;

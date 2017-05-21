@@ -22,12 +22,12 @@ const renderField = field => (
     </div>
 );
 
-const renderSelectField = ({ input }) => (
+const renderSelectField = field => (
   <div>
-    <label>{input.label}</label>
+    <label>{field.label}</label>
     <div>
-      <select className="form-control" {...input}>
-        {input.children}
+      <select className="form-control" {...field.input}>
+        {field.children}
       </select>
     </div>
   </div>
@@ -112,7 +112,7 @@ class Address extends Component {
                     </div>
                     <div className="form-group">
                         <Field name="state" component={renderSelectField} label="State">
-                          { constants.states.map(state => <option value={state.abbreviation}>{state.name}</option>) }
+                          { constants.states.map(function (state) { return <option value={state.abbreviation}>{state.name}</option> })}
                         </Field>
                     </div>
                     <div className="form-group">
