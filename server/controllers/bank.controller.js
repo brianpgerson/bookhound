@@ -44,7 +44,8 @@ exports.exchange = function (req, res) {
 	const public_token = req.body.token;
 	const account_id = req.body.metadata.account_id
 
-	plaidClient.exchangeToken(public_token, account_id).then(exchangeTokenRes => {
+	plaidClient.exchangePublicToken(public_token).then(exchangeTokenRes => {
+		console.log(exchangeTokenRes);
 		const accessToken = exchangeTokenRes.access_token;
 		const stripeBankToken = exchangeTokenRes.stripe_bank_account_token;
 
