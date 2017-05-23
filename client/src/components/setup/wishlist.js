@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Field, reduxForm } from 'redux-form';
 import { CLIENT_ROOT_URL } from '../../constants/constants';
-import Preferences from '../preferences';
 import { Link, browserHistory } from 'react-router';
 import { saveWishlist,
          updateWishlist,
@@ -26,10 +25,6 @@ const validate = formProps => {
 
   if (!formProps.wishlistUrl) {
     errors.wishlistUrl = 'Please enter a valid URL';
-  }
-
-  if (!formProps.maxMonthlyOrderFrequency < 1) {
-    errors.maxMonthlyOrderFrequency = 'Max order frequency must be at least 1';
   }
 
   return errors;
