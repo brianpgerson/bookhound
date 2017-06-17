@@ -37,22 +37,6 @@ const WishlistItemSchema = new Schema({
     }
 });
 
-const WishlistSchema = new Schema({
-    userId: {
-        type: String,
-        required: true,
-    },
-    id: {
-        type: String,
-        required: true
-    },
-    items: [WishlistItemSchema]
-},
-    {
-        timestamps: true
-    });
-
 module.exports = {
-  Wishlist: mongoose.model('Wishlist', WishlistSchema),
   WishlistItem: mongoose.model('WishlistItem', WishlistItemSchema)
 }

@@ -1,5 +1,6 @@
 const mongoose = require('mongoose'),
         bcrypt = require('bcrypt-nodejs'),
+  wishlistItem = require('./wishlist-item'),
    ROLE_NORMAL = require('../constants').ROLE_NORMAL,
     ROLE_ADMIN = require('../constants').ROLE_ADMIN;
 
@@ -36,6 +37,53 @@ const UserSchema = new Schema({
         lastCharge: { type: Date },
         balance: { type: Number }
     },
+    address: {
+        streetAddressOne: {
+            type: String,
+            required: true
+        },
+        streetAddressTwo: {
+            type: String
+        },
+        city: {
+            type: String,
+            required: true
+        },
+        state: {
+            type: String,
+            required: true
+        },
+        zip: {
+            type: String,
+            required: true
+        },
+    }
+    wishlist: {
+        preferredConditions: {
+            new: {
+                type: Boolean,
+                default: true,
+                required: true
+            },
+            used: {
+                type: Boolean,
+                default: true,
+                required: true
+            },
+
+        },
+        maxMonthlyOrderFrequency: {
+            type: Number,
+            default: 1,
+            required: true
+        },
+        id: {
+            type: String,
+            required: true
+        },
+            items: [WishlistItemSchema]
+        },
+    }
     resetPasswordToken: { type: String },
     resetPasswordExpires: { type: Date }
 },
