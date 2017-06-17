@@ -17,7 +17,7 @@ const requiredFields = ['streetAddressOne', 'city', 'zip', 'state'];
 
 const renderField = field => (
     <div>
-      <input className="form-control" {...field.input}/>
+      <input className="form-control" {...field.input} type={field.type}/>
       {field.meta.touched && field.meta.error && <div className="error">{field.meta.error}</div>}
     </div>
 );
@@ -39,11 +39,20 @@ function validate(formProps) {
 
   _.each(requiredFields, (field) => {
     if (!formProps[field]) {
-          errors[field] = 'Please fill out this field';
+      errors[field] = 'Please fill out this field';
+    } else if (field === 'zip' && formProps[field].length < 5) {
+      errors[field] = 'Invalid zip code';
     }
   });
 
   return errors;
+}
+
+const numOnly = (val, prevVal) => {
+   if (!value) {
+    return value
+  }
+  return value.replace(/[^\d]/g, '');
 }
 
 class Address extends Component {
@@ -118,7 +127,7 @@ class Address extends Component {
                     </div>
                     <div className="form-group">
                         <label>Zip Code</label>
-                        <Field name="zip" className="form-control" component={renderField} type="text" />
+                        <Field name="zip" className="form-control" component={renderField} type="number" />
                     </div>
                     <div className="form-group">
                         <button type="submit" className="btn btn-primary">Save Address</button>
@@ -130,7 +139,7 @@ class Address extends Component {
           </div>
         </section>
         <section className="row push-down">
-        </section>
+        </section>a
       </div>
     );
   }
