@@ -2,7 +2,6 @@ const AuthenticationController = require('./controllers/authentication.controlle
              AddressController = require('./controllers/address.controller'),
                 UserController = require('./controllers/user.controller'),
             WishlistController = require('./controllers/wishlist.controller'),
-         PreferencesController = require('./controllers/preferences.controller'),
                        helpers = require('./helpers'),
                 BankController = require('./controllers/bank.controller'),
                        express = require('express'),
@@ -47,7 +46,6 @@ module.exports = function(app) {
 
   apiRoutes.use('/setup', setupRoutes);
   setupRoutes.get('/user', requireAuth, addUserToReq, UserController.getSetup);
-  setupRoutes.put('/preferences', requireAuth, addUserToReq, PreferencesController.updatePreferences);
 
   setupRoutes.post('/address', requireAuth, addUserToReq, AddressController.saveAddress);
   setupRoutes.put('/address', requireAuth, addUserToReq, AddressController.updateAddress);

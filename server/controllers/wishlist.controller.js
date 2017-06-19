@@ -4,8 +4,6 @@ const         Promise = require('bluebird'),
       WishlistService = Promise.promisifyAll(require('../services/wishlist.service')),
        AmazonWishlist = require('amazon-wish-list'),
                   aws = new AmazonWishlist.default('com'),
-             Wishlist = require('../models/wishlist').Wishlist,
-           Preference = require('../models/preferences'),
        AuthController = require('./authentication.controller'),
                     _ = require('lodash');
 
@@ -24,8 +22,8 @@ exports.saveWishlist = function (req, res, next) {
             return;
         }
 
-        WishlistService.saveWishlist(wishlist, list, currentUser).then(wishlist => {
-            res.status(200).json({wishlist: wishlist});
+        WishlistService.saveWishlist(wishlist, list, currentUser).then(user => {
+            res.status(200).json({wishlist: user.wishlist});
         }).catch(err => {
             res.status(500).json({error: err});
         });
@@ -41,12 +39,12 @@ exports.refreshWishlistItems = function (req, res, next) {
         return;
     }
 
-    Wishlist.findOne({id: reqWishlist.id}).then(wishlist => {
-        WishlistService.refreshWishlistItemPrices(wishlist, currentUser).then(udpatedWishlist => {
-            res.status(200).send({wishlist: udpatedWishlist});
-        }).catch(error => {
-            res.status(500).send({error: error});
-        });
+    WishlistService.refreshWishlistItemPrices(currentUser.wishlist).then(refreshedWishlistItems => {
+        const refreshedWishlist = currentUser.wishlist;
+        refreshedWishlist.items = refreshedWishlistItems;
+        res.status(200).send({wishlist: refreshedWishlist});
+    }).catch(error => {
+        res.status(500).send({error: error});
     });
 };
 
@@ -65,8 +63,8 @@ exports.updateWishlist = function (req, res, next) {
             return;
         }
 
-        WishlistService.updateWishlist(newWishlist, list, currentUser).then(wishlist => {
-            res.status(200).json({wishlist: wishlist});
+        WishlistService.updateWishlist(newWishlist, list, currentUser).then(user => {
+            res.status(200).json({wishlist: user.wishlist});
         }).catch(err => {
             res.status(500).json({error: err});
         });

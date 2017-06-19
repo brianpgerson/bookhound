@@ -7,7 +7,6 @@ import { receiveError } from './error-actions';
 import {SAVE_ADDRESS,
         SAVE_WISHLIST,
         WISHLIST_UPDATING,
-        SAVE_PREFERENCES,
         UNAUTH_USER,
         RECEIVE_USER_SETUP,
         RECEIVE_PLAID_CONFIG } from './types';
@@ -162,20 +161,3 @@ export function updateWishlist (wishlistUrl) {
       });
     }
 };
-
-export function updatePreferences (preferences) {
-  const jwt = getToken();
-  return function(dispatch) {
-      axios.put(`${API_URL}/setup/preferences`, preferences, jwt)
-      .then(response => {
-        dispatch({
-          type: SAVE_PREFERENCES,
-          payload: response.data
-        });
-      })
-      .catch((error) => {
-        console.log(error);
-        receiveError(dispatch, error);
-      });
-    }
-}

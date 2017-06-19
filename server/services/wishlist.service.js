@@ -1,20 +1,23 @@
 'use strict'
 
 const   Promise = require('bluebird'),
-     Preference = require('../models/preferences'),
-       Wishlist = require('../models/wishlist').Wishlist,
-   WishlistItem = require('../models/wishlist').WishlistItem,
+   WishlistItem = require('../models/wishlist-item'),
     ZincService = Promise.promisifyAll(require('./zinc.service')),
               _ = require('lodash');
 
 exports.getWishlist = function (requestBody) {
     let wishlistUrl = requestBody.wishlistUrl;
-    return {id: wishlistUrl.split('www.amazon.com/gp/registry/wishlist/')[1].split('/')[0]};
+    return {
+        id: wishlistUrl.split('www.amazon.com/gp/registry/wishlist/')[1].split('/')[0],
+        preferredConditions: requestBody.preferredConditions,
+        maxMonthlyOrderFrequency: requestBody.maxMonthlyOrderFrequency
+    };
 }
 
-exports.getWishlistItems = function (list) {
+exports.getWishlistItems = function (list, userId) {
     return _.map(list.items, (item) => {
         return new WishlistItem({
+            _creator: userId,
             productId: item.id,
             title: item.title,
             link: item.link,
@@ -25,75 +28,58 @@ exports.getWishlistItems = function (list) {
 }
 
 exports.saveWishlist = function (wishlist, list, currentUser) {
-    const _this = this;
-    wishlist.items = this.getWishlistItems(list);
-    wishlist.userId = currentUser._id;
-    const newWishlist = new Wishlist(wishlist);
-    return new Preference({userId: currentUser._id}).save().then(prefs => {
-        if (_.isEmpty(newWishlist.items)) {
-            return newWishlist.save().then(savedWishlist => savedWishlist);
-        } else {
-            return _this.refreshWishlistItemPrices(newWishlist, currentUser)
-                .then(refreshedWishlist => refreshedWishlist);
-        }
-    });
-}
+    wishlist.items = this.getWishlistItems(list, currentUser._id);
+    currentUser.wishlist = wishlist;
 
-exports.updateWishlist = function (newWishlist, list, currentUser) {
-    const _this = this;
-
-    newWishlist.items = this.getWishlistItems(list);
-
-    if (_.isEmpty(newWishlist.items)) {
-        return Wishlist.findOneAndUpdate(
-            {userId: currentUser._id},
-            newWishlist,
-            {runValidators: true, new: true}).then(savedWishlist => savedWishlist);
+    if (_.isEmpty(currentUser.wishlist.items)) {
+        return currentUser.save();
     } else {
-        return _this.refreshWishlistItemPrices(newWishlist, currentUser)
-            .then(refreshedWishlist => refreshedWishlist);
+        return this.refreshWishlistItemPrices(currentUser)
+            .then(refreshedItems => {
+                currentUser.wishlist.items = refreshedItems;
+                return currentUser.save();
+            });
     }
 }
 
-exports.refreshWishlistItemPrices = function (wishlist, user) {
-    return Preference.findOne({userId: 'testing'}).then((preferences) => {
-        if (!preferences) {
-            return;
-        }
-        return Promise.mapSeries(wishlist.items, (item) => {
-            return findCheapestPrice(item, preferences).then(cheapestOffer => {
-                if (!cheapestOffer) {
-                    item.unavailable = true;
-                } else {
-                    item.price = cheapestOffer.price;
-                    item.shipping = cheapestOffer.ship_price;
-                    item.merchantId = cheapestOffer.merchantId;
-                }
-                return item;
+exports.updateWishlist = function (newWishlist, list, currentUser) {
+    newWishlist.items = this.getWishlistItems(list);
+
+    if (_.isEmpty(newWishlist.items)) {
+        currentUser.wishlist = newWishlist;
+        return currentUser.save();
+    } else {
+        return this.refreshWishlistItemPrices(currentUser)
+            .then(refreshedItems => {
+                currentUser.wishlist.items = refreshedItems;
+                return currentUser.save();
             });
-        }).then((updatedWishlistItems) => {
-            wishlist.items = updatedWishlistItems;
-            return Wishlist.findOneAndUpdate(
-                {userId: user._id},
-                wishlist,
-                {   runValidators: true,
-                    new: true,
-                    upsert: true
-                }).then(updated => {
-                    return updated;
-                });
-        });
-    });
+    }
 }
 
-function findCheapestPrice (item, preferences) {
+exports.refreshWishlistItemPrices = function (wishlist) {
+    return Promise.mapSeries(wishlist.items, (item) => {
+        return findCheapestPrice(item, wishlist).then(cheapestOffer => {
+            if (!cheapestOffer) {
+                item.unavailable = true;
+            } else {
+                item.price = cheapestOffer.price;
+                item.shipping = cheapestOffer.ship_price;
+                item.merchantId = cheapestOffer.merchantId;
+            }
+            return item;
+        });
+    })
+}
+
+function findCheapestPrice (item, wishlist) {
     return ZincService.product.getPrices(item)
         .then(response => {
             let cheapestOffer = false;
             return Promise.each(response.offers, (candidateOffer) => {
                 candidateOffer.price = Math.round(candidateOffer.price * 100);
                 candidateOffer.ship_price = Math.round(candidateOffer.ship_price * 100);
-                if (suitableCondition(candidateOffer, preferences) && isCheaper(candidateOffer, cheapestOffer)) {
+                if (suitableCondition(candidateOffer, wishlist) && isCheaper(candidateOffer, cheapestOffer)) {
                     cheapestOffer = candidateOffer;
             }
         }).then(resolved => {
@@ -106,7 +92,7 @@ function isCheaper(candidateOffer, currentCheapest) {
     return (!currentCheapest || (currentCheapest.price + currentCheapest.ship_price) > (candidateOffer.price + candidateOffer.ship_price));
 };
 
-function suitableCondition(offer, preferences) {
+function suitableCondition(offer, wishlist) {
     const offerCondition = _.lowerCase(_.first(_.get(offer, 'condition', 'new').split(' ')));
-    return preferences.preferredConditions[offerCondition];
+    return wishlist.preferredConditions[offerCondition];
 };

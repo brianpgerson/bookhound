@@ -7,7 +7,7 @@ const ROLE_NORMAL = require('./constants').ROLE_NORMAL,
 
 exports.addUserToReq = function addUserToReq(req, res, next) {
     AuthController.me(req).then(currentUser => {
-        req.currentUser = _.pick(currentUser, ['_id', 'email', 'profile']);
+        req.currentUser = currentUser;
         next();
     });
 };

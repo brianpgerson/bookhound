@@ -1,6 +1,5 @@
 'use strict'
 const AuthController = require('./authentication.controller'),
-             Address = require('../models/address'),
                    _ = require('lodash');
 
 function getAddress(requestBody) {
@@ -27,11 +26,9 @@ exports.saveAddress = function (req, res, next) {
         return;
     }
 
-    address.userId = currentUser._id;
-    const newAddress = new Address(address);
-
-    newAddress.save().then(savedAddress => {
-        res.status(201).json({address: savedAddress});
+    currentUser.address = address;
+    currentUser.save().then(user => {
+        res.status(201).json({address: user.address});
     });
 };
 
@@ -45,12 +42,9 @@ exports.updateAddress = function (req, res, next) {
         return;
     }
 
-    Address.findOneAndUpdate(
-        {userId: currentUser._id},
-        newAddress,
-        {runValidators: true})
-    .then(modifiedAddress => {
-        res.status(201).json({address: modifiedAddress});
+    currentUser.address = newAddress
+    currentUser.save().then(user => {
+        res.status(201).json({address: user.address});
     }).catch(err => {
         res.status(422).send({error: 'Error saving address: ' + err});
     });

@@ -6,6 +6,11 @@ const Schema = mongoose.Schema;
 //= ===============================
 
 const WishlistItemSchema = new Schema({
+    _creator: {
+        type: String,
+        ref: 'User',
+        required: true
+    },
     productId: {
         type: String,
         required: true

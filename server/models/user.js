@@ -1,6 +1,5 @@
 const mongoose = require('mongoose'),
         bcrypt = require('bcrypt-nodejs'),
-  wishlistItem = require('./wishlist-item'),
    ROLE_NORMAL = require('../constants').ROLE_NORMAL,
     ROLE_ADMIN = require('../constants').ROLE_ADMIN;
 
@@ -9,87 +8,68 @@ const Schema = mongoose.Schema;
 //= ===============================
 // User Schema
 //= ===============================
-const UserSchema = new Schema({
-    email: {
-        type: String,
-        lowercase: true,
-        unique: true,
-        required: true
-    },
-    password: {
-        type: String,
-        required: true
-    },
-    profile: {
-        firstName: { type: String },
-        lastName: { type: String }
-    },
-    role: {
-        type: String,
-        enum: [ROLE_NORMAL, ROLE_ADMIN],
-        default: ROLE_NORMAL
-    },
-    stripe: {
-        customerId: { type: String },
-        stripeBankToken: { type: String },
-        accessToken: { type: String},
-        accountId: { type: String },
-        lastCharge: { type: Date },
-        balance: { type: Number }
-    },
-    address: {
-        streetAddressOne: {
+const UserSchema = new Schema(
+    {
+        email: {
+            type: String,
+            lowercase: true,
+            unique: true,
+            required: true
+        },
+        password: {
             type: String,
             required: true
         },
-        streetAddressTwo: {
-            type: String
+        profile: {
+            firstName: { type: String },
+            lastName: { type: String }
         },
-        city: {
+        role: {
             type: String,
-            required: true
+            enum: [ROLE_NORMAL, ROLE_ADMIN],
+            default: ROLE_NORMAL
         },
-        state: {
-            type: String,
-            required: true
+        stripe: {
+            customerId: { type: String },
+            stripeBankToken: { type: String },
+            accessToken: { type: String},
+            accountId: { type: String },
+            lastCharge: { type: Date },
+            balance: { type: Number }
         },
-        zip: {
-            type: String,
-            required: true
+        address: {
+            streetAddressOne: String,
+            streetAddressTwo: String,
+            city: String,
+            state: String,
+            zip: String
         },
-    }
-    wishlist: {
-        preferredConditions: {
-            new: {
-                type: Boolean,
-                default: true,
-                required: true
-            },
-            used: {
-                type: Boolean,
-                default: true,
-                required: true
-            },
+        wishlist: {
+            id: String,
+            items: [{ type: Schema.Types.ObjectId, ref: 'WishlistItem' }],
+            preferredConditions: {
+                new: {
+                    type: Boolean,
+                    default: true
+                },
+                used: {
+                    type: Boolean,
+                    default: true
+                },
 
+            },
+            maxMonthlyOrderFrequency: {
+                type: Number,
+                default: 1
+            }
         },
-        maxMonthlyOrderFrequency: {
-            type: Number,
-            default: 1,
-            required: true
-        },
-        id: {
-            type: String,
-            required: true
-        },
-            items: [WishlistItemSchema]
-        },
-    }
-    resetPasswordToken: { type: String },
-    resetPasswordExpires: { type: Date }
-},
+        resetPasswordToken: { type: String },
+        resetPasswordExpires: { type: Date },
+    },
     {
         timestamps: true
-    });
+    }
+);
 
 //= ===============================
 // User ORM Methods

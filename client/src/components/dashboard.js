@@ -125,9 +125,6 @@ class Dashboard extends Component {
           <p>Here's where you can see your current settings and update anything that needs changing!</p>
         </section>
         <section className="row pad-bottom">
-          <Preferences/>
-        </section>
-        <section className="row pad-bottom">
           {this.renderAddress(address)}
         </section>
         <section className="row pad-bottom">

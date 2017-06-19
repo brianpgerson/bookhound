@@ -4,7 +4,6 @@ import {
 	RECEIVE_USER_SETUP,
 	SAVE_WISHLIST,
 	WISHLIST_UPDATING,
-	SAVE_PREFERENCES
 } from '../actions/types';
 const _ = require('lodash');
 
@@ -27,18 +26,16 @@ const INITIAL_STATE = {
 	wishlist: {
 		updating: false,
 		id: '',
+		preferredConditions: {
+			new: undefined,
+			used: undefined
+		},
+		maxMonthlyOrderFrequency: 0,
 		items: []
 	},
 	plaid: {
 		public: ''
 	},
-	preferences: {
-		preferredConditions: {
-			new: undefined,
-			used: undefined
-		},
-		maxMonthlyOrderFrequency: 0
-	}
 };
 
 export default function (state = INITIAL_STATE, action) {
@@ -61,14 +58,9 @@ export default function (state = INITIAL_STATE, action) {
      		return { ...state,
      			wishlist: {
      				id: action.payload.wishlist.id,
-     				items: action.payload.wishlist.items
-     			}
-     		}
-     	case SAVE_PREFERENCES:
-     		return { ...state,
-     			preferences: {
-     				preferredConditions: action.payload.preferences.preferredConditions,
-     				maxMonthlyOrderFrequency: action.payload.preferences.maxMonthlyOrderFrequency
+     				items: action.payload.wishlist.items,
+     				preferredConditions: action.payload.wishlist.preferredConditions,
+     				maxMonthlyOrderFrequency: action.payload.wishlist.maxMonthlyOrderFrequency
      			}
      		}
      	case RECEIVE_PLAID_CONFIG:
@@ -85,9 +77,10 @@ export default function (state = INITIAL_STATE, action) {
      			wishlist: {
      				id: _.get(action.payload.wishlist, 'id', ''),
 					items: _.get(action.payload.wishlist, 'items', []),
+					preferredConditions: action.payload.wishlist.preferredConditions,
+     				maxMonthlyOrderFrequency: action.payload.wishlist.maxMonthlyOrderFrequency,
 					updating: state.wishlist.updating
      			},
-     			preferences: action.payload.preferences
      		}
 	}
   return state;
