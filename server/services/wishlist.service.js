@@ -8,17 +8,17 @@ const   Promise = require('bluebird'),
 exports.getWishlist = function (requestBody) {
     let wishlistUrl = requestBody.wishlistUrl;
     return {
-        id: wishlistUrl.split('www.amazon.com/gp/registry/wishlist/')[1].split('/')[0],
+        id: wishlistUrl,
         preferredConditions: requestBody.preferredConditions,
         maxMonthlyOrderFrequency: requestBody.maxMonthlyOrderFrequency
     };
 }
 
 exports.getWishlistItems = function (list, userId) {
-    return _.map(list.items, (item) => {
+    return _.map(list, (item) => {
         return new WishlistItem({
             _creator: userId,
-            productId: item.id,
+            productId: item.link.split('/')[4],
             title: item.title,
             link: item.link,
             price: item.price,
@@ -34,7 +34,7 @@ exports.saveWishlist = function (wishlist, list, currentUser) {
     if (_.isEmpty(currentUser.wishlist.items)) {
         return currentUser.save();
     } else {
-        return this.refreshWishlistItemPrices(currentUser)
+        return this.refreshWishlistItemPrices(currentUser.wishlist)
             .then(refreshedItems => {
                 currentUser.wishlist.items = refreshedItems;
                 return currentUser.save();
@@ -44,13 +44,11 @@ exports.saveWishlist = function (wishlist, list, currentUser) {
 
 exports.updateWishlist = function (newWishlist, list, currentUser) {
     newWishlist.items = this.getWishlistItems(list);
-
+    currentUser.wishlist = newWishlist;
     if (_.isEmpty(newWishlist.items)) {
-        currentUser.wishlist = newWishlist;
         return currentUser.save();
     } else {
-        return this.refreshWishlistItemPrices(currentUser)
-            .then(refreshedItems => {
+        return this.refreshWishlistItemPrices(currentUser.wishlist).then(refreshedItems => {
                 currentUser.wishlist.items = refreshedItems;
                 return currentUser.save();
             });
@@ -60,6 +58,7 @@ exports.updateWishlist = function (newWishlist, list, currentUser) {
 exports.refreshWishlistItemPrices = function (wishlist) {
     return Promise.mapSeries(wishlist.items, (item) => {
         return findCheapestPrice(item, wishlist).then(cheapestOffer => {
+            console.log('cheapestOffer', cheapestOffer)
             if (!cheapestOffer) {
                 item.unavailable = true;
             } else {
@@ -75,6 +74,7 @@ exports.refreshWishlistItemPrices = function (wishlist) {
 function findCheapestPrice (item, wishlist) {
     return ZincService.product.getPrices(item)
         .then(response => {
+            console.log('a response!', response)
             let cheapestOffer = false;
             return Promise.each(response.offers, (candidateOffer) => {
                 candidateOffer.price = Math.round(candidateOffer.price * 100);
@@ -85,7 +85,7 @@ function findCheapestPrice (item, wishlist) {
         }).then(resolved => {
             return cheapestOffer;
         });
-    });
+    }).catch(err => console.log(err));
 }
 
 function isCheaper(candidateOffer, currentCheapest) {

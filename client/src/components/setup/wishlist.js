@@ -56,13 +56,23 @@ class Wishlist extends Component {
 
   handleFormSubmit(formProps) {
     const { wishlist, saveWishlist, updateWishlist } = this.props;
-    const isUpdating = _.get(wishlist, 'id', false);
+    const isUpdating = _.has(wishlist, 'id');
     let next;
+
+    const wishlistRequest = {
+      wishlistUrl: formProps.wishlistUrl,
+      preferredConditions: {
+        new: formProps.new,
+        used: formProps.used
+      },
+      maxMonthlyOrderFrequency: formProps.maxMonthlyOrderFrequency
+    };
+
     if (isUpdating) {
-      updateWishlist(formProps);
+      updateWishlist(wishlistRequest);
       next = '/dashboard';
     } else {
-      saveWishlist(formProps);
+      saveWishlist(wishlistRequest);
       next = '/bank';
     }
 

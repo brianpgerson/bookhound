@@ -38,7 +38,8 @@
     "request": "^2.79.0",
     "sendgrid": "^4.7.1",
     "stripe": "^4.19.1",
-    "xoauth2": "^1.2.0"
+    "xoauth2": "^1.2.0",
+    "zinc-fetch": "^1.0.8"
   },
   "devDependencies": {
     "should": "^11.2.0",
