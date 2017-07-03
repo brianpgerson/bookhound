@@ -1,8 +1,9 @@
 'use strict'
 
 const   Promise = require('bluebird'),
+         config = require('../config/main'),
+    ZincService = require('zinc-fetch')(config.zinc),
    WishlistItem = require('../models/wishlist-item'),
-    ZincService = require('zinc-fetch'),
               _ = require('lodash');
 
 exports.getWishlist = function (requestBody) {
@@ -15,8 +16,8 @@ exports.getWishlist = function (requestBody) {
 }
 
 exports.getWishlistItems = function (list, userId) {
-    return _.map(list, (item) => {
-        return new WishlistItem({
+    return Promise.mapSeries(list, (item) => {
+        let newItem = new WishlistItem({
             _creator: userId,
             productId: item.link.split('/')[4],
             title: item.title,
@@ -24,41 +25,45 @@ exports.getWishlistItems = function (list, userId) {
             price: item.price,
             shipping: 0
         });
+        return newItem.save();
     });
 }
 
 exports.saveWishlist = function (wishlist, list, currentUser) {
-    wishlist.items = this.getWishlistItems(list, currentUser._id);
-    currentUser.wishlist = wishlist;
+    return this.getWishlistItems(list, currentUser._id).then(items => {
+        wishlist.items = items;    
+        currentUser.wishlist = wishlist;
 
-    if (_.isEmpty(currentUser.wishlist.items)) {
-        return currentUser.save();
-    } else {
-        return this.refreshWishlistItemPrices(currentUser.wishlist)
-            .then(refreshedItems => {
-                currentUser.wishlist.items = refreshedItems;
-                return currentUser.save();
-            });
-    }
+        if (_.isEmpty(currentUser.wishlist.items)) {
+            return currentUser.save();
+        } else {
+            return this.refreshWishlistItemPrices(currentUser.wishlist)
+                .then(refreshedItems => {
+                    currentUser.wishlist.items = refreshedItems;
+                    return currentUser.save();
+                });
+        }
+    });
 }
 
 exports.updateWishlist = function (newWishlist, list, currentUser) {
-    newWishlist.items = this.getWishlistItems(list);
-    currentUser.wishlist = newWishlist;
-    if (_.isEmpty(newWishlist.items)) {
-        return currentUser.save();
-    } else {
-        return this.refreshWishlistItemPrices(currentUser.wishlist).then(refreshedItems => {
-                currentUser.wishlist.items = refreshedItems;
-                return currentUser.save();
-            });
-    }
+    return this.getWishlistItems(list, currentUser._id).then(items => {
+        newWishlist.items = items;    
+        currentUser.wishlist = newWishlist;
+        if (_.isEmpty(newWishlist.items)) {
+            return currentUser.save();
+        } else {
+            return this.refreshWishlistItemPrices(currentUser.wishlist).then(refreshedItems => {
+                    currentUser.wishlist.items = refreshedItems;
+                    return currentUser.save();
+                });
+        }
+    })
 }
 
 exports.refreshWishlistItemPrices = function (wishlist) {
     return Promise.mapSeries(wishlist.items, (item) => {
         return findCheapestPrice(item, wishlist).then(cheapestOffer => {
-            console.log('cheapestOffer', cheapestOffer)
             if (!cheapestOffer) {
                 item.unavailable = true;
             } else {
@@ -66,16 +71,14 @@ exports.refreshWishlistItemPrices = function (wishlist) {
                 item.shipping = cheapestOffer.ship_price;
                 item.merchantId = cheapestOffer.merchantId;
             }
-            return item;
+            return item.save();
         });
     })
 }
 
 function findCheapestPrice (item, wishlist) {
-    console.log(ZincService.product);
-    return ZincService.product.getPrices(item)
+    return ZincService.product.getPrices(item.productId)
         .then(response => {
-            console.log('a response!', response)
             let cheapestOffer = false;
             return Promise.each(response.offers, (candidateOffer) => {
                 candidateOffer.price = Math.round(candidateOffer.price * 100);
@@ -85,8 +88,8 @@ function findCheapestPrice (item, wishlist) {
             }
         }).then(resolved => {
             return cheapestOffer;
-        }).catch(err => console.log(err))
-    }).catch(err => console.log(err));
+        }).catch(err => console.log('an err', err))
+    });
 }
 
 function isCheaper(candidateOffer, currentCheapest) {

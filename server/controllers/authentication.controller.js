@@ -38,13 +38,22 @@ function generateToken(user) {
     });
 }
 
-exports.me = function(req) {
+exports.me = function(req, doPopulate) {
     if (req.headers && req.headers.authorization) {
         const authorization = req.headers.authorization.slice(4);
         const decoded = jwt.verify(authorization, config.secret);
-        return User.findById(decoded._id).then(user => {
-            return user;
-        });
+
+        if (doPopulate) {
+            return User.findById(decoded._id)
+                .populate('wishlist.items')
+                .then(user => {
+                    return user;
+                });
+        } else {
+            return User.findById(decoded._id).then(user => {
+                return user;
+            });
+        }
     }
 }
 

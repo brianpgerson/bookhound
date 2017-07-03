@@ -3,6 +3,7 @@
 const         Promise = require('bluebird'),
       WishlistService = Promise.promisifyAll(require('../services/wishlist.service')),
        AmazonWishlist = require('amazon-wish-list'),
+                 User = require('../models/user'),
     AmazonListScraper = require('amazon-list-scraper'),
                   als = new AmazonListScraper(),
                   aws = new AmazonWishlist.default('com'),
@@ -34,20 +35,15 @@ exports.saveWishlist = function (req, res, next) {
 
 exports.refreshWishlistItems = function (req, res, next) {
     const currentUser = req.currentUser;
-    let reqWishlist = WishlistService.getWishlist(req.body);
-
-    if (!reqWishlist.id) {
-        res.status(422).send({ error: 'Wishlist is invalid' });
-        return;
-    }
-
     WishlistService.refreshWishlistItemPrices(currentUser.wishlist).then(refreshedWishlistItems => {
-        const refreshedWishlist = currentUser.wishlist;
-        refreshedWishlist.items = refreshedWishlistItems;
-        res.status(200).send({wishlist: refreshedWishlist});
+        currentUser.wishlist.items = refreshedWishlistItems;
+        currentUser.save().then(saved => {
+            res.status(200).send({wishlist: saved.wishlist});
+        })
     }).catch(error => {
         res.status(500).send({error: error});
     });
+
 };
 
 exports.updateWishlist = function (req, res, next) {

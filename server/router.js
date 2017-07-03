@@ -14,6 +14,7 @@ const AuthenticationController = require('./controllers/authentication.controlle
 const requireAuth = passport.authenticate('jwt', { session: false });
 const requireLogin = passport.authenticate('local', { session: false });
 const addUserToReq = helpers.addUserToReq;
+const addPopulatedUserToReq = helpers.addPopulatedUserToReq;
 
 module.exports = function(app) {
     // Initializing route groups
@@ -45,14 +46,14 @@ module.exports = function(app) {
   //=========================
 
   apiRoutes.use('/setup', setupRoutes);
-  setupRoutes.get('/user', requireAuth, addUserToReq, UserController.getSetup);
+  setupRoutes.get('/user', requireAuth, addPopulatedUserToReq, UserController.getSetup);
 
   setupRoutes.post('/address', requireAuth, addUserToReq, AddressController.saveAddress);
   setupRoutes.put('/address', requireAuth, addUserToReq, AddressController.updateAddress);
 
-  setupRoutes.post('/wishlist', requireAuth, addUserToReq, WishlistController.saveWishlist);
-  setupRoutes.put('/wishlist', requireAuth, addUserToReq, WishlistController.updateWishlist);
-  setupRoutes.put('/wishlist/refresh', requireAuth, addUserToReq, WishlistController.refreshWishlistItems);
+  setupRoutes.post('/wishlist', requireAuth, addPopulatedUserToReq, WishlistController.saveWishlist);
+  setupRoutes.put('/wishlist', requireAuth, addPopulatedUserToReq, WishlistController.updateWishlist);
+  setupRoutes.put('/wishlist/refresh', requireAuth, addPopulatedUserToReq, WishlistController.refreshWishlistItems);
 
   setupRoutes.post('/exchange-token', requireAuth, addUserToReq, BankController.exchange);
   setupRoutes.get('/plaid', requireAuth, BankController.getPlaidConfig);

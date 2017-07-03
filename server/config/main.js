@@ -27,7 +27,7 @@ module.exports = {
 		serviceClientId: process.env.SERVICE_CLIENT_ID,
 		servicePrivateKey: process.env.SERVICE_PRIVATE_KEY
 	},
-	zinc: process.env.ZINCCLIENT,
+	zinc: process.env.ZINC_KEY,
 	globalMax: 5
 };
 

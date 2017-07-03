@@ -5,12 +5,20 @@ const ROLE_NORMAL = require('./constants').ROLE_NORMAL,
    AuthController = require('./controllers/authentication.controller'),
                 _ = require('lodash');
 
-exports.addUserToReq = function addUserToReq(req, res, next) {
-    AuthController.me(req).then(currentUser => {
+function addUser (req, next, doPopulate) {
+    AuthController.me(req, doPopulate).then(currentUser => {
         req.currentUser = currentUser;
         next();
     });
-};
+}
+
+exports.addUserToReq = (req, res, next) => {
+    addUser(req, next, false);
+}
+
+exports.addPopulatedUserToReq = (req, res, next) => {
+    addUser(req, next, true);
+}
 
 
 // Set user info from request
