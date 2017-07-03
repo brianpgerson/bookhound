@@ -1,7 +1,7 @@
 'use strict'
 
 const Promise = require('bluebird'),
-  ZincService = Promise.promisifyAll(require('./zinc.service')),
+  ZincService = require('zinc-fetch'),
      Purchase = require('../models/purchase'),
             _ = require('lodash');
 

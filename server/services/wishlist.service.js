@@ -2,7 +2,7 @@
 
 const   Promise = require('bluebird'),
    WishlistItem = require('../models/wishlist-item'),
-    ZincService = Promise.promisifyAll(require('./zinc.service')),
+    ZincService = require('zinc-fetch'),
               _ = require('lodash');
 
 exports.getWishlist = function (requestBody) {
@@ -72,6 +72,7 @@ exports.refreshWishlistItemPrices = function (wishlist) {
 }
 
 function findCheapestPrice (item, wishlist) {
+    console.log(ZincService.product);
     return ZincService.product.getPrices(item)
         .then(response => {
             console.log('a response!', response)
@@ -84,7 +85,7 @@ function findCheapestPrice (item, wishlist) {
             }
         }).then(resolved => {
             return cheapestOffer;
-        });
+        }).catch(err => console.log(err))
     }).catch(err => console.log(err));
 }
 

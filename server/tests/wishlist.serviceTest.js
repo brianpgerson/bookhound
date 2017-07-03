@@ -6,7 +6,7 @@ const _ = require('lodash');
 const testWishlistData = require('./testWishlistData');
 const WishlistService = Bluebird.promisifyAll(require('../services/wishlist.service'));
 const Preference = require('../models/preferences');
-const ZincService = require('../services/zinc.service');
+const ZincService = require('zinc-fetch');
 
 describe('The wishlist service', () => {
 
