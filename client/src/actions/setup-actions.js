@@ -52,7 +52,8 @@ export function getPlaidConfig () {
 export function exchangeToken (tokenMetadata) {
   const jwt = getToken();
   return function(dispatch) {
-    axios.post(`${API_URL}/setup/exchange-token`, tokenMetadata, jwt).then(response => {
+    return axios.post(`${API_URL}/setup/exchange-token`, tokenMetadata, jwt).then(response => {
+      console.log(response);
     }).catch(error =>{
       console.log(error);
       receiveError(dispatch, error);
