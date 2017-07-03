@@ -1,48 +1,31 @@
 module.exports = {
 	simpleWishlist: {
-		"_id" : "58bb67e728f65c92f63dbef8",
-		"userId" : "589aad7579da9f3afbec6f25",
-		"items" : [
+		"_id": "58bb67e728f65c92f63dbef8",
+		"userId": "589aad7579da9f3afbec6f25",
+		"items": [
 			{
-				"_id" : "58bb67e728f65c92f63dbef6",
-				"price" : 147,
-				"link" : "https://amazon.com/dp/0812515285",
-				"title" : "A Fire Upon The Deep (Zones of Thought)",
-				"productId" : "0812515285",
-				"shipping" : 397
+				"_id": "58bb67e728f65c92f63dbef6",
+				"price": 147,
+				"link": "https://amazon.com/dp/0812515285",
+				"title": "A Fire Upon The Deep (Zones of Thought)",
+				"productId": "0812515285",
+				"shipping": 397
 			},
 			{
-				"_id" : "58bb67e728f65c92f63dbef7",
-				"price" : 922,
-				"link" : "https://amazon.com/dp/1101904224",
-				"title" : "Dark Matter: A Novel",
-				"productId" : "1101904224",
-				"shipping" : 399
-			}
+				"_id": "58bb67e728f65c92f63dbef7",
+				"price": 922,
+				"link": "https://amazon.com/dp/1101904224",
+				"title": "Dark Matter: A Novel",
+				"productId": "1101904224",
+				"shipping": 399
+			},
 		],
+		"maxMonthlyOrderFrequency": 3,
+		"preferredConditions": {
+			"used": true,
+			"new": true
+		},
 		"id" : "295PIKOOQBKVU",
-	},
-
-	simplePrefs: {
-		"_id" : "58bb681228f65c92f63dbefd",
-		"userId" : "589aad7579da9f3afbec6f25",
-		"maxMonthlyOrderFrequency" : 3,
-		"preferredConditions" : {
-			"used" : true,
-			"new" : true
-		},
-		"__v" : 0
-	},
-
-	newOnly: {
-		"_id" : "58bb681228f65c92f63dbefd",
-		"userId" : "589aad7579da9f3afbec6f25",
-		"maxMonthlyOrderFrequency" : 3,
-		"preferredConditions" : {
-			"used" : false,
-			"new" : true
-		},
-		"__v" : 0
 	},
 
 	zincResponseCheap: {

@@ -79,10 +79,13 @@ exports.refreshWishlistItemPrices = function (wishlist) {
 function findCheapestPrice (item, wishlist) {
     return ZincService.product.getPrices(item.productId)
         .then(response => {
+
             let cheapestOffer = false;
             return Promise.each(response.offers, (candidateOffer) => {
                 candidateOffer.price = Math.round(candidateOffer.price * 100);
+
                 candidateOffer.ship_price = Math.round(candidateOffer.ship_price * 100);
+
                 if (suitableCondition(candidateOffer, wishlist) && isCheaper(candidateOffer, cheapestOffer)) {
                     cheapestOffer = candidateOffer;
             }

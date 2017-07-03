@@ -1,7 +1,8 @@
 'use strict'
 
 const Promise = require('bluebird'),
-  ZincService = require('zinc-fetch'),
+       config = require('../config/main'),
+  ZincService = require('zinc-fetch')(config.zinc),
      Purchase = require('../models/purchase'),
             _ = require('lodash');
 
