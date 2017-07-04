@@ -30,9 +30,12 @@ exports.findEligibleAccountsToCharge = function () {
 
 exports.findEligibleAccountsToBuyBooks = function () {
 	const startOfMonth = moment().startOf('month').toDate();
-	User.find({'stripe.balance': {$gte: 500}}).then(users => {
-		_.each(users, (user) => {
-			PurchaseService.qualifyPurchaser(user, startOfMonth);
+	User.find({'stripe.balance': {$gte: 500}})
+		.populate('wishlist.items')
+		.then(users => {
+		_.filter(users, (user) => {
+			const qualified = PurchaseService.qualifyPurchaser(user, startOfMonth);
+			console.log(qualified);
 		});
 	});
 }

@@ -7,24 +7,23 @@ const Promise = require('bluebird'),
             _ = require('lodash');
 
 
-exports.buyBooks = function (user, candidates) {
-    console.log(candidates);
+exports.buyBook = function (user) {
+    const candidates = purchasableBooks(user.wishlist.items);
 }
 
 exports.qualifyPurchaser = function (user, startOfMonth) {
     const _this = this;
-
-    Purchase.find({updatedAt : { $gte: startOfMonth} }).then((purchases) => {
-        if (purchases.length < preferences.maxMonthlyOrderFrequency) {
+    const maxOrders = user.wishlist.maxMonthlyOrderFrequency;
+    return Purchase.find({updatedAt : { $gte: startOfMonth} }).then((purchases) => {
+        if (purchases.length < maxOrders) {
+            // TODO: add to constants
+            const defray = 1.5;
             const wishlist = user.wishlist;
-            if (wishlist) {
-                const candidates = _.filter(wishlist.items, (item) => {
-                    item.price + item.shipping + 1.5 < user.balance;
-                });
-                if (!_.isEmpty(candidates)) {
-                    _this.buyBook(user, candidates);
-                }
-            }
+            return _.isUndefined(wishlist) || _.isNull(wishlist) ? 
+                false : purchasableBooks(wishlist.items).length > 0;
+                
         }
     });
 }
+
+const purchasableBooks = (candidates) => _.filter(wishlist.items, (b) => b.price + b.shipping + defray < user.balance);

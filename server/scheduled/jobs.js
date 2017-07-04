@@ -2,17 +2,15 @@ const schedule = require('node-schedule'),
       Bank = require('../controllers/bank.controller');
 
 module.exports = {
-    scheduleJob: function() {
-        rule = '* * * * *'
-        console.log(rule)
-        // Kick off the job
-        const chargeJob = schedule.scheduleJob(rule, function() {
-            Bank.findEligibleAccountsToCharge();
-        });
+    let scheduled = {};
 
-        const buyJob = schedule.scheduleJob(rule, function() {
-            Bank.findEligibleAccountsToCharge();
-        });
+    scheduleJob: function() {
+        let rule = new schedule.RecurrenceRule();
+        rule.hour = 17;
+
+        // Kick off the job
+        scheduled.chargeJob = schedule.scheduleJob(rule, () => Bank.findEligibleAccountsToCharge());
+        scheduled.buyJob = schedule.scheduleJob(rule, () => Bank.findEligibleAccountsToCharge());
     },
 
     init: function() {
