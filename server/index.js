@@ -2,7 +2,6 @@
 
 require('dotenv').config();
 
-// Importing Node modules and initializing Express
 const express = require('express'),
           app = express(),
    bodyParser = require('body-parser'),
@@ -18,12 +17,19 @@ mongoose.connect(config.database);
 
 // Start the server
 let server;
-if (process.env.NODE_ENV != config.test_env) {
-    server = app.listen(config.port);
-    console.log(`Your server is running on port ${config.port}.`);
-} else {
+switch (process.env.TEST_ENV) {
+  case config.test_env: 
     server = app.listen(config.test_port);
-}
+    console.log(`Your server is running on port ${config.port} in TEST MODE.`);
+    break;
+  case process.env.PROD_ENV:
+    server = app.listen(config.prod_port);
+    console.log(`Your server is running on port ${config.port} in PROD MODE.`);
+    break;
+  default: 
+    server = app.listen(config.port);
+    console.log(`Your server is running on port ${config.port} in DEVELOPMENT MODE.`);
+} 
 
 // Set static file location for production
 // app.use(express.static(__dirname + '/public'));
