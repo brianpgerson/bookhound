@@ -3,6 +3,7 @@ module.exports = {
 	test_port: 3001,
   	test_db: 'bookhound-test',
 	test_env: 'test',
+	prod_env: 'prod',
 	secret: process.env.SECRET,
 	database: process.env.DATABASE_URL,
 	mailgun_priv_key: process.env.MAILGUN_PRIVATE_KEY,

@@ -29,7 +29,7 @@ class Bank extends Component {
     return this.props.plaidPublicKey ?
       (<PlaidLink publicKey={this.props.plaidPublicKey}
                   product='auth'
-                  env='sandbox'
+                  env='production'
                   apiVersion='v2'
                   selectAccount={true}
                   clientName='bookhound'

@@ -46,8 +46,12 @@ exports.saveWishlist = function (wishlist, list, currentUser) {
     });
 }
 
-exports.updateWishlist = function (newWishlist, list, currentUser) {
-    return this.getWishlistItems(list, currentUser._id).then(items => {
+exports.removeOldItems = function (currentUser) {
+    return WishlistItem.remove({_creator: currentUser._id});
+}
+
+exports.updateWishlist = function (newWishlist, listOfItems, currentUser) {
+    return this.getWishlistItems(listOfItems, currentUser._id).then(items => {
         newWishlist.items = items;    
         currentUser.wishlist = newWishlist;
         if (_.isEmpty(newWishlist.items)) {
@@ -55,6 +59,7 @@ exports.updateWishlist = function (newWishlist, list, currentUser) {
         } else {
             return this.refreshWishlistItemPrices(currentUser.wishlist).then(refreshedItems => {
                     currentUser.wishlist.items = refreshedItems;
+                    console.log('saving current user', currentUser);
                     return currentUser.save();
                 });
         }
@@ -79,7 +84,7 @@ exports.refreshWishlistItemPrices = function (wishlist) {
 function findCheapestPrice (item, wishlist) {
     return ZincService.product.getPrices(item.productId)
         .then(response => {
-
+            console.log('got offers for ', item.title)
             let cheapestOffer = false;
             return Promise.each(response.offers, (candidateOffer) => {
                 candidateOffer.price = Math.round(candidateOffer.price * 100);
@@ -88,10 +93,14 @@ function findCheapestPrice (item, wishlist) {
 
                 if (suitableCondition(candidateOffer, wishlist) && isCheaper(candidateOffer, cheapestOffer)) {
                     cheapestOffer = candidateOffer;
-            }
+                }
         }).then(resolved => {
+            console.log('done with', item.title)
             return cheapestOffer;
-        }).catch(err => console.log('an err', err))
+        }).catch(err => {
+            console.log('an err', err)
+            return null;
+        });
     });
 }
 

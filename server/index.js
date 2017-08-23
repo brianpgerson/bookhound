@@ -17,12 +17,12 @@ mongoose.connect(config.database);
 
 // Start the server
 let server;
-switch (process.env.TEST_ENV) {
+switch (process.env.ENV) {
   case config.test_env: 
     server = app.listen(config.test_port);
     console.log(`Your server is running on port ${config.port} in TEST MODE.`);
     break;
-  case process.env.PROD_ENV:
+  case config.prod_env:
     server = app.listen(config.prod_port);
     console.log(`Your server is running on port ${config.port} in PROD MODE.`);
     break;

@@ -8,10 +8,10 @@ const AuthController = require('./authentication.controller'),
   	 WishlistService = Promise.promisifyAll(require('../services/wishlist.service')),
   	 PurchaseService = Promise.promisifyAll(require('../services/purchase.service')),
 	  			User = require('../models/user'),
-	  		   plaid = require('plaid'),
+	  		   plaid = Promise.promisifyAll(require('plaid')),
 	  	      moment = require('moment'),
 	  	      stripe = Promise.promisifyAll(require("stripe")(config.stripe.secret)),
-	     plaidClient = new plaid.Client(config.plaid.client, config.plaid.secret, config.plaid.public, plaid.environments.sandbox);
+	     plaidClient = new plaid.Client(config.plaid.client, config.plaid.secret, config.plaid.public, plaid.environments.production);
 
 exports.getPlaidConfig = function (req, res) {
 	 res.status(200).json({public: config.plaid.public});
@@ -46,7 +46,7 @@ exports.exchange = function (req, res) {
 	const account_id = req.body.metadata.account_id
 
 	plaidClient.exchangePublicToken(public_token).then(exchangeTokenRes => {
-		console.log(exchangeTokenRes);
+		console.log('exchanged', exchangeTokenRes);
 		const accessToken = exchangeTokenRes.access_token;
 		const stripeBankToken = exchangeTokenRes.stripe_bank_account_token;
 

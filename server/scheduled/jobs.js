@@ -2,7 +2,7 @@ const schedule = require('node-schedule'),
           Bank = require('../controllers/bank.controller');
 
 module.exports = {
-    let scheduled = {};
+    scheduled: {},
 
     scheduleJob: function() {
         let rule = new schedule.RecurrenceRule();

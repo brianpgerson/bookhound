@@ -7,16 +7,24 @@ const nodemailer = require('nodemailer'),
           config = require('../config/main');
 
 
-const transporter = nodemailer.createTransport({
+// const transporter = nodemailer.createTransport({
+//     service: 'Gmail',
+//     auth: {
+//         type: 'OAuth2',
+//         user: `${config.gmail.mailUser}`,
+//         clientId: `${config.gmail.clientId}`,
+//         clientSecret: `${config.gmail.clientSecret}`,
+//         refreshToken: `${config.gmail.refreshToken}`,
+//         accessToken: `${config.gmail.accessToken}`
+//     }
+// });
+
+const transport = nodemailer.createTransport({
     service: 'Gmail',
     auth: {
-        type: 'OAuth2',
-        user: `${config.gmail.mailUser}`,
-        clientId: `${config.gmail.clientId}`,
-        clientSecret: `${config.gmail.clientSecret}`,
-        refreshToken: `${config.gmail.refreshToken}`,
-        accessToken: `${config.gmail.accessToken}`
-    }
+        user: config.gmail.mailUser,
+        pass: config.gmail.mailPass,
+    },
 });
 
 exports.sendResetPasswordEmail = function (host, email, resetToken) {
@@ -25,6 +33,7 @@ exports.sendResetPasswordEmail = function (host, email, resetToken) {
         'http://'}${host}/reset-password/${resetToken}\n\n` +
         `If you did not request this, please ignore this email and your password will remain unchanged.\n`
 
+    console.log('sending');
     const mailOptions = {
         from: `${config.gmail.mailUser}`,
         to: `${email}`,
@@ -32,7 +41,5 @@ exports.sendResetPasswordEmail = function (host, email, resetToken) {
         text: message
     };
 
-    return transporter.sendMail(mailOptions, function(error, info){
-        return !error;
-    });
+    return transport.sendMail(mailOptions);
 }

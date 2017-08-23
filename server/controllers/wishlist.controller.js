@@ -6,7 +6,6 @@ const         Promise = require('bluebird'),
                  User = require('../models/user'),
     AmazonListScraper = require('amazon-list-scraper'),
                   als = new AmazonListScraper(),
-                  aws = new AmazonWishlist.default('com'),
        AuthController = require('./authentication.controller'),
                     _ = require('lodash');
 
@@ -55,17 +54,19 @@ exports.updateWishlist = function (req, res, next) {
         return;
     }
 
-    als.scrape(newWishlist.id).then(list => {
-        if (!list) {
+    als.scrape(newWishlist.id).then(listOfItems => {
+        if (!listOfItems) {
             throw new Error(`Couldn't access your wishlist at ${req.body.wishlistUrl}. Try again?`);
             return;
         }
 
-        WishlistService.updateWishlist(newWishlist, list, currentUser).then(user => {
-            res.status(200).json({wishlist: user.wishlist});
-        }).catch(err => {
-            res.status(500).json({error: err});
-        });
+        WishlistService.removeOldItems(currentUser).then(() => {
+            WishlistService.updateWishlist(newWishlist, listOfItems, currentUser).then(user => {
+                res.status(200).json({wishlist: user.wishlist});
+            }).catch(err => {
+                res.status(500).json({error: err});
+            });
+        })
     }).catch(err => {
         console.error(err);
     })

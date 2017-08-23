@@ -1,26 +1,13 @@
 'use strict'
 
 const setUserInfo = require('../helpers').setUserInfo,
-       nodemailer = require('nodemailer'),
+         Bluebird = require('bluebird'),
               jwt = require('jsonwebtoken'),
            crypto = require('crypto'),
              User = require('../models/user'),
-           Mailer = require('../services/mailer.service'),
+           Mailer = Bluebird.promisifyAll(require('../services/mailer.service')),
           getRole = require('../helpers').getRole,
            config = require('../config/main');
-
-
-const transporter = nodemailer.createTransport({
-    service: 'Gmail',
-    auth: {
-        type: 'OAuth2',
-        user: `${config.gmail.mailUser}`,
-        clientId: `${config.gmail.clientId}`,
-        clientSecret: `${config.gmail.clientSecret}`,
-        refreshToken: `${config.gmail.refreshToken}`,
-        accessToken: `${config.gmail.accessToken}`
-    }
-});
 
 function invalidEmail (email) {
     return email.indexOf('@') < 0;
@@ -47,6 +34,7 @@ exports.me = function(req, doPopulate) {
             return User.findById(decoded._id)
                 .populate('wishlist.items')
                 .then(user => {
+                    console.log('user', user);
                     return user;
                 });
         } else {
