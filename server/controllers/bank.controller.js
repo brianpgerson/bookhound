@@ -11,7 +11,7 @@ const AuthController = require('./authentication.controller'),
 	  		   plaid = Promise.promisifyAll(require('plaid')),
 	  	      moment = require('moment'),
 	  	      stripe = Promise.promisifyAll(require("stripe")(config.stripe.secret)),
-	     plaidClient = new plaid.Client(config.plaid.client, config.plaid.secret, config.plaid.public, plaid.environments.production);
+	     plaidClient = new plaid.Client(config.plaid.client, config.plaid.secret, config.plaid.public, plaid.environments.sandbox);
 
 exports.getPlaidConfig = function (req, res) {
 	 res.status(200).json({public: config.plaid.public});
@@ -45,6 +45,7 @@ exports.exchange = function (req, res) {
 	const public_token = req.body.token;
 	const account_id = req.body.metadata.account_id
 
+	console.log('public!!!', public_token);
 	plaidClient.exchangePublicToken(public_token).then(exchangeTokenRes => {
 		console.log('exchanged', exchangeTokenRes);
 		const accessToken = exchangeTokenRes.access_token;

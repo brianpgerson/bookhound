@@ -56,7 +56,7 @@ class Wishlist extends Component {
 
   handleFormSubmit(formProps) {
     const { wishlist, saveWishlist, updateWishlist } = this.props;
-    const isUpdating = _.has(wishlist, 'id');
+    const isUpdating = _.has(wishlist, 'id') && !_.isEmpty(wishlist.id);
     let next;
 
     const wishlistRequest = {

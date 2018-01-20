@@ -7,13 +7,16 @@ const bluebird = require('bluebird'),
 	  	config = require('../config/main'),
 	  	 Stats = require('fast-stats').Stats,
 	  	  User = require('../models/user'),
-   plaidClient = new plaid.Client(config.plaid.client, config.plaid.secret, config.plaid.public, plaid.environments.sandbox);
+   plaidClient = new plaid.Client(config.plaid.client, config.plaid.secret, config.plaid.public, plaid.environments.development);
 
 exports.getBasicUserInfo = function (financialData) {
 	let accessToken = financialData.accessToken;
 	let accountId = financialData.accountId;
 
-	return plaidClient.getConnectUserAsync(accessToken, {}).then(response => {
+	const now = moment();
+	const today = now.format('YYYY-MM-DD');
+	const oneYearAgo = now.subtract(1, 'years').format('YYYY-MM-DD');
+	return plaidClient.getTransactions(accessToken, oneYearAgo, today).then(response => {
 		const selectedAccountTransactions = _.filter(response.transactions, (transaction) => {
 			return transaction._account === accountId;
 		});

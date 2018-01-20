@@ -34,7 +34,6 @@ exports.me = function(req, doPopulate) {
             return User.findById(decoded._id)
                 .populate('wishlist.items')
                 .then(user => {
-                    console.log('user', user);
                     return user;
                 });
         } else {

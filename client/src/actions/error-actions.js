@@ -6,7 +6,7 @@ export function receiveError(dispatch, error) {
   	if (error.status === 401) {
    		errorMessage = 'Your credentials are incorrect.';
   	} else {
-  		errorMessage = error.message ? error.message : error.statusText;
+  		errorMessage = error.message ? error.message : error.data.error;
   	}
 
   	dispatch({

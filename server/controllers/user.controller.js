@@ -11,7 +11,6 @@ const AuthController = require('./authentication.controller'),
 //= =======================================
 exports.getSetup = function (req, res) {
     const currentUser = req.currentUser;
-    console.log('in controller', currentUser.wishlist)
     const userId = currentUser._id.toString();
     const date = moment(currentUser.lastCharge);
     

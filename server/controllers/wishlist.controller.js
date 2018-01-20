@@ -24,7 +24,11 @@ exports.saveWishlist = function (req, res, next) {
             return;
         }
 
-        WishlistService.saveWishlist(wishlist, list, currentUser).then(user => {
+        let filtered = _.filter(list, item => {
+            return _.isFinite(item.price);
+        });
+
+        WishlistService.saveWishlist(wishlist, filtered, currentUser).then(user => {
             res.status(200).json({wishlist: user.wishlist});
         }).catch(err => {
             res.status(500).json({error: err});
