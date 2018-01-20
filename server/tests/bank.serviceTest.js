@@ -11,9 +11,10 @@ describe('The transaction parser', () => {
   	it('should parse an extremely basic set of financial data', () => {
   		const basicInfo = getBasicInfo('small');
 	  	const safeDelta = basicInfo.currentBalance - basicInfo.lowestRecentBalance;
-	  	const high = safeDelta * 0.04;
-	  	const low = safeDelta * 0.01;
+	  	const high = 5;
+	  	const low = 1;
 	  	const amountToExtract = BankService.getDecisionInfo(basicInfo);
+	  	console.log(amountToExtract);
 
 	  	amountToExtract.should.be.a.Number();
 	  	amountToExtract.should.be.above(low);
@@ -24,8 +25,9 @@ describe('The transaction parser', () => {
 		const basicInfo = getBasicInfo('big');
 	  	const safeDelta = basicInfo.currentBalance - basicInfo.lowestRecentBalance;
 	  	const high = 5;
-	  	const low = 0;
+	  	const low = 1;
 	  	const amountToExtract = BankService.getDecisionInfo(basicInfo);
+	  	console.log(amountToExtract);
 
 	  	amountToExtract.should.be.a.Number();
 	  	amountToExtract.should.be.above(low);
@@ -36,7 +38,7 @@ describe('The transaction parser', () => {
 		const basicInfo = getBasicInfo('big');
 	  	const safeDelta = basicInfo.currentBalance - basicInfo.lowestRecentBalance;
 	  	const high = 5;
-	  	const low = 0;
+	  	const low = 1;
 
 	  	let nums = [];
 	  	_.times(100, (index) => {

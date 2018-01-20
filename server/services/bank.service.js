@@ -61,8 +61,7 @@ exports.getBasicUserInfo = function (financialData) {
 			balances[today] = balance;
 
 			if (moment(today).isAfter(threeMonthsAgo) &&
-				(_.isUndefined(lowestRecentBalance) ||
-					lowestRecentBalance > balance)) {
+				(_.isUndefined(lowestRecentBalance) || lowestRecentBalance > balance) && (balance > 0)) {
 				lowestRecentBalance = balance;
 			}
 		});
@@ -81,6 +80,8 @@ exports.getDecisionInfo = function (basicInfo) {
 	let extractAmount;
 	let txnsBySize = { small: 0, medium: 0, large: 0};
 	let safeDelta = currentBalance - lowestRecentBalance;
+	// console.log('STARTING DECISION INFO:', '\n\n\n');
+	// console.log('safeDelta:', safeDelta);
 
 	if (safeDelta <= 0 || currentBalance < 50) {
 		return 0;
@@ -95,22 +96,36 @@ exports.getDecisionInfo = function (basicInfo) {
 	const rawWithdrawalData = this.getRawWithdrawalAmount(sortedWithdrawals);
 
 	let oneYearStats = new Stats().push(rawWithdrawalData);
+	
 	const percentiles = {lower: oneYearStats.percentile(25), upper: oneYearStats.percentile(75)}
-	const splitOutTransactions = this.getTransactionsInSizeBuckets(sortedWithdrawals, rawWithdrawalData, percentiles);
+	
+	const splitOutTransactions = this.getTransactionsInSizeBuckets(sortedWithdrawals, percentiles);
+	// console.log('splitOutTransactions:', splitOutTransactions);
+	
 	const averageTransactionsBySize = this.getAverageTransactionsBySize(splitOutTransactions, _.clone(txnsBySize));
-	const transactionFrequencies = this.getTransactionFrequencies(splitOutTransactions, _.clone(txnsBySize));
-	const longestFrequency = _.max(_.values(transactionFrequencies));
-	let likelyWithdrawals = this.getLikelyWithdrawals(transactionFrequencies, averageTransactionsBySize, _.clone(txnsBySize));
-
+	// console.log('averageTransactionsBySize:', averageTransactionsBySize);
+	
+	const transactionFrequenciesBySize = this.getTransactionFrequencies(splitOutTransactions, _.clone(txnsBySize));
+	// console.log('transactionFrequenciesBySize:', transactionFrequenciesBySize);
+	
+	const longestFrequency = _.max(_.values(transactionFrequenciesBySize));
+	// console.log('longestFrequency:', longestFrequency);
+	
+	let likelyWithdrawals = this.getLikelyWithdrawals(transactionFrequenciesBySize, averageTransactionsBySize, _.clone(txnsBySize));
+	// console.log('likelyWithdrawals:', likelyWithdrawals);
+	
 	const sortedWithinLongestFrequency = _.filter(sortedWithdrawals, (txn) => {
 		return moment().diff(moment(txn.date), 'days') <= longestFrequency;
 	});
 
-	likelyWithdrawals = updateLikelyWithdrawals(transactionFrequencies, likelyWithdrawals, sortedWithinLongestFrequency, percentiles);
-
+	likelyWithdrawals = updateLikelyWithdrawals(transactionFrequenciesBySize, likelyWithdrawals, sortedWithinLongestFrequency, percentiles);
+	// console.log('updated likelyWithdrawals:', likelyWithdrawals);
+	
 	_.each(likelyWithdrawals, (futureWithdrawalAmount) => {
 		safeDelta -= futureWithdrawalAmount;
 	});
+
+	// console.log('safeDelta', safeDelta);
 
 	if (safeDelta > 0) {
 		extractAmount = this.getExtractAmount(safeDelta);
@@ -123,7 +138,7 @@ exports.processUser = function (user) {
 	_this.getBasicUserInfo(user.stripe).then(basicUserInfo => {
 		var amountToExtract = Math.floor(_this.getDecisionInfo(basicUserInfo) * 100);
 
-		if (_.isFinite(amountToExtract) && amountToExtract > 5012413000) {
+		if (_.isFinite(amountToExtract)) {
 			stripe.charges.create({
 				amount: amountToExtract,
 				currency: "usd",
@@ -171,7 +186,7 @@ exports.getRawWithdrawalAmount = function (sortedWithdrawals) {
 	}, []);
 }
 
-exports.getTransactionsInSizeBuckets = function(sortedWithdrawals, rawWithdrawalData, percentiles) {
+exports.getTransactionsInSizeBuckets = function(sortedWithdrawals, percentiles) {
 
 	const splitOutTransactions = {
 		small: {},
@@ -200,15 +215,15 @@ function updateLikelyWithdrawals (transactionFrequencies, likelyWithdrawals, sor
 		const txnAmount = txn.amount;
 		const txnDate = moment(txn.date);
 		if (txnAmount <= percentiles.lower) {
-			if (transactionFrequencies.small > 1 && today.diff(txnDate, 'days') <= transactionFrequencies.small) {
+			if (transactionFrequencies.small > 1 && today.diff(txnDate, 'days') <= (Math.round(transactionFrequencies.small / 2))) {
 				likelyWithdrawals.small = 0;
 			}
 		} else if (transactionFrequencies.medium > 1 && txnAmount > percentiles.lower && txnAmount < percentiles.upper) {
-			if (today.diff(txnDate, 'days') <= transactionFrequencies.medium) {
+			if (today.diff(txnDate, 'days') <= (Math.round(transactionFrequencies.medium / 2))) {
 				likelyWithdrawals.medium = 0;
 			}
 		} else if (transactionFrequencies.large > 1) {
-			if (today.diff(txnDate, 'days') <= transactionFrequencies.large) {
+			if (today.diff(txnDate, 'days') <= (Math.round(transactionFrequencies.large / 2))) {
 				likelyWithdrawals.large = 0;
 			}
 		}
@@ -219,8 +234,9 @@ function updateLikelyWithdrawals (transactionFrequencies, likelyWithdrawals, sor
 exports.getExtractAmount = function (safeDelta) {
 	const extractPercentage = _.random(0.01, 0.04);
 	const percentageOfSafeDelta = safeDelta * extractPercentage;
-	return percentageOfSafeDelta > config.globalMax ?
-		_.random(0.0, config.globalMax, true) : percentageOfSafeDelta;
+	console.log('before normalizing:', percentageOfSafeDelta);
+	return percentageOfSafeDelta > config.globalMax || percentageOfSafeDelta < config.globalMin ?
+		_.random(1.0, config.globalMax, true) : percentageOfSafeDelta;
 }
 
 function averageDaysBetweenTransactions (transactions) {
