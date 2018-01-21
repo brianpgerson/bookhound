@@ -19,24 +19,34 @@ exports.getPlaidConfig = function (req, res) {
 
 exports.findEligibleAccountsToCharge = function () {
 	const cutoff = moment().startOf('day').subtract(3, 'days');
+	
+	console.log('Finding users to charge');
+
 	User.find({'stripe.lastCharge': {$lte: cutoff.toDate()}}).then(users => {
+		console.log(`Users to check: ${users.length}. User objects: ${users}`);
+	
 		_.each(users, (user) => {
 			BankService.processUser(user);
 		});
 	}).catch(err => {
-		console.log('error', err);
+		console.log('Error finding eligible accounts to charge:', err);
 	})
 }
 
 exports.findEligibleAccountsToBuyBooks = function () {
 	const startOfMonth = moment().startOf('month').toDate();
+
+	console.log('Finding users to buy books');
+
 	User.find({'stripe.balance': {$gte: 100}})
 		.populate('wishlist.items')
 		.then(users => {
-		_.filter(users, (user) => {
-			const qualified = PurchaseService.qualifyPurchaser(user, startOfMonth);
-			console.log(qualified);
-		});
+			let qualifiedUsers = _.filter(users, (user) => {
+				const qualified = PurchaseService.qualifyPurchaser(user, startOfMonth);
+				console.log(qualified, user.profile.firstName);
+			});
+
+			_.forEach(qualifiedUsers, user => PurchaseService.buyBook(user));
 	});
 }
 

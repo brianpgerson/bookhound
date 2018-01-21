@@ -24,11 +24,11 @@ exports.saveWishlist = function (req, res, next) {
             return;
         }
 
-        let filtered = _.filter(list, item => {
+        list = _.filter(list, item => {
             return _.isFinite(item.price);
         });
 
-        WishlistService.saveWishlist(wishlist, filtered, currentUser).then(user => {
+        WishlistService.saveWishlist(wishlist, list, currentUser).then(user => {
             res.status(200).json({wishlist: user.wishlist});
         }).catch(err => {
             res.status(500).json({error: err});
@@ -58,14 +58,19 @@ exports.updateWishlist = function (req, res, next) {
         return;
     }
 
-    als.scrape(newWishlist.id).then(listOfItems => {
-        if (!listOfItems) {
+    als.scrape(newWishlist.id).then(list => {
+        if (!list) {
             throw new Error(`Couldn't access your wishlist at ${req.body.wishlistUrl}. Try again?`);
             return;
         }
 
+        list = _.filter(list, item => {
+            return _.isFinite(item.price);
+        });
+
+
         WishlistService.removeOldItems(currentUser).then(() => {
-            WishlistService.updateWishlist(newWishlist, listOfItems, currentUser).then(user => {
+            WishlistService.updateWishlist(newWishlist, list, currentUser).then(user => {
                 res.status(200).json({wishlist: user.wishlist});
             }).catch(err => {
                 res.status(500).json({error: err});

@@ -15,11 +15,15 @@ const PurchaseSchema = new Schema(
             type: String,
             required: true
         },
+        requestId: {
+            type: String,
+            required: true  
+        },
         title: {
             type: String,
             required: true
         },
-        payment: {
+        price: {
             type: Number,
             required: true
         },

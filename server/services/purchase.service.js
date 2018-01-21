@@ -2,15 +2,69 @@
 
 const Promise = require('bluebird'),
        config = require('../config/main'),
+         User = require('../models/user'),
   ZincService = require('zinc-fetch')(config.zinc),
      Purchase = require('../models/purchase'),
             _ = require('lodash');
 
 
 exports.buyBook = function (user) {
-    const candidates = purchasableBooks(user.wishlist.items);
+    const candidates = purchasableBooks(user.wishlist.items, user.stripe.balance, config.defray);
     const bookToBuy = _.sample(candidates);
-    
+    const orderObj = createOrderObject(user, bookToBuy);
+    ZincService.order.create(orderObj)
+        .then(res => {
+            console.log(res);
+            let totalCost = config.defray + bookToBuy.price + bookToBuy.shipping;
+            let remainingBalance = user.stripe.balance - totalCost;
+            user.stripe.balance = remainingBalance;
+            User.findOneAndUpdate({_id: user._id}, user, {runValidators: true});
+            let purchase = new Purchase({
+                userId: user._id,
+                productId: bookToBuy.productId,
+                requestId: res.request_id,
+                title: bookToBuy.title,
+                price: totalCost
+            });
+
+            purchase.save()
+                .then(success => console.log(`Successfully completed purchase: ${purchase}`))
+                .catch(err => console.log(`Error completing purchase: ${err}`));
+
+        }).catch(err => console.log(`Error creating Zinc order for ${bookToBuy}: ${err}`));
+}
+
+function createOrderObject(user, bookToBuy) {
+    const preferences = user.wishlist.preferences;
+    const conditions = _.map(_.filter(_.keys(preferences), pref => preferences[pref]), (pref) => _.upperFirst(pref));
+    const shippingMethod = bookToBuy.shipping > 0 ? 'cheapest' : 'free';
+
+    return {
+        retailer: 'amazon',
+        products: [{
+            product_id: bookToBuy.productId,
+            quantity: 1,
+            seller_selection_criteria: {
+                condition_in: conditions
+            }
+        }],
+        shipping_address: {
+            first_name: user.profile.firstName,
+            last_name: user.profile.lastName,
+            address_line1: user.address.streetAddressOne,
+            address_line2: user.address.streetAddressTwo,
+            zip_code: user.address.zip,
+            city: user.address.city,
+            state: user.address.state,
+            country: 'US',
+            phone_number: config.billing.address.phone_number
+        },
+        shipping_method: shippingMethod,
+        billing_address: config.billing.address,
+        retailer_credentials: config.billing.retailer_credentials,
+        payment_method: config.billing.payment_method,
+        max_price: user.stripe.balance
+    }
 }
 
 exports.qualifyPurchaser = function (user, startOfMonth) {
@@ -18,13 +72,12 @@ exports.qualifyPurchaser = function (user, startOfMonth) {
     const maxOrders = user.wishlist.maxMonthlyOrderFrequency;
     return Purchase.find({updatedAt : { $gte: startOfMonth} }).then((purchases) => {
         if (purchases.length < maxOrders) {
-            const defray = 1.5;
             const wishlist = user.wishlist;
             return _.isUndefined(wishlist) || _.isNull(wishlist) ? 
-                false : purchasableBooks(wishlist.items).length > 0;
+                false : purchasableBooks(wishlist.items, user.stripe.balance, config.defray).length > 0;
                 
         }
     });
 }
 
-const purchasableBooks = (candidates) => _.filter(wishlist.items, (b) => b.price + b.shipping + defray < user.balance);
+const purchasableBooks = (candidates, balance, defray) => _.filter(candidates, (b) => b.price + b.shipping + defray < balance);
