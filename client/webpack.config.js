@@ -7,7 +7,8 @@ const config = {
   entry: './src/index.js',
   output: {
     path: path.resolve(__dirname, 'public'),
-    filename: 'bundle.js'
+    filename: 'bundle.js',
+    publicPath: '/static/',
   },
   module: {
     loaders: [
