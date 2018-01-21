@@ -1,0 +1,22 @@
+{
+  "name": "bookhound",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": {},
+  "license": "MIT",
+  "engines": {
+    "node": "6.9.5"
+  },
+  "dependencies": {
+    "concurrently": "^3.1.0",
+    "rimraf": "^2.5.4"
+  },
+  "scripts": {
+    "build": "concurrently \"cd client && npm install\" \"cd server && npm install\"",
+    "clean": "concurrently \"rimraf node_modules\" \"cd client && rimraf node_modules build\" \"cd server && rimraf node_modules build\"",
+    "heroku-postbuild": "npm install",
+
+    "start": "concurrently \"cd client && npm start\" \"cd server && npm start\"",
+    "start:prod": "cd server && npm start:prod"
+  }
+}
