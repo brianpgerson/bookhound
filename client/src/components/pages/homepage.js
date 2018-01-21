@@ -93,7 +93,7 @@ class HomePage extends Component {
 					</section>
 			    </div>
 		    </div>
-		    <div className="container">
+		    <div className="container faq">
 		    	<section className="row text-center pad-bottom">
 					<h2 className="">FAQ</h2>
 					<h5>This section is a long one, but let's be honest: you're here because you like to read</h5>
@@ -126,7 +126,7 @@ class HomePage extends Component {
 					<div className="col-md-6 col-md-offset-3">
 						<h4 className="text-center">How much does it cost?</h4>
 						<p>
-							For now and, unless something drastic changes, forevermore, bookhound will be free to join. Each purchase will cost precisely the cost of the book + shipping, with an extra dollar to defray the costs of bookhound's existence. You'll be able to see shipped orders on your profile page, so you'll always know how much a book cost.
+							For now and, unless something drastic changes, forevermore, bookhound will be free to join. Each purchase will cost precisely the cost of the book + shipping, along with a buck fifty to defray the costs of bookhound's existence. You'll be able to see shipped orders on your profile page, so you'll always know how much a book cost.
 						</p>
 					</div>
 				</section>
