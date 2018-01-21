@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "repository": {},
+  "description": "This example is so cool.",
   "license": "MIT",
   "engines": {
     "node": "6.9.5"
