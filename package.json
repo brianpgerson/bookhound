@@ -13,10 +13,11 @@
     "rimraf": "^2.5.4"
   },
   "scripts": {
-    "build": "concurrently \"cd client && npm install\" \"cd server && npm install\"",
+    "build": "concurrently \"cd client && npm install -g --save\" \"cd server && npm install -g --save\"",
     "clean": "concurrently \"rimraf node_modules\" \"cd client && rimraf node_modules build\" \"cd server && rimraf node_modules build\"",
     "heroku-postbuild": "npm install",
-
+    "build-client": "cd client && npm install -g",
+	"build-server": "cd server && npm install -g",
     "start": "concurrently \"cd client && npm start\" \"cd server && npm start\"",
     "start:prod": "cd server && npm start:prod"
   }
