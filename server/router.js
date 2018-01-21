@@ -5,6 +5,7 @@ const AuthenticationController = require('./controllers/authentication.controlle
                        helpers = require('./helpers'),
                 BankController = require('./controllers/bank.controller'),
                        express = require('express'),
+                          path = require('path'),
                passportService = require('./config/passport'),
                       passport = require('passport'),
                    ROLE_NORMAL = require('./constants').ROLE_NORMAL,
@@ -20,6 +21,7 @@ module.exports = function(app) {
     // Initializing route groups
     const apiRoutes = express.Router(),
          authRoutes = express.Router(),
+        clientRoute = express.Router(),
         setupRoutes = express.Router();
 
   //=========================
@@ -64,4 +66,8 @@ module.exports = function(app) {
 
   // Set url for API group routes
   app.use('/api', apiRoutes);
+
+  app.get('*', function(request, response) {
+  response.sendFile(path.resolve(__dirname, '../client', 'index.html'));
+});
 };

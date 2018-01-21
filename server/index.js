@@ -1,6 +1,6 @@
 'use strict'
 
-// require('dotenv').config();
+require('dotenv').config();
 
 const express = require('express'),
           app = express(),
@@ -34,7 +34,7 @@ switch (process.env.ENV) {
 } 
 
 // Set static file location for production
-app.use(express.static(path.resolve(__dirname, '../client/public')));
+app.use(express.static(path.resolve(__dirname, '../client/dist/')));
 
 // Setting up basic middleware for all Express requests
 app.use(bodyParser.urlencoded({ extended: false })); // Parses urlencoded bodies

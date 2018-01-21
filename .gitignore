@@ -29,6 +29,7 @@ coverage
 build/Release
 
 client/public
+client/dist
 
 # Dependency directories
 node_modules

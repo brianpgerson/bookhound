@@ -6,9 +6,9 @@ const config = {
   context: __dirname,
   entry: './src/index.js',
   output: {
-    path: path.resolve(__dirname, 'public'),
+    path: path.resolve(__dirname, 'dist'),
     filename: 'bundle.js',
-    publicPath: '/static/',
+    publicPath: '/',
   },
   module: {
     loaders: [
