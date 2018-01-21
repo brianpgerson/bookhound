@@ -2,6 +2,7 @@
 
 const   Promise = require('bluebird'),
          config = require('../config/main'),
+         logger = require('../config/logger'),
     ZincService = require('zinc-fetch')(config.zinc),
    WishlistItem = require('../models/wishlist-item'),
               _ = require('lodash');
@@ -59,7 +60,6 @@ exports.updateWishlist = function (newWishlist, listOfItems, currentUser) {
         } else {
             return this.refreshWishlistItemPrices(currentUser.wishlist).then(refreshedItems => {
                     currentUser.wishlist.items = refreshedItems;
-                    console.log('saving current user', currentUser);
                     return currentUser.save();
                 });
         }
@@ -84,7 +84,7 @@ exports.refreshWishlistItemPrices = function (wishlist) {
 function findCheapestPrice (item, wishlist) {
     return ZincService.product.getPrices(item.productId)
         .then(response => {
-            console.log('got offers for ', item.title)
+            logger.log('findCheapestPrice() got offers for ', item.title)
             let cheapestOffer = false;
             return Promise.each(response.offers, (candidateOffer) => {
                 candidateOffer.price = Math.round(candidateOffer.price * 100);
@@ -95,10 +95,10 @@ function findCheapestPrice (item, wishlist) {
                     cheapestOffer = candidateOffer;
                 }
         }).then(resolved => {
-            console.log('done with', item.title)
+            logger.log('done with', item.title)
             return cheapestOffer;
         }).catch(err => {
-            console.log('an err', err)
+            logger.error('an err', err)
             return null;
         });
     });

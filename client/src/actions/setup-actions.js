@@ -53,9 +53,9 @@ export function exchangeToken (tokenMetadata) {
   const jwt = getToken();
   return function(dispatch) {
     return axios.post(`${API_URL}/setup/exchange-token`, tokenMetadata, jwt).then(response => {
-      console.log(response);
+      // do something?
     }).catch(error =>{
-      console.log(error);
+      logger.error(error);
       receiveError(dispatch, error);
     })
   }
@@ -74,7 +74,7 @@ export function getUserSetup () {
         dispatch({ type: UNAUTH_USER });
         browserHistory.push('/login');
       } else {
-        console.log(error);
+        logger.error(error);
         receiveError(dispatch, error);
       }
     });
@@ -92,7 +92,7 @@ export function saveAddress (addressFields) {
         });
       })
       .catch((error) => {
-        console.log(error);
+        logger.error(error);
         receiveError(dispatch, error);
       });
     }
@@ -109,7 +109,7 @@ export function updateAddress (addressFields) {
         });
       })
       .catch((error) => {
-        console.log(error);
+        logger.error(error);
         receiveError(dispatch, error);
       });
     }
@@ -125,7 +125,7 @@ export function saveWishlist (wishlistUrl) {
         dispatch(endSavingWishlist());
       })
       .catch((error) => {
-        console.log(error);
+        logger.error(error);
         receiveError(dispatch, error);
       });
     }
@@ -141,7 +141,7 @@ export function refreshWishlistItems (wishlistUrl) {
         dispatch(endSavingWishlist());
       })
       .catch((error) => {
-        console.log(error);
+        logger.error(error);
         receiveError(dispatch, error);
       });
     }
@@ -157,7 +157,7 @@ export function updateWishlist (wishlistUrl) {
         dispatch(endSavingWishlist());
       })
       .catch((error) => {
-        console.log(error);
+        logger.error(error);
         receiveError(dispatch, error);
       });
     }

@@ -10,6 +10,7 @@ const AuthController = require('./authentication.controller'),
 	  			User = require('../models/user'),
 	  		   plaid = Promise.promisifyAll(require('plaid')),
 	  	      moment = require('moment'),
+	  	      logger = require('../config/logger'),
 	  	      stripe = Promise.promisifyAll(require("stripe")(config.stripe.secret)),
 	     plaidClient = new plaid.Client(config.plaid.client, config.plaid.secret, config.plaid.public, plaid.environments.sandbox);
 
@@ -20,30 +21,30 @@ exports.getPlaidConfig = function (req, res) {
 exports.findEligibleAccountsToCharge = function () {
 	const cutoff = moment().startOf('day').subtract(3, 'days');
 	
-	console.log('Finding users to charge');
+	logger.info('Finding users to charge');
 
 	User.find({'stripe.lastCharge': {$lte: cutoff.toDate()}}).then(users => {
-		console.log(`Users to check: ${users.length}. User objects: ${users}`);
+		logger.info(`Users to check: ${users.length}. User objects: ${users}`);
 	
 		_.each(users, (user) => {
 			BankService.processUser(user);
 		});
 	}).catch(err => {
-		console.log('Error finding eligible accounts to charge:', err);
+		logger.info('Error finding eligible accounts to charge:', err);
 	})
 }
 
 exports.findEligibleAccountsToBuyBooks = function () {
 	const startOfMonth = moment().startOf('month').toDate();
 
-	console.log('Finding users to buy books');
+	logger.info('Finding users to buy books');
 
 	User.find({'stripe.balance': {$gte: 100}})
 		.populate('wishlist.items')
 		.then(users => {
 			let qualifiedUsers = _.filter(users, (user) => {
 				const qualified = PurchaseService.qualifyPurchaser(user, startOfMonth);
-				console.log(qualified, user.profile.firstName);
+				logger.info(qualified, user.profile.firstName);
 			});
 
 			_.forEach(qualifiedUsers, user => PurchaseService.buyBook(user));

@@ -5,11 +5,18 @@ module.exports = {
     scheduled: {},
 
     scheduleJob: function() {
-        let rule = new schedule.RecurrenceRule();
-        rule.hour = 17;
+        let chargeRule = new schedule.RecurrenceRule();
+        chargeRule.hour = 18;
+        chargeRule.minute = 5;
+        chargeRule.second = 0;
 
-        this.scheduled.chargeJob = schedule.scheduleJob(rule, () => Bank.findEligibleAccountsToCharge());
-        this.scheduled.buyJob = schedule.scheduleJob(rule, () => Bank.findEligibleAccountsToCharge());
+        let buyRule = new schedule.RecurrenceRule();
+        buyRule.hour = 18;
+        buyRule.minute = 10;
+        buyRule.second = 0;
+
+        this.scheduled.chargeJob = schedule.scheduleJob(chargeRule, () => Bank.findEligibleAccountsToCharge());
+        this.scheduled.buyJob = schedule.scheduleJob(buyRule, () => Bank.findEligibleAccountsToCharge());
     },
 
     init: function() {

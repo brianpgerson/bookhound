@@ -6,6 +6,7 @@ const express = require('express'),
           app = express(),
    bodyParser = require('body-parser'),
        logger = require('morgan'),
+      winston = require('./config/logger'),
        router = require('./router'),
      mongoose = require('mongoose'),
  scheduleJobs = require('./scheduled/jobs'),
@@ -20,15 +21,15 @@ let server;
 switch (process.env.ENV) {
   case config.test_env: 
     server = app.listen(config.test_port);
-    console.log(`Your server is running on port ${config.port} in TEST MODE.`);
+    winston.log(`Your server is running on port ${config.port} in TEST MODE.`);
     break;
   case config.prod_env:
     server = app.listen(config.prod_port);
-    console.log(`Your server is running on port ${config.port} in PROD MODE.`);
+    winston.log(`Your server is running on port ${config.port} in PROD MODE.`);
     break;
   default: 
     server = app.listen(config.port);
-    console.log(`Your server is running on port ${config.port} in DEVELOPMENT MODE.`);
+    winston.log(`Your server is running on port ${config.port} in DEVELOPMENT MODE.`);
 } 
 
 // Set static file location for production

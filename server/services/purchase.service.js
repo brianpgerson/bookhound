@@ -14,7 +14,7 @@ exports.buyBook = function (user) {
     const orderObj = createOrderObject(user, bookToBuy);
     ZincService.order.create(orderObj)
         .then(res => {
-            console.log(res);
+            logger.log(res);
             let totalCost = config.defray + bookToBuy.price + bookToBuy.shipping;
             let remainingBalance = user.stripe.balance - totalCost;
             user.stripe.balance = remainingBalance;
@@ -28,10 +28,10 @@ exports.buyBook = function (user) {
             });
 
             purchase.save()
-                .then(success => console.log(`Successfully completed purchase: ${purchase}`))
-                .catch(err => console.log(`Error completing purchase: ${err}`));
+                .then(success => logger.log(`Successfully completed purchase: ${purchase}`))
+                .catch(err => logger.error(`Error completing purchase: ${err}`));
 
-        }).catch(err => console.log(`Error creating Zinc order for ${bookToBuy}: ${err}`));
+        }).catch(err => logger.error(`Error creating Zinc order for ${bookToBuy}: ${err}`));
 }
 
 function createOrderObject(user, bookToBuy) {
