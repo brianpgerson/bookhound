@@ -29,7 +29,8 @@ module.exports = {
 		servicePrivateKey: process.env.SERVICE_PRIVATE_KEY
 	},
 	zinc: process.env.ZINC_KEY,
-	globalMax: 5,
+	defray: process.env.DEFRAY,
+	globalMax: 15,
 	globalMin: 1
 };
 

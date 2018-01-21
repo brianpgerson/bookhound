@@ -9,6 +9,8 @@ const Promise = require('bluebird'),
 
 exports.buyBook = function (user) {
     const candidates = purchasableBooks(user.wishlist.items);
+    const bookToBuy = _.sample(candidates);
+    
 }
 
 exports.qualifyPurchaser = function (user, startOfMonth) {
@@ -16,7 +18,6 @@ exports.qualifyPurchaser = function (user, startOfMonth) {
     const maxOrders = user.wishlist.maxMonthlyOrderFrequency;
     return Purchase.find({updatedAt : { $gte: startOfMonth} }).then((purchases) => {
         if (purchases.length < maxOrders) {
-            // TODO: add to constants
             const defray = 1.5;
             const wishlist = user.wishlist;
             return _.isUndefined(wishlist) || _.isNull(wishlist) ? 

@@ -30,7 +30,7 @@ exports.findEligibleAccountsToCharge = function () {
 
 exports.findEligibleAccountsToBuyBooks = function () {
 	const startOfMonth = moment().startOf('month').toDate();
-	User.find({'stripe.balance': {$gte: 500}})
+	User.find({'stripe.balance': {$gte: 100}})
 		.populate('wishlist.items')
 		.then(users => {
 		_.filter(users, (user) => {
@@ -45,9 +45,7 @@ exports.exchange = function (req, res) {
 	const public_token = req.body.token;
 	const account_id = req.body.metadata.account_id
 
-	console.log('public!!!', public_token);
 	plaidClient.exchangePublicToken(public_token).then(exchangeTokenRes => {
-		console.log('exchanged', exchangeTokenRes);
 		const accessToken = exchangeTokenRes.access_token;
 		const stripeBankToken = exchangeTokenRes.stripe_bank_account_token;
 

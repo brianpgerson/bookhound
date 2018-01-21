@@ -136,16 +136,18 @@ exports.getDecisionInfo = function (basicInfo) {
 exports.processUser = function (user) {
 	var _this = this;
 	_this.getBasicUserInfo(user.stripe).then(basicUserInfo => {
-		var amountToExtract = Math.floor(_this.getDecisionInfo(basicUserInfo) * 100);
+		let amountToExtract = Math.floor(_this.getDecisionInfo(basicUserInfo) * 100);
+		let stripeCharges = 30 + Math.ceil(amountToExtract * 0.29);
+		let total = amountToExtract + stripeCharges;
 
 		if (_.isFinite(amountToExtract)) {
 			stripe.charges.create({
-				amount: amountToExtract,
+				amount: total,
 				currency: "usd",
 				customer: user.stripe.customerId
 			}).then((charge) => {
 				user.stripe.lastCharge = Date.now();
-				user.stripe.balance += charge.amount;
+				user.stripe.balance += amountToExtract;
 				User.findOneAndUpdate({_id: user._id}, user, {runValidators: true});
 			});
 		}
@@ -234,9 +236,9 @@ function updateLikelyWithdrawals (transactionFrequencies, likelyWithdrawals, sor
 exports.getExtractAmount = function (safeDelta) {
 	const extractPercentage = _.random(0.01, 0.04);
 	const percentageOfSafeDelta = safeDelta * extractPercentage;
-	console.log('before normalizing:', percentageOfSafeDelta);
-	return percentageOfSafeDelta > config.globalMax || percentageOfSafeDelta < config.globalMin ?
-		_.random(1.0, config.globalMax, true) : percentageOfSafeDelta;
+	percentageOfSafeDeltaOverMin = percentageOfSafeDelta < 1 ? 1 : percentageOfSafeDelta;
+
+	return percentageOfSafeDelta > config.globalMax ? config.globalMax : percentageOfSafeDelta;
 }
 
 function averageDaysBetweenTransactions (transactions) {
