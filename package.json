@@ -15,8 +15,7 @@
   "scripts": {
     "build": "concurrently \"cd client && npm install --save\" \"cd server && npm install --save\"",
     "clean": "concurrently \"rimraf node_modules\" \"cd client && rimraf node_modules build\" \"cd server && rimraf node_modules build\"",
-    "heroku-postbuild": "npm install",
-    "postinstall": "npm run build",
+    "heroku-postbuild": "npm install && npm run build",
     "build-client": "cd client && npm install",
     "build-client--dev": "cd client && npm install --only=dev",
     "build-server": "cd server && npm install",
