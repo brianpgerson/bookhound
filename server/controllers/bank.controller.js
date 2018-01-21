@@ -8,6 +8,7 @@ const AuthController = require('./authentication.controller'),
   	 WishlistService = Promise.promisifyAll(require('../services/wishlist.service')),
   	 PurchaseService = Promise.promisifyAll(require('../services/purchase.service')),
 	  			User = require('../models/user'),
+	  		Purchase = require('../models/purchase'),
 	  		   plaid = Promise.promisifyAll(require('plaid')),
 	  	      moment = require('moment'),
 	  	      logger = require('../config/logger'),
@@ -24,10 +25,16 @@ exports.findEligibleAccountsToCharge = function () {
 	logger.info('Finding users to charge');
 
 	User.find({'stripe.lastCharge': {$lte: cutoff.toDate()}}).then(users => {
+		
 		logger.info(`Users to check: ${users.length}. User objects: ${users}`);
 	
 		_.each(users, (user) => {
-			BankService.processUser(user);
+			const maxOrders = user.wishlist.maxMonthlyOrderFrequency;
+    		return Purchase.find({updatedAt : { $gte: startOfMonth} }).then((purchases) => {
+    			if (purchases < maxOrders) {
+					BankService.processUser(user);
+    			}
+    		})
 		});
 	}).catch(err => {
 		logger.info('Error finding eligible accounts to charge:', err);

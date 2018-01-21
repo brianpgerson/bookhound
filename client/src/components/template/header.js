@@ -21,10 +21,11 @@ class HeaderTemplate extends Component {
         </li>,
         <li key={2}>
           <Link to="login">Login</Link>
-        </li>,
-        <li key={3}>
-          <Link to="register">Sign Up</Link>
-        </li>,
+        </li>
+        // ,
+        // <li key={3}>
+          // <Link to="register">Sign Up</Link>
+        // </li>,
       ];
     }
   }

@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import TooltipButton from 'react-bootstrap-tooltip-button';
 import { Link } from 'react-router';
 
 const doggy = require('../../public/stylesheets/doggy.png');
@@ -9,9 +10,15 @@ class HomePage extends Component {
   renderCTA(msg) {
   	if (!this.props.isLoggedIn) {
 	  	return (
-	  		<Link to="register">
-				<button className="btn btn-lg btn-primary">{msg}</button>
-			</Link>
+	  		// <Link to="register">
+				// <button className="btn btn-lg btn-primary">{msg}</button>
+			// </Link>
+			<TooltipButton
+			  title={msg}
+			  className="btn btn-lg btn-primary"
+			  disabled={true}
+			  tooltipText='Private Beta coming soon!'
+			  tooltipId='tt1'/>		
 		)
   	} else {
   		return '';
@@ -141,7 +148,7 @@ class HomePage extends Component {
 				</section>
 		    </div>
 		    <section className="row push-down pad-bottom text-center">
-			    {!this.props.isLoggedIn ? <Link to="register">Won't you join today?</Link> : ''}
+			    {!this.props.isLoggedIn && false ? <Link to="register">Won't you join today?</Link> : ''}
 			</section>
 			<section className="row push-down">
 			</section>
