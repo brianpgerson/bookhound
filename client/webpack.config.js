@@ -6,8 +6,7 @@ const config = {
   context: __dirname,
   entry: './src/index.js',
   output: {
-    path: __dirname,
-    publicPath: 'http://localhost:8080/',
+    path: path.resolve(__dirname, 'public'),
     filename: 'bundle.js'
   },
   module: {
@@ -25,10 +24,10 @@ const config = {
     ],
   },
   devtool: 'source-map',
-  devServer: {
-    historyApiFallback: true,
-    contentBase: './',
-  },
+  // devServer: {
+  //   historyApiFallback: true,
+  //   contentBase: './',
+  // },
   plugins: [
     new webpack.DefinePlugin({ 'process.env': { NODE_ENV: JSON.stringify('production') } }),
     new webpack.optimize.DedupePlugin(),
