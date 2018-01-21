@@ -6,6 +6,7 @@ const express = require('express'),
           app = express(),
    bodyParser = require('body-parser'),
        logger = require('morgan'),
+         path = require('path'),
       winston = require('./config/logger'),
        router = require('./router'),
      mongoose = require('mongoose'),
@@ -33,7 +34,7 @@ switch (process.env.ENV) {
 } 
 
 // Set static file location for production
-app.use(express.static(path.resolve(__dirname, '../client/public')));
+app.use(express.static(path.resolve(__dirname, '../react-ui/build')));
 
 // Setting up basic middleware for all Express requests
 app.use(bodyParser.urlencoded({ extended: false })); // Parses urlencoded bodies
