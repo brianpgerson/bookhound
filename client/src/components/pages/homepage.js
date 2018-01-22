@@ -15,6 +15,8 @@ class HomePage extends Component {
 			// </Link>
 			<TooltipButton
 			  title={msg}
+			  event="click"
+			  eventOff="click"
 			  className="btn btn-lg btn-primary"
 			  disabled={true}
 			  tooltipText='Private Beta coming soon!'
@@ -41,9 +43,9 @@ class HomePage extends Component {
 			<div className="container">
 				<section className="row push-down pad-bottom">
 					<div className="col-md-4 col-md-offset-1">
-						<img src={doggy} className="left img-responsive" />
+						<img src={doggy} id="doggy" className="left img-responsive" />
 					</div>
-					<div className="col-md-6">
+					<div className="col-md-6 center-when-small">
 						<h3>Welcome to bookhound!</h3>
 						<p>bookhound is a simple, straightforward way to build your barkshelf...er, bookshelf! The app works quietly behind the scenes to pick out, order, and deliver all the fresh literature you want, right to your doorstep. Choose from curated wishlists, create your own, or let bookhound simply pick your next favorite book.
 						</p>
@@ -87,9 +89,7 @@ class HomePage extends Component {
 				        </div>
 				    </section>
 				    <section className="row flex-center pad-bottom">
-				        <Link to="register">
 							{this.renderCTA("I'm Sold!")}
-						</Link>
 					</section>
 			    </div>
 		    </div>
@@ -147,7 +147,7 @@ class HomePage extends Component {
 					</div>
 				</section>
 		    </div>
-		    <section className="row push-down pad-bottom text-center">
+		    <section className="row push-down">
 			    {!this.props.isLoggedIn && false ? <Link to="register">Won't you join today?</Link> : ''}
 			</section>
 			<section className="row push-down">

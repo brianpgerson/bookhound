@@ -22,7 +22,7 @@
     "build-client": "cd client && npm install",
     "build-server": "cd server && npm install",
 
-    "start-dev": "concurrently \"cd client && npm start-dev\" \"cd server && npm start-dev\"",
-    "start": "cd server && npm start",
+    "start-dev": "concurrently \"cd client && npm run start-dev\" \"cd server && npm run start-dev\"",
+    "start": "cd server && npm start"
   }
 }
