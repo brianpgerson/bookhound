@@ -15,8 +15,8 @@ class HomePage extends Component {
 			// </Link>
 			<TooltipButton
 			  title={msg}
-			  event="click"
-			  eventOff="click"
+			  event="touchstart"
+			  eventOff="touchend"
 			  className="btn btn-lg btn-primary"
 			  disabled={true}
 			  tooltipText='Private Beta coming soon!'
