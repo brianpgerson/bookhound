@@ -27,7 +27,7 @@ switch (process.env.ENV) {
     winston.log(`Your server is running on port ${config.port} in TEST MODE.`);
     break;
   case config.prod_env:
-    server = app.listen(config.prod_port);
+    server = app.listen(config.port);
     app.use(express.static(path.resolve(__dirname, '../client/dist/')));
     winston.log(`Your server is running on port ${config.port} in PROD MODE.`);
     break;
