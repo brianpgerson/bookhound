@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import {browserHistory } from 'react-router';
 import { connect } from 'react-redux';
 
 export default function(ComposedComponent) {
@@ -9,13 +10,13 @@ export default function(ComposedComponent) {
 
     componentWillMount() {
       if(!this.props.authenticated) {
-        this.context.router.push('/login');
+        browserHistory.push('/login');
       }
     }
 
     componentWillUpdate(nextProps) {
       if(!nextProps.authenticated) {
-        this.context.router.push('/login');
+        browserHistory.push('/login');
       }
     }
 

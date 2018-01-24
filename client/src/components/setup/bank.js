@@ -1,13 +1,14 @@
 import React, { Component } from 'react';
 import { CLIENT_ROOT_URL } from '../../constants/constants';
 import { connect } from 'react-redux';
+import {browserHistory } from 'react-router';
 import { getPlaidConfig, exchangeToken } from '../../actions/setup-actions';
 const PlaidLink = require('react-plaid-link');
 
 class Bank extends Component {
   handleOnSuccess(token, metadata) {
     this.props.exchangeToken({token, metadata}).then(function (){
-      window.location.href = CLIENT_ROOT_URL + '/dashboard';
+      browserHistory.push('/dashboard');
     });
   }
 
@@ -45,7 +46,7 @@ class Bank extends Component {
       <div>
         <h1 className='text-center'>{bank ? 'Update Your Bank' : 'Connect Your Bank'}</h1>
         <section className='container'>
-          <div className='row'>
+          <div className='row text-center'>
             <div className='col-md-4 col-md-offset-4 is-white-background form-panel'>
               <div className='row'>
                 <div>

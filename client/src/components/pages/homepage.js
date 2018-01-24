@@ -18,7 +18,7 @@ class HomePage extends Component {
 			  event="touchstart"
 			  eventOff="touchend"
 			  className="btn btn-lg btn-primary"
-			  disabled={true}
+			  disabled={false}
 			  tooltipText='Private Beta coming soon!'
 			  tooltipId='tt1'/>		
 		)

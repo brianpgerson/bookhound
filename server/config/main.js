@@ -2,6 +2,7 @@
 
 module.exports = {
 	port: process.env.PORT || 3000,
+	host: process.env.HOST,
 	test_port: 3001,
   	test_db: 'bookhound-test',
 	test_env: 'test',

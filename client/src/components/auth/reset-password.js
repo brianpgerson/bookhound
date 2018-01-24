@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import { browserHistory } from 'react-router';
 import { Field, reduxForm } from 'redux-form';
 import { resetPassword } from '../../actions/auth-actions';
 
@@ -28,8 +29,8 @@ function validate(formProps) {
 
 const renderField = field => (
   <div>
-    <input className="form-control" {...field.input} />
-    {field.touched && field.error && <div className="error">{field.error}</div>}
+    <input className="form-control" {...field.input} type={field.type}/>
+    {field.meta.touched && field.meta.error && <div className="error">{field.meta.error}</div>}
   </div>
 );
 
@@ -40,19 +41,20 @@ class ResetPassword extends Component {
 
   componentWillMount() {
     if (this.props.authenticated) {
-      this.context.router.push('/dashboard');
+      browserHistory.push('/dashboard');
     }
   }
 
   componentWillUpdate(nextProps) {
     if (nextProps.authenticated) {
-      this.context.router.push('/dashboard');
+      browserHistory.push('/dashboard');
     }
   }
 
   handleFormSubmit({ password }) {
     const resetToken = this.props.params.resetToken;
     this.props.resetPassword(resetToken, { password });
+
   }
 
   renderAlert() {
@@ -75,21 +77,31 @@ class ResetPassword extends Component {
     const { handleSubmit } = this.props;
 
     return (
-      <form onSubmit={handleSubmit(this.handleFormSubmit.bind(this))}>
-        <fieldset className="form-group">
-          <label>New Password:</label>
-          <Field name="password" component={renderField} type="password" />
-        </fieldset>
+      <div>
+        <h1 className="text-center">Reset Your Password</h1>
+          <section className="container">
+            <div className="row">
+              <div className="col-md-6 col-md-offset-3 is-white-background form-panel">
+                <div className="row">
+                  <form onSubmit={handleSubmit(this.handleFormSubmit.bind(this))}>
+                    <fieldset className="form-group">
+                      <label>New Password:</label>
+                      <Field name="password" component={renderField} type="password" />
+                    </fieldset>
 
-        <fieldset className="form-group">
-          <label>Confirm New Password:</label>
-          <Field name="passwordConfirm" component={renderField} type="password" />
-          {passwordConfirm.touched && passwordConfirm.error && <div className="error">{passwordConfirm.error}</div>}
-        </fieldset>
+                    <fieldset className="form-group">
+                      <label>Confirm New Password:</label>
+                      <Field name="passwordConfirm" type="password" component={renderField} />
+                    </fieldset>
 
-        {this.renderAlert()}
-        <button action="submit" className="btn btn-primary">Change Password</button>
-      </form>
+                    {this.renderAlert()}
+                    <button action="submit" className="btn btn-primary">Change Password</button>
+                  </form>
+                </div>
+              </div>  
+          </div>
+        </section>
+      </div>
     );
   }
 }

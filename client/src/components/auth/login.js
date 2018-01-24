@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import { browserHistory } from 'react-router';
 import { Field, reduxForm } from 'redux-form';
 import { Link } from 'react-router';
 import { loginUser } from '../../actions/auth-actions';
@@ -11,7 +12,10 @@ const form = reduxForm({
 
 class Login extends Component {
   handleFormSubmit(formProps) {
-    this.props.loginUser(formProps);
+    this.props.loginUser(formProps).then(res => {
+      console.log('it isnt')
+      browserHistory.push('/dashboard');
+    })
   }
 
   componentWillUnmount() {

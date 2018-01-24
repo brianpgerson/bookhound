@@ -40,7 +40,7 @@ function validate(formProps) {
     errors.used = 'Please choose at least one preferred condition.';
   }
 
-  if (formProps.maxMonthlyOrderFrequency && formProps.maxMonthlyOrderFrequency < 1) {
+  if (!formProps.maxMonthlyOrderFrequency || formProps.maxMonthlyOrderFrequency < 1) {
     errors.maxMonthlyOrderFrequency = 'Max order frequency must be at least 1';
   }
 
@@ -107,7 +107,7 @@ class Wishlist extends Component {
         <h1 className='text-center'>{isUpdating ? 'Update Wishlist' : 'Enter a Wishlist'}</h1>
         <section className='container'>
           <div className='row'>
-            <div className='col-md-4 col-md-offset-4 is-white-background form-panel'>
+            <div className='col-md-6 col-md-offset-3 is-white-background form-panel'>
               <div className='row'>
                 <div>
                   This part is important to get right. First, make sure you have a <a href='https://www.amazon.com/gp/help/customer/display.html?nodeId=501094' target='_blank'>public wishlist</a> for bookhound to use, and ensure that it has at least a few books. Then, when you're sure it's ready to go, add the URL here. It should look like: <em>www.amazon.com/gp/registry/wishlist/295PIKOOQBKVU</em>.

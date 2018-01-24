@@ -157,7 +157,7 @@ exports.forgotPassword = function (req, res, next) {
                 return next(err);
             });
 
-            Mailer.sendResetPasswordEmail(req.headers.host, email, resetToken).then(success => {
+            Mailer.sendResetPasswordEmail(config.host, email, resetToken).then(success => {
                 res.status(200).json({success: 'Email sent successfully. Please check your inbox to reset your password'});
             }).catch(error => {
                 res.send(error);

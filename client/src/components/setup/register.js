@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { browserHistory } from 'react-router';
 import { connect } from 'react-redux';
 import { Field, reduxForm } from 'redux-form';
 import { registerUser } from '../../actions/auth-actions';
@@ -56,7 +57,7 @@ function validate(formProps) {
 
 class Register extends Component {
   handleFormSubmit(formProps) {
-    this.props.registerUser(formProps);
+    this.props.registerUser(formProps).then(res => browserHistory.push('/address'));
   }
 
   componentWillUnmount() {
