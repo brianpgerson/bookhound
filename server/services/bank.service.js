@@ -80,13 +80,11 @@ exports.getDecisionInfo = function (basicInfo) {
 	let extractAmount;
 	let txnsBySize = { small: 0, medium: 0, large: 0};
 	let safeDelta = currentBalance - lowestRecentBalance;
-	// console.log('STARTING DECISION INFO:', '\n\n\n');
-	// console.log('safeDelta:', safeDelta);
 
 	if (safeDelta <= 0 || currentBalance < 50) {
 		return 0;
 	} else if (sortedTransactions.length < 10 && safeDelta > 0) {
-		extractAmount = this.getExtractAmount(safeDelta);
+		return _.round(this.getExtractAmount(safeDelta), 2);
 	}
 
 	let sortedWithdrawals = _.filter(sortedTransactions, (txn) => {
@@ -125,10 +123,10 @@ exports.getDecisionInfo = function (basicInfo) {
 		safeDelta -= futureWithdrawalAmount;
 	});
 
-	// console.log('safeDelta', safeDelta);
-
 	if (safeDelta > 0) {
 		extractAmount = this.getExtractAmount(safeDelta);
+	} else {
+		return 0;
 	}
 	return _.round(extractAmount, 2);
 }
@@ -234,11 +232,17 @@ function updateLikelyWithdrawals (transactionFrequencies, likelyWithdrawals, sor
 }
 
 exports.getExtractAmount = function (safeDelta) {
+	// get some arbitrary small percentage within a small window
 	const extractPercentage = _.random(0.01, 0.04);
+	
+	// take that from the "safe delta", or the buffer we've identified as acceptable to pull from
 	const percentageOfSafeDelta = safeDelta * extractPercentage;
-	percentageOfSafeDeltaOverMin = percentageOfSafeDelta < 1 ? 1 : percentageOfSafeDelta;
-
-	return percentageOfSafeDelta > config.globalMax ? config.globalMax : percentageOfSafeDelta;
+	
+	// let's just make sure it's both under 15 (shouldn't go over that ever in one extraction to buy a book)
+	// and over 1 (we should try and keep the total number of extractions relatively small since Stripe
+	// takes fees per txn)
+	let extractAmount = percentageOfSafeDelta > config.globalMax ? config.globalMax : percentageOfSafeDelta;
+	return extractAmount < config.globalMin ? 1 : extractAmount;
 }
 
 function averageDaysBetweenTransactions (transactions) {
