@@ -15,17 +15,30 @@ class Dashboard extends Component {
     this.props.refreshWishlistItems({wishlistUrl: wishlistUrl});
   }
 
-  wishlistItems(wishlist) {
+  wishlistItems(wishlist, purchases) {
     const items = wishlist.items;
     if (items.length === 0) {
       return (<li>No items in this wishlist yet! Add some then click 'Refresh'</li>);
     }
     return _.map(items, (item) => {
+      let purchased = this.findPurchaseFor(item, purchases);
       if (item.unavailable) {
         return (<li><a href={item.link} target='_blank'>{item.title}</a>: Not available with your current preferences!</li>)
       }
-      return (<li><a href={item.link} target='_blank'>{item.title}</a>: ${(item.price/100).toFixed(2)}</li>);
+      return (
+        <li>
+          <p>
+            <a href={item.link} target='_blank'>{item.title}</a>: ${(item.price/100).toFixed(2)}
+            {purchased.length > 0 ? (<span> - Purchased for {purchased[0].price}</span>) : ''}
+          </p>
+        </li>
+
+      );
     });
+  }
+
+  findPurchaseFor(item, purchases) {
+    return _.filter(purchases, p => p.productId = item.productId);
   }
 
   renderAlert() {
@@ -86,7 +99,12 @@ class Dashboard extends Component {
     return (<span className='bold'>{msg}</span>);
   }
 
-  renderWishlist(wishlist) {
+  mapItemsToPurchases(items, purchases) {
+    return _.filter(items, item => _.some(purchases, purchase => item.productId === purchase.productId));
+  }
+
+  renderWishlist(wishlist, purchases) {
+    let allPurchasedItemsInWishlist = this.mapItemsToPurchases(wishlist.items, purchases);
     if (wishlist && wishlist.id && !wishlist.updating) {
       const wishlistUrl = `https://www.amazon.com/gp/registry/wishlist/${wishlist.id}`;
       return (
@@ -96,8 +114,15 @@ class Dashboard extends Component {
           <p>Your Wishlist URL: <a href={wishlistUrl} target='_blank'>{wishlistUrl}</a></p>
           <ul className='wishlist'>
             <li className='bold'>Your wishlist contains the following items at these prices:</li>
-            {this.wishlistItems(wishlist)}
+            {this.wishlistItems(wishlist, purchases)}
           </ul>
+          {
+            allPurchasedItemsInWishlist.length !== wishlist.items.length ? 
+              (<p className='bold'>
+                All of your wishlist items have been purchased already. <br />
+                Maybe it's time to update your wishlist on Amazon and then refresh the URL here?
+              </p>) : ''
+          }
           <p>Your Wishlist Preferences: </p>
           <ul>
             <li>Max orders per month: {wishlist.maxMonthlyOrderFrequency}</li>
@@ -106,7 +131,7 @@ class Dashboard extends Component {
           <p>
             <Link to='wishlist'><button className='btn btn-default'>Change Wishlist</button></Link>
             <button onClick={() => {this.refreshWishlist(wishlistUrl)}} className='btn btn-default'>Refresh Items</button>
-           </p>
+          </p>
         </div>
       )
     } else if (_.get(wishlist, 'updating')) {
@@ -125,7 +150,7 @@ class Dashboard extends Component {
   }
 
   render() {
-    const {user, address, bank, wishlist, preferences} = this.props.setup;
+    const {user, address, bank, wishlist, purchases, preferences} = this.props.setup;
     return (
       <div>
         <div className='container'>
@@ -140,7 +165,7 @@ class Dashboard extends Component {
           {this.renderBank(bank)}
         </section>
         <section className='row pad-bottom'>
-          {this.renderWishlist(wishlist)}
+          {this.renderWishlist(wishlist, purchases)}
         </section>
         <section className='row push-down'>
         </section>

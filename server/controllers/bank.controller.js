@@ -21,24 +21,28 @@ exports.getPlaidConfig = function (req, res) {
 
 exports.findEligibleAccountsToCharge = function () {
 	const cutoff = moment().startOf('day').subtract(3, 'days');
+	const startOfMonth = moment().startOf('month').toDate();
 	
 	logger.info('Finding users to charge');
 
-	User.find({'stripe.lastCharge': {$lte: cutoff.toDate()}}).then(users => {
+	// User.find({'stripe.lastCharge': {$lte: cutoff.toDate()}})
+	User.find({})
+		.populate('stripe.charges')
+		.then(users => {
 		
-		logger.info(`Users to check: ${users.length}. User objects: ${users}`);
-	
-		_.each(users, (user) => {
-			const maxOrders = user.wishlist.maxMonthlyOrderFrequency;
-    		return Purchase.find({updatedAt : { $gte: startOfMonth} }).then((purchases) => {
-    			if (purchases < maxOrders) {
-					BankService.processUser(user);
-    			}
-    		})
+			logger.info(`Users to check: ${users.length}. User objects: ${users}`);
+		
+			_.each(users, (user) => {
+				const maxOrders = user.wishlist.maxMonthlyOrderFrequency;
+	    		return Purchase.find({updatedAt : { $gte: startOfMonth} }).then((purchases) => {
+	    			if (purchases < maxOrders) {
+						BankService.processUser(user);
+	    			}
+	    		})
+			});
+		}).catch(err => {
+			logger.info('Error finding eligible accounts to charge:', err);
 		});
-	}).catch(err => {
-		logger.info('Error finding eligible accounts to charge:', err);
-	})
 }
 
 exports.findEligibleAccountsToBuyBooks = function () {
@@ -52,6 +56,7 @@ exports.findEligibleAccountsToBuyBooks = function () {
 			let qualifiedUsers = _.filter(users, (user) => {
 				const qualified = PurchaseService.qualifyPurchaser(user, startOfMonth);
 				logger.info(qualified, user.profile.firstName);
+				return qualified;
 			});
 
 			_.forEach(qualifiedUsers, user => PurchaseService.buyBook(user));
@@ -61,37 +66,55 @@ exports.findEligibleAccountsToBuyBooks = function () {
 exports.exchange = function (req, res) {
 	const currentUser = req.currentUser;
 	const public_token = req.body.token;
-	const account_id = req.body.metadata.account_id
+	const accountId = req.body.metadata.account_id
 
 	plaidClient.exchangePublicToken(public_token).then(exchangeTokenRes => {
 		const accessToken = exchangeTokenRes.access_token;
-		const stripeBankToken = exchangeTokenRes.stripe_bank_account_token;
+		console.log('accessToken', accessToken);
 
-		stripe.customers.create({
-		  	source: stripeBankToken,
-		  	description: `Another bookhound customer`
-		}).then(customer => {
-			const stripeInfo = {
-				customerId: customer.id,
-				stripeBankToken: stripeBankToken,
-				accountId: account_id,
-				accessToken: accessToken,
-				lastCharge: new Date(),
-				balance: 0
-			};
-			currentUser.stripe = stripeInfo;
-			User.findOneAndUpdate(
-				{_id: currentUser._id},
-				currentUser,
-				{runValidators: true})
-			.then(updatedUser => {
-				res.status(200).send();
-			}).catch(err => {
-				res.status(422).json({error: err});
-			});
+		plaidClient.createStripeToken(accessToken, accountId, (err, stripeTokenResponse) => {
+			let stripeUserParams = {stripeTokenResponse, accountId, accessToken, currentUser}
+			createStripeUser(err, stripeUserParams, res);
 		});
-
 	}).catch(err => {
-		res.status(500).json({error: err});
+		res.status(500).json({error: `error at the top level! Why?! ${err}`});
 	});
 };
+
+function createStripeUser (err, stripeUserParams, res) {
+	if (!!err) {
+		res.status(500).json({error: `error getting stripe token: ${err}`});	
+	}
+    
+    let {stripeTokenResponse, accountId, accessToken, currentUser} = stripeUserParams;
+    const stripeBankToken = stripeTokenResponse.stripe_bank_account_token;
+
+	stripe.customers.create({
+	  	source: stripeBankToken,
+	  	description: `Another bookhound customer`
+	}).then(customer => {
+
+		const stripeInfo = {
+			customerId: customer.id,
+			stripeBankToken: stripeBankToken,
+			accountId: accountId,
+			accessToken: accessToken,
+			lastCharge: new Date(),
+			balance: 0
+		};
+
+		currentUser.stripe = stripeInfo;
+		
+		User.findOneAndUpdate(
+			{_id: currentUser._id},
+			currentUser,
+			{runValidators: true})
+		.then(updatedUser => {
+			res.status(200).send();
+		}).catch(err => {
+			res.status(422).json({error: `error saving user: ${err}`});
+		});
+	}).catch(err => {
+		res.status(500).json({error: `error creating customer: ${err}` });	
+	});
+}	

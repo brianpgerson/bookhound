@@ -7,7 +7,10 @@ const bluebird = require('bluebird'),
 	  	config = require('../config/main'),
 	  	 Stats = require('fast-stats').Stats,
 	  	  User = require('../models/user'),
-   plaidClient = new plaid.Client(config.plaid.client, config.plaid.secret, config.plaid.public, plaid.environments.development);
+	  	logger = require('../config/logger'),
+	  	Charge = require('../models/charge'),
+	  	stripe = bluebird.promisifyAll(require("stripe")(config.stripe.secret)),
+   plaidClient = new plaid.Client(config.plaid.client, config.plaid.secret, config.plaid.public, plaid.environments.sandbox);
 
 exports.getBasicUserInfo = function (financialData) {
 	let accessToken = financialData.accessToken;
@@ -15,14 +18,16 @@ exports.getBasicUserInfo = function (financialData) {
 
 	const now = moment();
 	const today = now.format('YYYY-MM-DD');
-	const oneYearAgo = now.subtract(1, 'years').format('YYYY-MM-DD');
+	const oneYearAgo = now.subtract(12, 'months').format('YYYY-MM-DD');
 	return plaidClient.getTransactions(accessToken, oneYearAgo, today).then(response => {
-		const selectedAccountTransactions = _.filter(response.transactions, (transaction) => {
-			return transaction._account === accountId;
+		const transactions = response.transactions;
+
+		const selectedAccountTransactions = _.filter(transactions, (transaction) => {
+			return transaction.account_id === accountId;
 		});
 
 		const selectedAccount = _.find(response.accounts, (acct) => {
-			return acct._id === accountId;
+			return acct.account_id === accountId;
 		});
 
 		const sortedTransactions = _.sortBy(selectedAccountTransactions, (txn) => {
@@ -35,13 +40,15 @@ exports.getBasicUserInfo = function (financialData) {
 		}, {});
 
 		const oneYearAgo = moment().subtract(1, 'years');
+
+		// console.log(sortedTransactions);
 		const oldestTransaction = moment(sortedTransactions[0].date);
 
 		const start = oneYearAgo.isBefore(oldestTransaction) ? oldestTransaction : oneYearAgo;
 		const threeMonthsAgo = moment().subtract(3, 'months');
 		const days = moment().diff(start, 'days');
 		const balances = {};
-		const currentBalance = selectedAccount.balance.available;
+		const currentBalance = selectedAccount.balances.available;
 		let lowestRecentBalance;
 
 		_.times(days, (index) => {
@@ -135,10 +142,12 @@ exports.processUser = function (user) {
 	var _this = this;
 	_this.getBasicUserInfo(user.stripe).then(basicUserInfo => {
 		let amountToExtract = Math.floor(_this.getDecisionInfo(basicUserInfo) * 100);
+		console.log(amountToExtract);
+
 		let stripeCharges = 30 + Math.ceil(amountToExtract * 0.29);
 		let total = amountToExtract + stripeCharges;
 
-		if (_.isFinite(amountToExtract)) {
+		if (_.isFinite(amountToExtract) && amountToExtract >= 0) {
 			stripe.charges.create({
 				amount: total,
 				currency: "usd",
@@ -146,11 +155,25 @@ exports.processUser = function (user) {
 			}).then((charge) => {
 				user.stripe.lastCharge = Date.now();
 				user.stripe.balance += amountToExtract;
-				User.findOneAndUpdate({_id: user._id}, user, {runValidators: true});
+
+				let charges = user.stripe.charges;
+				let userCharge = new Charge({
+					_creator: user._id,
+					chargeId: charge.id,
+					amount: charge.amount,
+					balanceTransaction: charge.balance_transaction
+				});
+
+				userCharge.save().then(savedCharge => {
+					charges.push(savedCharge);
+					user.stripe.charges = charges;
+					User.findOneAndUpdate({_id: user._id}, user, {runValidators: true})
+						.catch(err => logger.error(`Error updating user: ${user._id}. Error: ${err}`));
+				}).catch(err => logger.error(`Error saving charge: ${userCharge}. Error: ${err}`));
 			});
 		}
 	}).catch((err) => {
-		console.error(err);
+		logger.error(err);
 	});
 }
 

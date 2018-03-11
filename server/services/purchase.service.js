@@ -17,8 +17,11 @@ exports.buyBook = function (user) {
             logger.log(res);
             let totalCost = config.defray + bookToBuy.price + bookToBuy.shipping;
             let remainingBalance = user.stripe.balance - totalCost;
+            
             user.stripe.balance = remainingBalance;
-            User.findOneAndUpdate({_id: user._id}, user, {runValidators: true});
+            User.findOneAndUpdate({_id: user._id}, user, {runValidators: true})
+                .catch(err => logger.error(`Couldn't update user: ${user._id}`));
+
             let purchase = new Purchase({
                 userId: user._id,
                 productId: bookToBuy.productId,
@@ -73,11 +76,21 @@ exports.qualifyPurchaser = function (user, startOfMonth) {
     return Purchase.find({updatedAt : { $gte: startOfMonth} }).then((purchases) => {
         if (purchases.length < maxOrders) {
             const wishlist = user.wishlist;
-            return _.isUndefined(wishlist) || _.isNull(wishlist) ? 
-                false : purchasableBooks(wishlist.items, user.stripe.balance, config.defray).length > 0;
+            if (_.isUndefined(wishlist) || _.isNull(wishlist)) {
+                return false;
+            } else {
+                return purchasableBooks(wishlist.items, user.stripe.balance, config.defray)
+                    .then(purchasable => purchasable.length > 0);
+            }
                 
         }
     });
 }
 
-const purchasableBooks = (candidates, balance, defray) => _.filter(candidates, (b) => b.price + b.shipping + defray < balance);
+const purchasableBooks = (candidates, balance, defray) => {
+    return Promise.filter(candidates, (b) => {
+        return Purchase.find({productId: b.productId, userId: b._creator}).then(purchased => {
+            return (b.price + b.shipping + defray < balance) && (!purchased || purchased.length === 0);
+        })
+    });
+};

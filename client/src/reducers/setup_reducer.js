@@ -33,6 +33,7 @@ const INITIAL_STATE = {
 		maxMonthlyOrderFrequency: 0,
 		items: []
 	},
+	purchases: [],
 	plaid: {
 		public: ''
 	},
@@ -74,6 +75,7 @@ export default function (state = INITIAL_STATE, action) {
      			address: action.payload.address,
      			user: action.payload.user,
      			bank: action.payload.bank,
+     			purchases: action.payload.purchases,
      			wishlist: {
      				id: _.get(action.payload.wishlist, 'id', ''),
 					items: _.get(action.payload.wishlist, 'items', []),

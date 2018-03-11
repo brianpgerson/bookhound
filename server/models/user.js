@@ -30,11 +30,13 @@ const UserSchema = new Schema(
             default: ROLE_NORMAL
         },
         stripe: {
+            active: {type: Boolean},
             customerId: { type: String },
             stripeBankToken: { type: String },
             accessToken: { type: String},
             accountId: { type: String },
             lastCharge: { type: Date },
+            charges: [{ type: Schema.Types.ObjectId, ref: 'Charge' }],
             balance: { type: Number }
         },
         address: {
