@@ -30,8 +30,7 @@ exports.findEligibleAccountsToCharge = function () {
 		.populate('stripe.charges')
 		.then(users => {
 		
-			logger.info(`Users to check: ${users.length}. User objects: ${users}`);
-		
+			// logger.info(`Users to check: ${users.length}. User objects: ${users}`);
 			_.each(users, (user) => {
 				const maxOrders = user.wishlist.maxMonthlyOrderFrequency;
 	    		return Purchase.find({updatedAt : { $gte: startOfMonth} }).then((purchases) => {
@@ -52,14 +51,16 @@ exports.findEligibleAccountsToBuyBooks = function () {
 
 	User.find({'stripe.balance': {$gte: 100}})
 		.populate('wishlist.items')
+		.populate('stripe.charges')
 		.then(users => {
-			let qualifiedUsers = _.filter(users, (user) => {
-				const qualified = PurchaseService.qualifyPurchaser(user, startOfMonth);
-				logger.info(qualified, user.profile.firstName);
-				return qualified;
+			_.forEach(users, (user) => {
+				PurchaseService.qualifyPurchaser(user, startOfMonth).then(qualified => {
+					logger.info(`${user.profile.firstName} is ${qualified ? '' : 'not'} qualified`);
+					if (qualified) {
+						PurchaseService.buyBook(user);
+					}
+				});
 			});
-
-			_.forEach(qualifiedUsers, user => PurchaseService.buyBook(user));
 	});
 }
 
@@ -72,12 +73,14 @@ exports.exchange = function (req, res) {
 		const accessToken = exchangeTokenRes.access_token;
 		console.log('accessToken', accessToken);
 
+		// WHY does this require the "(err, success)" callback? it does not work without it
+		// and that is very annoying!
 		plaidClient.createStripeToken(accessToken, accountId, (err, stripeTokenResponse) => {
-			let stripeUserParams = {stripeTokenResponse, accountId, accessToken, currentUser}
+			let stripeUserParams = {stripeTokenResponse, accountId, accessToken, currentUser};
 			createStripeUser(err, stripeUserParams, res);
 		});
 	}).catch(err => {
-		res.status(500).json({error: `error at the top level! Why?! ${err}`});
+		res.status(500).json({error: `error exchanging public token?! ${err}`});
 	});
 };
 

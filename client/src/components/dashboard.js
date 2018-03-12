@@ -117,7 +117,7 @@ class Dashboard extends Component {
             {this.wishlistItems(wishlist, purchases)}
           </ul>
           {
-            allPurchasedItemsInWishlist.length !== wishlist.items.length ? 
+            allPurchasedItemsInWishlist.length === wishlist.items.length ? 
               (<p className='bold'>
                 All of your wishlist items have been purchased already. <br />
                 Maybe it's time to update your wishlist on Amazon and then refresh the URL here?

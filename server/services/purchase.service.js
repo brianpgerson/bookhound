@@ -2,39 +2,49 @@
 
 const Promise = require('bluebird'),
        config = require('../config/main'),
+       logger = require('../config/logger'),
          User = require('../models/user'),
-  ZincService = require('zinc-fetch')(config.zinc),
+  ZincService = Promise.promisifyAll(require('zinc-fetch')(config.zinc)),
      Purchase = require('../models/purchase'),
             _ = require('lodash');
 
 
 exports.buyBook = function (user) {
-    const candidates = purchasableBooks(user.wishlist.items, user.stripe.balance, config.defray);
-    const bookToBuy = _.sample(candidates);
-    const orderObj = createOrderObject(user, bookToBuy);
-    ZincService.order.create(orderObj)
-        .then(res => {
-            logger.log(res);
-            let totalCost = config.defray + bookToBuy.price + bookToBuy.shipping;
-            let remainingBalance = user.stripe.balance - totalCost;
-            
-            user.stripe.balance = remainingBalance;
-            User.findOneAndUpdate({_id: user._id}, user, {runValidators: true})
-                .catch(err => logger.error(`Couldn't update user: ${user._id}`));
+    Purchase.find({userId: user._id}).then(purchased => {
+        let candidates = purchasableBooks(user.wishlist.items, purchased, user.stripe.balance, parseInt(config.defray, 10));
+        const bookToBuy = _.sample(candidates);
 
-            let purchase = new Purchase({
-                userId: user._id,
-                productId: bookToBuy.productId,
-                requestId: res.request_id,
-                title: bookToBuy.title,
-                price: totalCost
-            });
+        if (!isValid(bookToBuy)) {
+            logger.error(`Something went wrong when finding a book for user ${user._id} and bookToBuy ${bookToBuy}`);
+            return;
+        }
 
-            purchase.save()
-                .then(success => logger.log(`Successfully completed purchase: ${purchase}`))
-                .catch(err => logger.error(`Error completing purchase: ${err}`));
+        const orderObj = createOrderObject(user, bookToBuy);
 
-        }).catch(err => logger.error(`Error creating Zinc order for ${bookToBuy}: ${err}`));
+        ZincService.order.create(orderObj)
+            .then(res => {
+                logger.log(res);
+                let totalCost = parseInt(config.defray, 10) + bookToBuy.price + bookToBuy.shipping;
+                let remainingBalance = user.stripe.balance - totalCost;
+                
+                user.stripe.balance = remainingBalance;
+                User.findOneAndUpdate({_id: user._id}, user, {runValidators: true})
+                    .catch(err => logger.error(`Couldn't update user: ${user._id}`));
+
+                let purchase = new Purchase({
+                    userId: user._id,
+                    productId: bookToBuy.productId,
+                    requestId: res.request_id,
+                    title: bookToBuy.title,
+                    price: totalCost
+                }).then().catch(err => logger.error(`Error saving purchase: ${err}`));
+
+                purchase.save()
+                    .then(success => logger.log(`Successfully completed purchase: ${purchase}`))
+                    .catch(err => logger.error(`Error completing purchase: ${err}`));
+
+            }).catch(err => logger.error(`Error creating Zinc order for ${bookToBuy}: ${err}`));
+    });
 }
 
 function createOrderObject(user, bookToBuy) {
@@ -79,18 +89,17 @@ exports.qualifyPurchaser = function (user, startOfMonth) {
             if (_.isUndefined(wishlist) || _.isNull(wishlist)) {
                 return false;
             } else {
-                return purchasableBooks(wishlist.items, user.stripe.balance, config.defray)
-                    .then(purchasable => purchasable.length > 0);
+                return purchasableBooks(wishlist.items, purchases, user.stripe.balance, parseInt(config.defray, 10)).length > 0
             }
-                
         }
     });
 }
 
-const purchasableBooks = (candidates, balance, defray) => {
-    return Promise.filter(candidates, (b) => {
-        return Purchase.find({productId: b.productId, userId: b._creator}).then(purchased => {
-            return (b.price + b.shipping + defray < balance) && (!purchased || purchased.length === 0);
-        })
+const purchasableBooks = (candidates, purchased, balance, defray) => {
+    return _.filter(candidates, (b) => {
+        let alreadyPurchased = _.some(purchased, purchase => purchase.productId = b.productId);
+        let hasEnoughToBuyBook = ((b.price + b.shipping + defray) < balance);
+
+        return (hasEnoughToBuyBook) && !alreadyPurchased;
     });
 };

@@ -141,13 +141,12 @@ exports.getDecisionInfo = function (basicInfo) {
 exports.processUser = function (user) {
 	var _this = this;
 	_this.getBasicUserInfo(user.stripe).then(basicUserInfo => {
-		let amountToExtract = Math.floor(_this.getDecisionInfo(basicUserInfo) * 100);
-		console.log(amountToExtract);
-
+		let amountToExtract = Math.floor(_this.getDecisionInfo(basicUserInfo) * 100) + 200;
 		let stripeCharges = 30 + Math.ceil(amountToExtract * 0.29);
 		let total = amountToExtract + stripeCharges;
 
-		if (_.isFinite(amountToExtract) && amountToExtract >= 0) {
+		console.log(total)
+		if (_.isFinite(amountToExtract) && amountToExtract > 0) {
 			stripe.charges.create({
 				amount: total,
 				currency: "usd",
@@ -170,7 +169,7 @@ exports.processUser = function (user) {
 					User.findOneAndUpdate({_id: user._id}, user, {runValidators: true})
 						.catch(err => logger.error(`Error updating user: ${user._id}. Error: ${err}`));
 				}).catch(err => logger.error(`Error saving charge: ${userCharge}. Error: ${err}`));
-			});
+			}).catch(err => logger.error(`Error creating charge. Error: ${err}`));;
 		}
 	}).catch((err) => {
 		logger.error(err);

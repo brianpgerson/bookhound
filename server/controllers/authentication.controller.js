@@ -33,9 +33,10 @@ exports.me = function(req, doPopulate) {
         if (doPopulate) {
             return User.findById(decoded._id)
                 .populate('wishlist.items')
+                .populate('stripe.charges')
                 .then(user => {
                     return user;
-                });
+                }).catch(err => console.error(`error populating user: ${err}`));
         } else {
             return User.findById(decoded._id).then(user => {
                 return user;
