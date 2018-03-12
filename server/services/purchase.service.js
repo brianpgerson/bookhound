@@ -4,10 +4,14 @@ const Promise = require('bluebird'),
        config = require('../config/main'),
        logger = require('../config/logger'),
          User = require('../models/user'),
-  ZincService = Promise.promisifyAll(require('zinc-fetch')(config.zinc)),
+  ZincService = require('zinc-fetch')(config.zinc),
      Purchase = require('../models/purchase'),
             _ = require('lodash');
 
+function isValid(book) {
+    let requiredFields = ['shipping', 'price', 'productId'];
+    return !_.isUndefined(book) && !_.some(requiredFields, field => _.isUndefined(book[field]));
+}
 
 exports.buyBook = function (user) {
     Purchase.find({userId: user._id}).then(purchased => {
@@ -18,32 +22,30 @@ exports.buyBook = function (user) {
             logger.error(`Something went wrong when finding a book for user ${user._id} and bookToBuy ${bookToBuy}`);
             return;
         }
-
         const orderObj = createOrderObject(user, bookToBuy);
+        
+        ZincService.order.create(orderObj).then(res => {
+            let totalCost = parseInt(config.defray, 10) + bookToBuy.price + bookToBuy.shipping;
+            let remainingBalance = user.stripe.balance - totalCost;
+            
+            user.stripe.balance = remainingBalance;
+            User.findOneAndUpdate({_id: user._id}, user, {runValidators: true})
+                .then(() => {})
+                .catch(err => logger.error(`Couldn't update user: ${user._id}`));
 
-        ZincService.order.create(orderObj)
-            .then(res => {
-                logger.log(res);
-                let totalCost = parseInt(config.defray, 10) + bookToBuy.price + bookToBuy.shipping;
-                let remainingBalance = user.stripe.balance - totalCost;
-                
-                user.stripe.balance = remainingBalance;
-                User.findOneAndUpdate({_id: user._id}, user, {runValidators: true})
-                    .catch(err => logger.error(`Couldn't update user: ${user._id}`));
+            let purchase = new Purchase({
+                userId: user._id,
+                productId: bookToBuy.productId,
+                requestId: res.request_id,
+                title: bookToBuy.title,
+                price: totalCost
+            });
 
-                let purchase = new Purchase({
-                    userId: user._id,
-                    productId: bookToBuy.productId,
-                    requestId: res.request_id,
-                    title: bookToBuy.title,
-                    price: totalCost
-                }).then().catch(err => logger.error(`Error saving purchase: ${err}`));
+            purchase.save()
+                .then(success => logger.log(`Successfully completed purchase: ${purchase}`))
+                .catch(err => logger.error(`Error completing purchase: ${err}`));
 
-                purchase.save()
-                    .then(success => logger.log(`Successfully completed purchase: ${purchase}`))
-                    .catch(err => logger.error(`Error completing purchase: ${err}`));
-
-            }).catch(err => logger.error(`Error creating Zinc order for ${bookToBuy}: ${err}`));
+        }).catch(err => logger.error(`Error creating Zinc order for ${bookToBuy.title}: ${err}`));
     });
 }
 
@@ -97,7 +99,7 @@ exports.qualifyPurchaser = function (user, startOfMonth) {
 
 const purchasableBooks = (candidates, purchased, balance, defray) => {
     return _.filter(candidates, (b) => {
-        let alreadyPurchased = _.some(purchased, purchase => purchase.productId = b.productId);
+        let alreadyPurchased = _.some(purchased, purchase => purchase.productId === b.productId);
         let hasEnoughToBuyBook = ((b.price + b.shipping + defray) < balance);
 
         return (hasEnoughToBuyBook) && !alreadyPurchased;

@@ -141,7 +141,7 @@ exports.getDecisionInfo = function (basicInfo) {
 exports.processUser = function (user) {
 	var _this = this;
 	_this.getBasicUserInfo(user.stripe).then(basicUserInfo => {
-		let amountToExtract = Math.floor(_this.getDecisionInfo(basicUserInfo) * 100) + 200;
+		let amountToExtract = Math.floor(_this.getDecisionInfo(basicUserInfo) * 100);
 		let stripeCharges = 30 + Math.ceil(amountToExtract * 0.29);
 		let total = amountToExtract + stripeCharges;
 

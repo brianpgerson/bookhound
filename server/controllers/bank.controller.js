@@ -25,8 +25,7 @@ exports.findEligibleAccountsToCharge = function () {
 	
 	logger.info('Finding users to charge');
 
-	// User.find({'stripe.lastCharge': {$lte: cutoff.toDate()}})
-	User.find({})
+	User.find({'stripe.lastCharge': {$lte: cutoff.toDate()}})
 		.populate('stripe.charges')
 		.then(users => {
 		
@@ -34,7 +33,7 @@ exports.findEligibleAccountsToCharge = function () {
 			_.each(users, (user) => {
 				const maxOrders = user.wishlist.maxMonthlyOrderFrequency;
 	    		return Purchase.find({updatedAt : { $gte: startOfMonth} }).then((purchases) => {
-	    			if (purchases < maxOrders) {
+	    			if (purchases.length < maxOrders) {
 						BankService.processUser(user);
 	    			}
 	    		})
