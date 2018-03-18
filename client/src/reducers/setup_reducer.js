@@ -25,7 +25,7 @@ const INITIAL_STATE = {
 	bank: false,
 	wishlist: {
 		updating: false,
-		id: '',
+		url: '',
 		preferredConditions: {
 			new: undefined,
 			used: undefined
@@ -58,7 +58,7 @@ export default function (state = INITIAL_STATE, action) {
      	case SAVE_WISHLIST:
      		return { ...state,
      			wishlist: {
-     				id: action.payload.wishlist.id,
+     				url: action.payload.wishlist.url,
      				items: action.payload.wishlist.items,
      				preferredConditions: action.payload.wishlist.preferredConditions,
      				maxMonthlyOrderFrequency: action.payload.wishlist.maxMonthlyOrderFrequency
@@ -77,7 +77,7 @@ export default function (state = INITIAL_STATE, action) {
      			bank: action.payload.bank,
      			purchases: action.payload.purchases,
      			wishlist: {
-     				id: _.get(action.payload.wishlist, 'id', ''),
+     				url: _.get(action.payload.wishlist, 'url', ''),
 					items: _.get(action.payload.wishlist, 'items', []),
 					preferredConditions: action.payload.wishlist.preferredConditions,
      				maxMonthlyOrderFrequency: action.payload.wishlist.maxMonthlyOrderFrequency,

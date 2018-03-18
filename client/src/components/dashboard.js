@@ -29,7 +29,7 @@ class Dashboard extends Component {
         <li>
           <p>
             <a href={item.link} target='_blank'>{item.title}</a>: ${(item.price/100).toFixed(2)}
-            {purchased.length > 0 ? (<span> - Purchased for {purchased[0].price}</span>) : ''}
+            {purchased.length > 0 ? (<span> - Purchased for ${(purchased[0].price/100).toFixed(2)}</span>) : ''}
           </p>
         </li>
 
@@ -38,7 +38,7 @@ class Dashboard extends Component {
   }
 
   findPurchaseFor(item, purchases) {
-    return _.filter(purchases, p => p.productId = item.productId);
+    return _.filter(purchases, p => p.productId === item.productId);
   }
 
   renderAlert() {
@@ -105,8 +105,8 @@ class Dashboard extends Component {
 
   renderWishlist(wishlist, purchases) {
     let allPurchasedItemsInWishlist = this.mapItemsToPurchases(wishlist.items, purchases);
-    if (wishlist && wishlist.id && !wishlist.updating) {
-      const wishlistUrl = `https://www.amazon.com/gp/registry/wishlist/${wishlist.id}`;
+    if (wishlist && wishlist.url && !wishlist.updating) {
+      const wishlistUrl = wishlist.url;
       return (
         <div className='col-md-6'>
           <h4>Wishlist Information</h4>
@@ -117,7 +117,7 @@ class Dashboard extends Component {
             {this.wishlistItems(wishlist, purchases)}
           </ul>
           {
-            allPurchasedItemsInWishlist.length === wishlist.items.length ? 
+            (wishlist.items.length > 0 && allPurchasedItemsInWishlist.length === wishlist.items.length) ? 
               (<p className='bold'>
                 All of your wishlist items have been purchased already. <br />
                 Maybe it's time to update your wishlist on Amazon and then refresh the URL here?

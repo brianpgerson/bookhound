@@ -6,11 +6,44 @@ const Promise = require('bluebird'),
          User = require('../models/user'),
   ZincService = require('zinc-fetch')(config.zinc),
      Purchase = require('../models/purchase'),
+        Order = require('../models/order'),
             _ = require('lodash');
+
+
+const second = 1000;
+const minute = second * 60;
+const waitingRequests = {};
 
 function isValid(book) {
     let requiredFields = ['shipping', 'price', 'productId'];
     return !_.isUndefined(book) && !_.some(requiredFields, field => _.isUndefined(book[field]));
+}
+
+exports.orderRequestPoller = function () {
+    Order.find({status: 'IN_PROGRESS'}).then(orders => {
+        _.each(orders, order => {
+            let orderId = order.orderId;
+           
+            if (_.isUndefined(waitingRequests[orderId])) {
+                logger.info('polling for order', order);
+               
+                // create the poller
+                let waitingOrder = setInterval(() => {
+                    waitForResponse(order);
+                }, 10 * second);
+
+                // save reference to the poller
+                waitingRequests[orderId] = waitingOrder;
+
+                // prepare ten minute timeout to kill the poller and set the order object to FAILED
+                setTimeout(() => {
+                    if (waitingRequests[orderId]) {
+                        clearForId(orderId);
+                    }
+                }, 10 * minute);
+            }
+        })
+    }).catch(err => logger.error(`Couldn't find orders. Error: ${err}`))
 }
 
 exports.buyBook = function (user) {
@@ -23,41 +56,106 @@ exports.buyBook = function (user) {
             return;
         }
         const orderObj = createOrderObject(user, bookToBuy);
-        
-        ZincService.order.create(orderObj).then(res => {
-            let totalCost = parseInt(config.defray, 10) + bookToBuy.price + bookToBuy.shipping;
-            let remainingBalance = user.stripe.balance - totalCost;
-            
-            user.stripe.balance = remainingBalance;
-            User.findOneAndUpdate({_id: user._id}, user, {runValidators: true})
-                .then(() => {})
-                .catch(err => logger.error(`Couldn't update user: ${user._id}`));
 
-            let purchase = new Purchase({
-                userId: user._id,
-                productId: bookToBuy.productId,
-                requestId: res.request_id,
+        // WOW FUN DUMB
+        return;
+
+        ZincService.order.create(orderObj).then(res => {
+            let order = new Order({
+                _creator: user._id,
+                orderId: res.request_id,
                 title: bookToBuy.title,
-                price: totalCost
+                productId: bookToBuy.productId,
+                totalCost: parseInt(config.defray, 10) + bookToBuy.price + bookToBuy.shipping,
+                status: 'IN_PROGRESS'
             });
 
-            purchase.save()
-                .then(success => logger.log(`Successfully completed purchase: ${purchase}`))
-                .catch(err => logger.error(`Error completing purchase: ${err}`));
-
+            order.save()
+                .then(success => logger.log(`Queued order ${order.orderId}`))
+                .catch(err => logger.error(`Error queuing order: ${order.orderId}. Error: ${err}`));
         }).catch(err => logger.error(`Error creating Zinc order for ${bookToBuy.title}: ${err}`));
     });
 }
 
+function clearForId (reqId, success) {
+    let status = success ? 'COMPLETE' : 'FAILED';
+
+    Order.findOneAndUpdate({orderId: reqId}, {$set:{'status': status}}, {runValidators: true})
+        .then(() => {
+            clearInterval(waitingRequests[reqId]);
+            delete waitingRequests[reqId];
+        }).catch(err => logger.error(`Error updating order: ${reqId}. Error: ${err}`));
+}
+
+function waitForResponse (order) {
+    let reqId = order.orderId;
+    ZincService.order.retrieve(reqId).then(res => {
+        if (res._type === 'error') {
+            if (res.code === 'request_processing') {
+                logger.info(`Still processing order ${reqId}.`)
+            } else {
+                logger.error(`Order ${reqId} failed! Error: ${res.code}. Data: ${res.data}`);
+                clearForId(reqId);
+            }
+        } else if (res._type === 'order_response') {
+            logger.info(`Order ${reqId} finished. Handling success.`)
+            handleSuccess(order, res);
+        }
+    })
+}
+
+function handleSuccess(order, res) {
+    let totalCost = order.totalCost;
+    let reqId = order.reqId;
+
+    let costViaZinc = parseInt(config.defray, 10) + res.price_components.total;
+
+    if (totalCost != costViaZinc) {
+        logger.error(`Cost reported by Zinc was different than cost calculated by bookhound! Zinc: ${costViaZinc}, bookhound: ${totalCost}, order: ${reqId}`)
+        totalCost = costViaZinc;
+    }
+
+    User.findById(order._creator).then(user => {
+        let remainingBalance = user.stripe.balance - totalCost;
+    
+        user.stripe.balance = remainingBalance;
+        User.findOneAndUpdate({_id: user._id}, user, {runValidators: true})
+            .then(() => {})
+            .catch(err => logger.error(`Couldn't update user: ${user._id}`));
+
+        let purchase = new Purchase({
+            userId: user._id,
+            productId: order.productId,
+            title: order.title,
+            requestId: reqId,
+            price: totalCost
+        });
+
+        clearForId(reqId, true);
+
+        purchase.save()
+            .then(success => logger.log(`Successfully completed purchase: ${purchase}`))
+            .catch(err => logger.error(`Error completing purchase: ${err}`));
+    }).catch(err => logger.error(`Couldn't find user: ${order._creator}, error: ${err}`));
+}
+
 function createOrderObject(user, bookToBuy) {
-    const preferences = user.wishlist.preferences;
-    const conditions = _.map(_.filter(_.keys(preferences), pref => preferences[pref]), (pref) => _.upperFirst(pref));
+    const preferences = user.wishlist.preferredConditions;
+    let conditions = [];
+    
+    if (preferences.new) {
+        conditions.push('New');
+    } 
+
+    if (preferences.used) {
+        conditions = conditions.concat(['Refurbished', 'Used - Like New', 'Used - Very Good', 'Used - Good', 'Used - Acceptable']);
+    }
     const shippingMethod = bookToBuy.shipping > 0 ? 'cheapest' : 'free';
 
     return {
         retailer: 'amazon',
         products: [{
-            product_id: bookToBuy.productId,
+            product_id: 'bookfun',
             quantity: 1,
             seller_selection_criteria: {
                 condition_in: conditions

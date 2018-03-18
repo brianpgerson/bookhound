@@ -135,7 +135,7 @@ export function refreshWishlistItems (wishlistUrl) {
   const jwt = getToken();
   return function(dispatch) {
       dispatch(startSavingWishlist());
-      axios.put(`${API_URL}/setup/wishlist/refresh`, wishlistUrl, jwt)
+      axios.put(`${API_URL}/setup/wishlist/refresh`, {}, jwt)
       .then(response => {
         dispatch(receiveWishlist(response.data));
         dispatch(endSavingWishlist());

@@ -145,7 +145,6 @@ exports.processUser = function (user) {
 		let stripeCharges = 30 + Math.ceil(amountToExtract * 0.29);
 		let total = amountToExtract + stripeCharges;
 
-		console.log(total)
 		if (_.isFinite(amountToExtract) && amountToExtract > 0) {
 			stripe.charges.create({
 				amount: total,

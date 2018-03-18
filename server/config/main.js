@@ -50,6 +50,8 @@ module.exports = {
 		retailer_credentials: {
 			email: process.env.RETAILER_EMAIL,
 			password: process.env.RETAILER_PASSWORD
+			// ,
+			// verification_code: process.env.RETAILER_VERIFICATION
 		},
 		payment_method: {
 		    name_on_card: `${process.env.BILLING_FIRST_NAME} ${process.env.BILLING_LAST_NAME}`,

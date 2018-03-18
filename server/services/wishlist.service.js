@@ -10,7 +10,7 @@ const   Promise = require('bluebird'),
 exports.getWishlist = function (requestBody) {
     let wishlistUrl = requestBody.wishlistUrl;
     return {
-        id: wishlistUrl,
+        url: wishlistUrl,
         preferredConditions: requestBody.preferredConditions,
         maxMonthlyOrderFrequency: requestBody.maxMonthlyOrderFrequency
     };
@@ -48,14 +48,23 @@ exports.saveWishlist = function (wishlist, list, currentUser) {
 }
 
 exports.removeOldItems = function (currentUser) {
-    return WishlistItem.remove({_creator: currentUser._id});
+    return WishlistItem.find({_creator: currentUser._id}).then(items => {
+        _.forEach(items, item => item.remove())
+    });
 }
 
 exports.updateWishlist = function (newWishlist, listOfItems, currentUser) {
     return this.getWishlistItems(listOfItems, currentUser._id).then(items => {
-        newWishlist.items = items;    
+        let preferences = {
+            new: newWishlist.preferredConditions.new,
+            used: newWishlist.preferredConditions.used,
+        }
+
         currentUser.wishlist = newWishlist;
-        if (_.isEmpty(newWishlist.items)) {
+        currentUser.wishlist.items = items;
+        currentUser.wishlist.preferredConditions = preferences;
+        
+        if (_.isEmpty(items)) {
             return currentUser.save();
         } else {
             return this.refreshWishlistItemPrices(currentUser.wishlist).then(refreshedItems => {
@@ -84,18 +93,17 @@ exports.refreshWishlistItemPrices = function (wishlist) {
 function findCheapestPrice (item, wishlist) {
     return ZincService.product.getPrices(item.productId)
         .then(response => {
-            logger.log('findCheapestPrice() got offers for ', item.title)
+            logger.info('findCheapestPrice() got offers for ', item.title)
             let cheapestOffer = false;
             return Promise.each(response.offers, (candidateOffer) => {
                 candidateOffer.price = Math.round(candidateOffer.price * 100);
-
                 candidateOffer.ship_price = Math.round(candidateOffer.ship_price * 100);
 
                 if (suitableCondition(candidateOffer, wishlist) && isCheaper(candidateOffer, cheapestOffer)) {
                     cheapestOffer = candidateOffer;
                 }
         }).then(resolved => {
-            logger.log('done with', item.title)
+            logger.info('done with', item.title)
             return cheapestOffer;
         }).catch(err => {
             logger.error('an err', err)
@@ -105,7 +113,7 @@ function findCheapestPrice (item, wishlist) {
 }
 
 function isCheaper(candidateOffer, currentCheapest) {
-    return (!currentCheapest || (currentCheapest.price + currentCheapest.ship_price) > (candidateOffer.price + candidateOffer.ship_price));
+    return (!currentCheapest || (currentCheapest.price + currentCheapest.ship_price) >= (candidateOffer.price + candidateOffer.ship_price));
 };
 
 function suitableCondition(offer, wishlist) {

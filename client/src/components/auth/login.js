@@ -13,7 +13,6 @@ const form = reduxForm({
 class Login extends Component {
   handleFormSubmit(formProps) {
     this.props.loginUser(formProps).then(res => {
-      console.log('it isnt')
       browserHistory.push('/dashboard');
     })
   }

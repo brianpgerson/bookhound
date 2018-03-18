@@ -2,8 +2,8 @@
 
 const         Promise = require('bluebird'),
       WishlistService = Promise.promisifyAll(require('../services/wishlist.service')),
-       AmazonWishlist = require('amazon-wish-list'),
                  User = require('../models/user'),
+               logger = require('../config/logger'),
     AmazonListScraper = require('amazon-list-scraper'),
                   als = new AmazonListScraper(),
        AuthController = require('./authentication.controller'),
@@ -13,12 +13,12 @@ exports.saveWishlist = function (req, res, next) {
     const currentUser = req.currentUser;
     let wishlist = WishlistService.getWishlist(req.body);
 
-    if (!wishlist.id) {
+    if (!wishlist.url) {
         res.status(422).send({ error: 'Wishlist URL is invalid' });
         return;
     }
 
-    als.scrape(wishlist.id).then(list => {
+    als.scrape(wishlist.url).then(list => {
         if (!list) {
             throw new Error(`Couldn't access your wishlist at ${req.body.wishlistUrl}. Try again?`);
             return;
@@ -38,45 +38,45 @@ exports.saveWishlist = function (req, res, next) {
 
 exports.refreshWishlistItems = function (req, res, next) {
     const currentUser = req.currentUser;
-    WishlistService.refreshWishlistItemPrices(currentUser.wishlist).then(refreshedWishlistItems => {
-        currentUser.wishlist.items = refreshedWishlistItems;
-        currentUser.save().then(saved => {
-            res.status(200).send({wishlist: saved.wishlist});
-        })
-    }).catch(error => {
-        res.status(500).send({error: error});
-    });
+    const refreshed = {
+        url: currentUser.wishlist.url,
+        preferredConditions: currentUser.wishlist.preferredConditions,
+        maxMonthlyOrderFrequency: currentUser.wishlist.maxMonthlyOrderFrequency
+    };
 
+    scrapeAndUpdate(refreshed, currentUser, res)
 };
 
 exports.updateWishlist = function (req, res, next) {
     const currentUser = req.currentUser;
     let newWishlist = WishlistService.getWishlist(req.body);
 
-    if (!newWishlist.id) {
+    if (!newWishlist.url) {
         res.status(422).send({ error: 'Wishlist is invalid' });
         return;
     }
 
-    als.scrape(newWishlist.id).then(list => {
-        if (!list) {
-            throw new Error(`Couldn't access your wishlist at ${req.body.wishlistUrl}. Try again?`);
-            return;
+    scrapeAndUpdate(newWishlist, currentUser, res)
+};
+
+function scrapeAndUpdate(wishlist, currentUser, res) {
+    als.scrape(wishlist.url).then(scrapedList => {
+        if (!scrapedList) {
+            res.status(500).json({error: `Couldn't access your wishlist at ${req.body.wishlistUrl}. Try again?`});
+            return
         }
 
-        list = _.filter(list, item => {
+        scrapedList = _.filter(scrapedList, item => {
             return _.isFinite(item.price);
         });
 
-
         WishlistService.removeOldItems(currentUser).then(() => {
-            WishlistService.updateWishlist(newWishlist, list, currentUser).then(user => {
+            WishlistService.updateWishlist(wishlist, scrapedList, currentUser).then(user => {
                 res.status(200).json({wishlist: user.wishlist});
             }).catch(err => {
                 res.status(500).json({error: err});
             });
         })
-    }).catch(err => {
-        console.error(err);
-    })
-};
+    }).catch(err => logger.error(`Error with scraping amazon: ${err}`));
+}
+

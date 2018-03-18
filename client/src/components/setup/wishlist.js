@@ -56,7 +56,7 @@ class Wishlist extends Component {
 
   handleFormSubmit(formProps) {
     const { wishlist, saveWishlist, updateWishlist } = this.props;
-    const isUpdating = _.has(wishlist, 'id') && !_.isEmpty(wishlist.id);
+    const isUpdating = _.has(wishlist, 'url') && !_.isEmpty(wishlist.url);
     let next;
 
     const wishlistRequest = {
@@ -101,7 +101,7 @@ class Wishlist extends Component {
 
   render() {
     const { handleSubmit, wishlist } = this.props;
-    const isUpdating = _.get(wishlist, 'id', false);
+    const isUpdating = _.get(wishlist, 'url', false);
     return (
       <div>
         <h1 className='text-center'>{isUpdating ? 'Update Wishlist' : 'Enter a Wishlist'}</h1>

@@ -47,7 +47,7 @@ const UserSchema = new Schema(
             zip: String
         },
         wishlist: {
-            id: String,
+            url: String,
             items: [{ type: Schema.Types.ObjectId, ref: 'WishlistItem' }],
             preferredConditions: {
                 new: {

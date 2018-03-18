@@ -28,8 +28,6 @@ exports.findEligibleAccountsToCharge = function () {
 	User.find({'stripe.lastCharge': {$lte: cutoff.toDate()}})
 		.populate('stripe.charges')
 		.then(users => {
-		
-			// logger.info(`Users to check: ${users.length}. User objects: ${users}`);
 			_.each(users, (user) => {
 				const maxOrders = user.wishlist.maxMonthlyOrderFrequency;
 	    		return Purchase.find({updatedAt : { $gte: startOfMonth} }).then((purchases) => {
@@ -54,7 +52,7 @@ exports.findEligibleAccountsToBuyBooks = function () {
 		.then(users => {
 			_.forEach(users, (user) => {
 				PurchaseService.qualifyPurchaser(user, startOfMonth).then(qualified => {
-					logger.info(`${user.profile.firstName} is ${qualified ? '' : 'not'} qualified`);
+					logger.info(`${user.profile.firstName} is ${qualified ? '' : 'not'}qualified`);
 					if (qualified) {
 						PurchaseService.buyBook(user);
 					}
@@ -70,7 +68,6 @@ exports.exchange = function (req, res) {
 
 	plaidClient.exchangePublicToken(public_token).then(exchangeTokenRes => {
 		const accessToken = exchangeTokenRes.access_token;
-		console.log('accessToken', accessToken);
 
 		// WHY does this require the "(err, success)" callback? it does not work without it
 		// and that is very annoying!
