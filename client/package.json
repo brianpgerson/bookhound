@@ -5,8 +5,11 @@
   "main": "index.js",
   "dependencies": {
     "axios": "^0.13.1",
+    "bootstrap": "^4.0.0",
     "lodash": "^4.17.4",
+    "moment": "^2.22.0",
     "react": "^15.4.1",
+    "react-bootstrap-table": "^4.3.1",
     "react-bootstrap-tooltip-button": "^1.0.6",
     "react-cookie": "^1.0.4",
     "react-dom": "^15.4.1",

@@ -24,7 +24,7 @@ exports.getSetup = function (req, res) {
             userSetup.wishlist = currentUser.wishlist;
             userSetup.purchases = purchases;
             userSetup.bank = !!currentUser.stripe.customerId;
-            userSetup.charges = _.map(charges, charge => _.pick(charge, ['amount', 'id']));
+            userSetup.charges = _.map(charges, charge => _.pick(charge, ['amount', 'id', 'createdAt']));
         
             res.status(200).json(userSetup);
         });

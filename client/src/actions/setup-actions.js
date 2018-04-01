@@ -9,8 +9,7 @@ import {SAVE_ADDRESS,
         WISHLIST_UPDATING,
         UNAUTH_USER,
         RECEIVE_USER_SETUP,
-        SHOW_PURCHASES,
-        RECEIVE_PLAID_CONFIG } from './types';
+        SHOW_PURCHASES } from './types';
 
 function getToken () {
   return {headers: { 'Authorization': cookie.load('token')}};
@@ -44,31 +43,6 @@ export function setShowPurchases(doShow) {
       payload: doShow
     });
   }; 
-};
-
-export function getPlaidConfig () {
-  const jwt = getToken();
-  return function(dispatch) {
-    axios.get(`${API_URL}/setup/plaid`, jwt)
-    .then(response => {
-      dispatch({
-        type: RECEIVE_PLAID_CONFIG,
-        payload: response.data
-      });
-    })
-  }
-};
-
-export function exchangeToken (tokenMetadata) {
-  const jwt = getToken();
-  return function(dispatch) {
-    return axios.post(`${API_URL}/setup/exchange-token`, tokenMetadata, jwt).then(response => {
-      // do something?
-    }).catch(error =>{
-      console.error(error);
-      receiveError(dispatch, error);
-    })
-  }
 };
 
 export function getUserSetup () {

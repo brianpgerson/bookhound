@@ -36,10 +36,7 @@ const INITIAL_STATE = {
 		items: []
 	},
 	purchases: [],
-	charges: [],
-	plaid: {
-		public: ''
-	},
+	charges: []
 };
 
 export default function (state = INITIAL_STATE, action) {
@@ -69,12 +66,7 @@ export default function (state = INITIAL_STATE, action) {
      				maxMonthlyOrderFrequency: action.payload.wishlist.maxMonthlyOrderFrequency
      			}
      		}
-     	case RECEIVE_PLAID_CONFIG:
-     		return { ...state,
-     			plaid: {
-     				public: action.payload.public
-     			}
-     		}
+    
      	case RECEIVE_USER_SETUP:
      		return { ...state,
      			address: action.payload.address,

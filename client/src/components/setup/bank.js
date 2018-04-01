@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { CLIENT_ROOT_URL } from '../../constants/constants';
 import { connect } from 'react-redux';
 import {browserHistory } from 'react-router';
-import { getPlaidConfig, exchangeToken } from '../../actions/setup-actions';
+import { getPlaidConfig, exchangeToken } from '../../actions/bank-actions';
 const PlaidLink = require('react-plaid-link');
 
 class Bank extends Component {

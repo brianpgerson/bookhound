@@ -1,14 +1,28 @@
 import React, { Component } from 'react';
 import { Link, browserHistory } from 'react-router';
 import { Field, reduxForm } from 'redux-form';
+import Modal from 'react-modal';
 import { connect } from 'react-redux';
-import * as setupActions from '../actions/setup-actions';
+const moment = require('moment');
+import { getUserSetup, refreshWishlistItems, setShowPurchases, refreshWishlist } from '../actions/setup-actions';
+import { openModal, closeModal } from '../actions/modal-actions';
+import RefundModal from './refund-modal';
+
+const REFUND = 'refund';
 
 class Dashboard extends Component {
 
   constructor(props) {
     super(props);
     this.props.getUserSetup();
+  }
+
+  openModal(item) {
+    this.props.openModal(REFUND, item);
+  }
+
+  closeModal() {
+    this.props.closeModal(REFUND);
   }
 
   refreshWishlist(wishlistUrl) {
@@ -73,12 +87,28 @@ class Dashboard extends Component {
     }
   }
 
-  renderBank(bank) {
+  refund(item) {
+    console.log(item.id);
+  }
+
+  renderBank(bank, charges) {
     if (bank) {
       return (
         <div className='col-md-4'>
           <h4>Bank Account Information</h4>
           <p className='good-text'>Your bank account is currently connected</p>
+          <p><strong>Charges</strong></p>
+          <ul className="scroller-medium">
+            {
+              _.map(charges, (item) => {
+                return (
+                  <li className="margin-bottom-small">
+                    <strong>{moment(item.createdAt).format('MMM D, Y')}:</strong>........${(item.amount/100).toFixed(2)} 
+                    <span onClick={() => this.openModal(item)} className="whisper cursor"> ?</span>
+                  </li>);
+              })
+            }
+          </ul>
           <p><Link to='bank'><button className='btn btn-default'>Update Bank</button></Link></p>
         </div>
       )
@@ -94,10 +124,6 @@ class Dashboard extends Component {
   renderPreferredConditions(prefs) {
     const msg = _.keys(_.pickBy(prefs)).join(' and ');
     return (<span className='bold'>{msg}</span>);
-  }
-
-  mapItemsToPurchases(items, purchases) {
-    return _.filter(items, item => _.some(purchases, purchase => item.productId === purchase.productId));
   }
 
   renderPurchases(purchases) {
@@ -125,7 +151,6 @@ class Dashboard extends Component {
   }
 
   renderWishlist(wishlist, purchases) {
-    let allPurchasedItemsInWishlist = this.mapItemsToPurchases(wishlist.items, purchases);
     if (wishlist && wishlist.url && !wishlist.updating) {
       const wishlistUrl = wishlist.url;
       return (
@@ -134,7 +159,7 @@ class Dashboard extends Component {
           {this.props.setup.showPurchases ? this.renderPurchases(purchases) : this.renderItems(wishlist)}
           <p><strong>Preferences</strong></p>
           <ul className="wishlist">
-            <li><p>Wishlist URL: <a href={wishlistUrl} target='_blank'>{wishlistUrl}</a></p></li>
+            <li><p>Wishlist URL: <a href={'https://' + wishlistUrl} target='_blank'>{wishlistUrl}</a></p></li>
             <li><p>Max orders per month: {wishlist.maxMonthlyOrderFrequency}</p></li>
             <li><p>Preferred Conditions: { this.renderPreferredConditions(wishlist.preferredConditions) }</p></li>
           </ul>
@@ -160,9 +185,10 @@ class Dashboard extends Component {
   }
 
   render() {
-    const {user, address, bank, wishlist, purchases, preferences} = this.props.setup;
+    const {user, address, bank, charges, wishlist, purchases, preferences} = this.props.setup;
     return (
       <div>
+        <RefundModal type={REFUND} />
         <div className='container'>
         <section className='row pad-bottom'>
           <h1>Welcome to your Dashboard, {user.profile.firstName}</h1>
@@ -172,7 +198,7 @@ class Dashboard extends Component {
           {this.renderAddress(address)}
         </section>
         <section className='row pad-bottom'>
-          {this.renderBank(bank)}
+          {this.renderBank(bank, charges)}
         </section>
         <section className='row pad-bottom'>
           {this.renderWishlist(wishlist, purchases)}
@@ -191,4 +217,4 @@ function mapStateToProps(state) {
   };
 }
 
-export default connect(mapStateToProps, setupActions)(Dashboard);
+export default connect(mapStateToProps, { getUserSetup, refreshWishlistItems, setShowPurchases, refreshWishlist, openModal, closeModal })(Dashboard);
