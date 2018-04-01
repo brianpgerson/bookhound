@@ -19,6 +19,11 @@ exports.getPlaidConfig = function (req, res) {
 	 res.status(200).json({public: config.plaid.public});
 }
 
+exports.refund = function (req, res) {
+	console.log(req);
+	res.status(200).json({great: 'cool!'})
+}
+
 exports.findEligibleAccountsToCharge = function () {
 	const cutoff = moment().startOf('day').subtract(3, 'days');
 	const startOfMonth = moment().startOf('month').toDate();

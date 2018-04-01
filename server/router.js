@@ -22,7 +22,8 @@ module.exports = function(app) {
     const apiRoutes = express.Router(),
          authRoutes = express.Router(),
         clientRoute = express.Router(),
-        setupRoutes = express.Router();
+        setupRoutes = express.Router(),
+         bankRoutes = express.Router();
 
   //=========================
   // Auth Routes
@@ -57,13 +58,15 @@ module.exports = function(app) {
   setupRoutes.put('/wishlist', requireAuth, addPopulatedUserToReq, WishlistController.updateWishlist);
   setupRoutes.put('/wishlist/refresh', requireAuth, addPopulatedUserToReq, WishlistController.refreshWishlistItems);
 
-  setupRoutes.post('/exchange-token', requireAuth, addUserToReq, BankController.exchange);
-  setupRoutes.get('/plaid', requireAuth, BankController.getPlaidConfig);
-
   //=========================
-  // User Routes
+  // Bank Routes
   //=========================
-
+  
+  apiRoutes.use('/bank', bankRoutes);
+  bankRoutes.post('/exchange-token', requireAuth, addUserToReq, BankController.exchange);
+  bankRoutes.post('/refund', requireAuth, addUserToReq, BankController.refund);
+  bankRoutes.get('/plaid', requireAuth, BankController.getPlaidConfig);
+  
   // Set url for API group routes
   app.use('/api', apiRoutes);
 
