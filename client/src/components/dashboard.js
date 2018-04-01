@@ -15,30 +15,27 @@ class Dashboard extends Component {
     this.props.refreshWishlistItems({wishlistUrl: wishlistUrl});
   }
 
-  wishlistItems(wishlist, purchases) {
-    const items = wishlist.items;
+  setShowPurchases() {
+    this.props.setShowPurchases(!this.props.setup.showPurchases)
+  } 
+
+  items({wishlist, purchases}) {
+    const items = wishlist ? wishlist.items : purchases;
     if (items.length === 0) {
-      return (<li>No items in this wishlist yet! Add some then click 'Refresh'</li>);
+      return (wishlist ? (<li>No items in this wishlist yet! Add some then click 'Refresh'</li>) :
+                          <li>No purchases yet.</li>);
     }
     return _.map(items, (item) => {
-      let purchased = this.findPurchaseFor(item, purchases);
       if (item.unavailable) {
         return (<li><a href={item.link} target='_blank'>{item.title}</a>: Not available with your current preferences!</li>)
       }
       return (
         <li>
-          <p>
-            <a href={item.link} target='_blank'>{item.title}</a>: ${(item.price/100).toFixed(2)}
-            {purchased.length > 0 ? (<span> - Purchased for ${(purchased[0].price/100).toFixed(2)}</span>) : ''}
-          </p>
+          <p><a href={item.link} target='_blank'>{item.title}</a>: ${(item.price/100).toFixed(2)}</p>
         </li>
 
       );
     });
-  }
-
-  findPurchaseFor(item, purchases) {
-    return _.filter(purchases, p => p.productId === item.productId);
   }
 
   renderAlert() {
@@ -103,6 +100,30 @@ class Dashboard extends Component {
     return _.filter(items, item => _.some(purchases, purchase => item.productId === purchase.productId));
   }
 
+  renderPurchases(purchases) {
+    return (
+      <div>
+        <p><strong>Purchases</strong> 
+        <span className="whisper cursor" 
+              onClick={() => {this.setShowPurchases()}}> (switch to wishlist)</span></p> 
+        <ul className='wishlist'>
+          {this.items({purchases})}
+        </ul>
+      </div>);
+  }
+
+  renderItems(wishlist) {
+    return (
+      <div>
+        <p><strong>Items</strong> 
+        <span className="whisper cursor" 
+              onClick={() => {this.setShowPurchases()}}> (switch to purchases)</span></p> 
+        <ul className='wishlist'>
+          {this.items({wishlist})}
+        </ul>
+      </div>);
+  }
+
   renderWishlist(wishlist, purchases) {
     let allPurchasedItemsInWishlist = this.mapItemsToPurchases(wishlist.items, purchases);
     if (wishlist && wishlist.url && !wishlist.updating) {
@@ -110,23 +131,12 @@ class Dashboard extends Component {
       return (
         <div className='col-md-6'>
           <h4>Wishlist Information</h4>
-          <p className='good-text'>Your wishlist is currently connected</p>
-          <p>Your Wishlist URL: <a href={wishlistUrl} target='_blank'>{wishlistUrl}</a></p>
-          <ul className='wishlist'>
-            <li className='bold'>Your wishlist contains the following items at these prices:</li>
-            {this.wishlistItems(wishlist, purchases)}
-          </ul>
-          {
-            (wishlist.items.length > 0 && allPurchasedItemsInWishlist.length === wishlist.items.length) ? 
-              (<p className='bold'>
-                All of your wishlist items have been purchased already. <br />
-                Maybe it's time to update your wishlist on Amazon and then refresh the URL here?
-              </p>) : ''
-          }
-          <p>Your Wishlist Preferences: </p>
-          <ul>
-            <li>Max orders per month: {wishlist.maxMonthlyOrderFrequency}</li>
-            <li>Preferred Conditions: { this.renderPreferredConditions(wishlist.preferredConditions) }</li>
+          {this.props.setup.showPurchases ? this.renderPurchases(purchases) : this.renderItems(wishlist)}
+          <p><strong>Preferences</strong></p>
+          <ul className="wishlist">
+            <li><p>Wishlist URL: <a href={wishlistUrl} target='_blank'>{wishlistUrl}</a></p></li>
+            <li><p>Max orders per month: {wishlist.maxMonthlyOrderFrequency}</p></li>
+            <li><p>Preferred Conditions: { this.renderPreferredConditions(wishlist.preferredConditions) }</p></li>
           </ul>
           <p>
             <Link to='wishlist'><button className='btn btn-default'>Change Wishlist</button></Link>
@@ -176,7 +186,9 @@ class Dashboard extends Component {
 }
 
 function mapStateToProps(state) {
-  return { setup: state.setup };
+  return { 
+    setup: state.setup,
+  };
 }
 
 export default connect(mapStateToProps, setupActions)(Dashboard);

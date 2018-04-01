@@ -9,6 +9,7 @@ import {SAVE_ADDRESS,
         WISHLIST_UPDATING,
         UNAUTH_USER,
         RECEIVE_USER_SETUP,
+        SHOW_PURCHASES,
         RECEIVE_PLAID_CONFIG } from './types';
 
 function getToken () {
@@ -20,21 +21,30 @@ function startSavingWishlist () {
     type: WISHLIST_UPDATING,
     payload: true
   };
-}
+};
 
 function receiveWishlist (wishlist) {
   return {
     type: SAVE_WISHLIST,
     payload: wishlist
   };
-}
+};
 
 function endSavingWishlist () {
   return {
     type: WISHLIST_UPDATING,
     payload: false
   };
-}
+};
+
+export function setShowPurchases(doShow) {
+  return (dispatch) => {
+    dispatch({
+      type: SHOW_PURCHASES,
+      payload: doShow
+    });
+  }; 
+};
 
 export function getPlaidConfig () {
   const jwt = getToken();

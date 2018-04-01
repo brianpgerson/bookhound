@@ -1,4 +1,5 @@
 export const AUTH_USER = 'auth_user',
+             SHOW_PURCHASES = 'show_purchases',
              UNAUTH_USER = 'unauth_user',
              FORGOT_PASSWORD_REQUEST = 'forgot_password_request',
              RESET_PASSWORD_REQUEST = 'reset_password_request',

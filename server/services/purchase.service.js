@@ -57,9 +57,6 @@ exports.buyBook = function (user) {
         }
         const orderObj = createOrderObject(user, bookToBuy);
 
-        // WOW FUN DUMB
-        return;
-
         ZincService.order.create(orderObj).then(res => {
             let order = new Order({
                 _creator: user._id,

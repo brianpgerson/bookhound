@@ -1,4 +1,5 @@
 import {
+	SHOW_PURCHASES,
 	SAVE_ADDRESS,
 	RECEIVE_PLAID_CONFIG,
 	RECEIVE_USER_SETUP,
@@ -8,6 +9,7 @@ import {
 const _ = require('lodash');
 
 const INITIAL_STATE = {
+	showPurchases: false,
 	user: {
 		email: '',
 		profile: {
@@ -34,6 +36,7 @@ const INITIAL_STATE = {
 		items: []
 	},
 	purchases: [],
+	charges: [],
 	plaid: {
 		public: ''
 	},
@@ -41,6 +44,8 @@ const INITIAL_STATE = {
 
 export default function (state = INITIAL_STATE, action) {
   	switch (action.type) {
+		case SHOW_PURCHASES: 
+			return { ...state, showPurchases: action.payload }
     	case SAVE_ADDRESS:
 	     	 return { ...state, address:
 		      	_.assign({}, {
@@ -75,7 +80,8 @@ export default function (state = INITIAL_STATE, action) {
      			address: action.payload.address,
      			user: action.payload.user,
      			bank: action.payload.bank,
-     			purchases: action.payload.purchases,
+				purchases: action.payload.purchases,
+				charges: action.payload.charges,
      			wishlist: {
      				url: _.get(action.payload.wishlist, 'url', ''),
 					items: _.get(action.payload.wishlist, 'items', []),
