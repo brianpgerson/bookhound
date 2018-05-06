@@ -4,6 +4,7 @@ import {
 	RECEIVE_PLAID_CONFIG,
 	RECEIVE_USER_SETUP,
 	SAVE_WISHLIST,
+	RECEIVE_REFUND_CONFIRMATION,
 	WISHLIST_UPDATING,
 } from '../actions/types';
 const _ = require('lodash');
@@ -24,7 +25,10 @@ const INITIAL_STATE = {
 		state: '',
 		zip: ''
 	},
-	bank: false,
+	bank: {
+		connected: false,
+		balance: undefined
+	},
 	wishlist: {
 		updating: false,
 		url: '',
@@ -66,7 +70,18 @@ export default function (state = INITIAL_STATE, action) {
      				maxMonthlyOrderFrequency: action.payload.wishlist.maxMonthlyOrderFrequency
      			}
      		}
-    
+    	case RECEIVE_REFUND_CONFIRMATION: 
+            return { ...state, 
+        		charges: _.map(state.charges, (charge) => {
+        			if (charge.id === action.payload.id) {
+        				charge.refund.amount = state.bank.balance - action.payload.newBalance;
+        			}
+
+        			return charge;
+        		}),
+        		bank: _.assign(state.bank, {balance: action.payload.newBalance})
+            }
+
      	case RECEIVE_USER_SETUP:
      		return { ...state,
      			address: action.payload.address,

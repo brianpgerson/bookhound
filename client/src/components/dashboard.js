@@ -33,7 +33,7 @@ class Dashboard extends Component {
     this.props.setShowPurchases(!this.props.setup.showPurchases)
   } 
 
-  items({wishlist, purchases}) {
+  itemRows({wishlist, purchases}) {
     const items = wishlist ? wishlist.items : purchases;
     if (items.length === 0) {
       return (wishlist ? (<li>No items in this wishlist yet! Add some then click 'Refresh'</li>) :
@@ -45,7 +45,7 @@ class Dashboard extends Component {
       }
       return (
         <li>
-          <p><a href={item.link} target='_blank'>{item.title}</a>: ${(item.price/100).toFixed(2)}</p>
+          <p><a href={item.link} target='_blank'>{item.title}</a>: ${this.toCurrency(item.price)}</p>
         </li>
 
       );
@@ -91,20 +91,30 @@ class Dashboard extends Component {
     console.log(item.id);
   }
 
+  toCurrency(amt) {
+    return (amt/100).toFixed(2);
+  }
+
   renderBank(bank, charges) {
-    if (bank) {
+    if (bank.connected) {
       return (
         <div className='col-md-4'>
           <h4>Bank Account Information</h4>
           <p className='good-text'>Your bank account is currently connected</p>
+
+          <p><strong>Current Balance: </strong>${this.toCurrency(bank.balance)}</p>
           <p><strong>Charges</strong></p>
           <ul className="scroller-medium">
             {
               _.map(charges, (item) => {
+                item.balance = bank.balance;
+                let refundThing = item.refund.amount === item.amount ?
+                      (<span className="whisper">  (refunded ${this.toCurrency(item.refund.amount)})</span>) :
+                      (<span onClick={() => this.openModal(item)} className="whisper cursor"> ?</span>)
                 return (
                   <li className="margin-bottom-small">
-                    <strong>{moment(item.createdAt).format('MMM D, Y')}:</strong>........${(item.amount/100).toFixed(2)} 
-                    <span onClick={() => this.openModal(item)} className="whisper cursor"> ?</span>
+                    <strong>{moment(item.createdAt).format('MMM D, Y')}:</strong>........${this.toCurrency(item.amount)} 
+                    { refundThing }
                   </li>);
               })
             }
@@ -133,7 +143,7 @@ class Dashboard extends Component {
         <span className="whisper cursor" 
               onClick={() => {this.setShowPurchases()}}> (switch to wishlist)</span></p> 
         <ul className='wishlist'>
-          {this.items({purchases})}
+          {this.itemRows({purchases})}
         </ul>
       </div>);
   }
@@ -145,7 +155,7 @@ class Dashboard extends Component {
         <span className="whisper cursor" 
               onClick={() => {this.setShowPurchases()}}> (switch to purchases)</span></p> 
         <ul className='wishlist'>
-          {this.items({wishlist})}
+          {this.itemRows({wishlist})}
         </ul>
       </div>);
   }

@@ -17,13 +17,24 @@ class RefundModal extends Component {
 
     getRefundAmount(charge) {
         if (this.isOpen()) {
-            let amount = parseInt(charge.amount, 10);
+            let chargeAmount = parseInt(charge.amount, 10);
+
             // lets say total charge is 2.88. 
             // 288 - 30c stripe flat fee = 258
             // 2.9% fee = 288 * .29 = 8.352
             // total = 258 - 8.352 = 249.65
-            return ((amount - 30 - (amount * 0.029)) / 100).toFixed(2);
+            let potentialMax = (chargeAmount - 30 - (chargeAmount * 0.029));
+            console.log(potentialMax, charge.balance);
+            let amount = potentialMax > charge.balance ? charge.balance : potentialMax;
+            return (amount /100).toFixed(2);
         }
+    }
+
+    refundMessage(item) {
+        return item.amount > 0 ? (<div>
+            <p>You can refund this charge for the amount of ${item.amount} (We unfortunately cannot refund Stripe fees at this time).</p>
+            <p>Once you initiate the refund, you will not be able to undo the request. The refund will be sent to the same account you've connected to bookhound.</p>
+        </div>) : (<p>You need a positive balance to initate a refund!</p>)
     }
 
     issueRefund(charge) {
@@ -33,6 +44,7 @@ class RefundModal extends Component {
 
     render () {
         let {item, closeModal} = this.props.modal;
+        item.amount = this.getRefundAmount(item);
         return (
             <div>
                 <Modal isOpen={this.isOpen()}
@@ -43,12 +55,9 @@ class RefundModal extends Component {
                        contentLabel="Refund Request">
 
                     <h2 >Refund Charge?</h2>
-                    <div>
-                        <p>You can refund this charge for the amount of ${this.getRefundAmount(item)} (We unfortunately cannot refund Stripe fees at this time).</p>
-                        <p>Once you initiate the refund, you will not be able to undo the request. The refund will be sent to the same account you've connected to bookhound.</p>
-                    </div>
+                    { this.refundMessage(item) }
                     <div className="flex-between">
-                        <button className="btn btn-danger" onClick={() =>this.issueRefund(item)}>Yes, Refund</button>
+                        {item.amount > 0 ? (<button className="btn btn-danger" onClick={() =>this.issueRefund(item)}>Yes, Refund</button>) : ''}
                         <button className="btn btn-default" onClick={this.props.closeModal}>Nevermind!</button>
                     </div>
                 </Modal>

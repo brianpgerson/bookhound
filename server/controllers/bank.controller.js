@@ -9,6 +9,7 @@ const AuthController = require('./authentication.controller'),
   	 PurchaseService = Promise.promisifyAll(require('../services/purchase.service')),
 	  			User = require('../models/user'),
 	  		Purchase = require('../models/purchase'),
+	  		  Charge = require('../models/charge'),
 	  		   plaid = Promise.promisifyAll(require('plaid')),
 	  	      moment = require('moment'),
 	  	      logger = require('../config/logger'),
@@ -20,8 +21,30 @@ exports.getPlaidConfig = function (req, res) {
 }
 
 exports.refund = function (req, res) {
-	console.log(req);
-	res.status(200).json({great: 'cool!'})
+	let refundRequest = req.body;
+	let currentUser = req.currentUser;
+
+	return Charge.findById(refundRequest.id).then(charge => {
+		return stripe.refunds.create({charge: charge.chargeId}).then(ref => {
+			console.log('RESPONSE: ', ref);
+			if (ref.status === 'succeeded' || ref.status === 'pending') {
+				charge.refund.amount = ref.amount;
+				charge.refund.date = new Date();
+				currentUser.stripe.balance -= ref.amount;
+				return User.findOneAndUpdate({_id: currentUser._id}, currentUser, {new: true})
+					.then(user => {
+						Charge.findOneAndUpdate({_id: refundRequest.id}, charge).then(charge => {
+							res.status(200).json({newBalance: user.stripe.balance, id: refundRequest.id});
+						});
+					});
+			}
+		}).catch(err => {
+			res.status(500).json({error: `error creating refund: ${err}`});	
+		});
+
+	});
+
+
 }
 
 exports.findEligibleAccountsToCharge = function () {

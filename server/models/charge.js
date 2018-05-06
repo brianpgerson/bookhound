@@ -11,6 +11,16 @@ const ChargeSchema = new Schema({
         ref: 'User',
         required: true
     },
+    refund: {
+        amount: {        
+            type: Number,
+            required: true,
+            default: 0
+        },
+        date: {
+            type: Date
+        }
+    },
     chargeId: {
         type: String,
         required: true

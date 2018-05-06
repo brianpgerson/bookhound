@@ -1,5 +1,4 @@
 import {
-	RECEIVE_REFUND_CONFIRMATION,
 	RECEIVE_PLAID_CONFIG
 } from '../actions/types';
 const _ = require('lodash');

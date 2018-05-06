@@ -23,8 +23,11 @@ exports.getSetup = function (req, res) {
             userSetup.address = _.pick(currentUser.address, ['streetAddressOne', 'streetAddressTwo', 'state', 'city', 'zip']);
             userSetup.wishlist = currentUser.wishlist;
             userSetup.purchases = purchases;
-            userSetup.bank = !!currentUser.stripe.customerId;
-            userSetup.charges = _.map(charges, charge => _.pick(charge, ['amount', 'id', 'createdAt']));
+            userSetup.charges = _.map(charges, charge => _.pick(charge, ['amount', 'id', 'createdAt', 'refund']));
+            userSetup.bank = {
+                connected: !!currentUser.stripe.customerId,
+                balance: currentUser.stripe.balance
+            };
         
             res.status(200).json(userSetup);
         });

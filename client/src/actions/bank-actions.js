@@ -25,7 +25,6 @@ export function initiateRefund (refund) {
         axios.post(`${API_URL}/bank/refund`, refund, jwt)
             .then(response => {
                 dispatch(receiveRefund(response));
-                dispatch(getUserSetup())
             }).catch(error =>{
                 console.error(error);
                 receiveError(dispatch, error);
