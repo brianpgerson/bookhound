@@ -68,7 +68,7 @@ class Bank extends Component {
 
 function mapStateToProps(state) {
   return {
-    plaidPublicKey: state.setup.plaid.public,
+    plaidPublicKey: state.bank.plaid.public,
     bank: state.setup.bank
   };
 }
