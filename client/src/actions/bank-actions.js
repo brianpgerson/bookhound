@@ -35,7 +35,7 @@ export function initiateRefund (refund) {
 export function getPlaidConfig () {
   const jwt = getToken();
   return function(dispatch) {
-    axios.get(`${API_URL}/setup/plaid`, jwt)
+    axios.get(`${API_URL}/bank/plaid`, jwt)
     .then(response => {
       dispatch({
         type: RECEIVE_PLAID_CONFIG,
@@ -48,7 +48,7 @@ export function getPlaidConfig () {
 export function exchangeToken (tokenMetadata) {
   const jwt = getToken();
   return function(dispatch) {
-    return axios.post(`${API_URL}/setup/exchange-token`, tokenMetadata, jwt).then(response => {
+    return axios.post(`${API_URL}/bank/exchange-token`, tokenMetadata, jwt).then(response => {
       // do something?
     }).catch(error =>{
       console.error(error);

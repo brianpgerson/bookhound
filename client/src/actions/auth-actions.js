@@ -8,10 +8,6 @@ import { AUTH_USER,
          PROTECTED_TEST,
          UNAUTH_USER } from './types';
 
-
-const API_URL = 'http://localhost:3000/api';
-const CLIENT_ROOT_URL = 'http://localhost:8080';
-
 export function loginUser({ email, password }) {
   return function(dispatch) {
     return axios.post(`${API_URL}/auth/login`, { email, password })
