@@ -18,8 +18,8 @@ module.exports = {
 		secret: process.env.PLAIDSECRET
 	},
 	stripe: {
-		secret: process.env.STRIPE_SECRET_TEST,
-		public: process.env.STRIPE_PUBLIC_TEST
+		secret: process.env.STRIPE_SECRET,
+		public: process.env.STRIPE_PUBLIC
 	},
 	gmail: {
 		mailUser: process.env.GMAIL_USER,

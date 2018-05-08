@@ -147,7 +147,7 @@ class HomePage extends Component {
 				</section>
 		    </div>
 		    <section className="row push-down">
-			    {!this.props.isLoggedIn && false ? <Link to="register">Won't you join today?</Link> : ''}
+			    {!this.props.isLoggedIn ? <Link to="register">Won't you join today?</Link> : ''}
 			</section>
 			<section className="row push-down">
 			</section>

@@ -14,7 +14,7 @@ const AuthController = require('./authentication.controller'),
 	  	      moment = require('moment'),
 	  	      logger = require('../config/logger'),
 	  	      stripe = Promise.promisifyAll(require("stripe")(config.stripe.secret)),
-	     plaidClient = new plaid.Client(config.plaid.client, config.plaid.secret, config.plaid.public, plaid.environments.sandbox);
+	     plaidClient = new plaid.Client(config.plaid.client, config.plaid.secret, config.plaid.public, plaid.environments.development);
 
 exports.getPlaidConfig = function (req, res) {
 	 res.status(200).json({public: config.plaid.public});
