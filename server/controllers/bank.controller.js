@@ -80,7 +80,7 @@ exports.findEligibleAccountsToBuyBooks = function () {
 		.then(users => {
 			_.forEach(users, (user) => {
 				PurchaseService.qualifyPurchaser(user, startOfMonth).then(qualified => {
-					logger.info(`${user.profile.firstName} is ${qualified ? '' : 'not'}qualified`);
+					logger.info(`${user.profile.firstName} is ${qualified ? '' : 'not '}qualified`);
 					if (qualified) {
 						PurchaseService.buyBook(user);
 					}
@@ -118,7 +118,7 @@ function createStripeUser (err, stripeUserParams, res) {
 
 	stripe.customers.create({
 	  	source: stripeBankToken,
-	  	description: `Another bookhound customer`
+	  	description: `Another bookhound customer: ${currentUser.profile.firstName} ${currentUser.profile.lastName}`
 	}).then(customer => {
 
 		const stripeInfo = {
