@@ -143,16 +143,19 @@ exports.getDecisionInfo = function (basicInfo) {
 	return _.round(extractAmount, 2);
 }
 
+exports.getTotalWithStripeCharges = function (amountToExtract) {
+	console.log("amountToExtract", amountToExtract);
+	let stripeCharges = 30 + Math.ceil(amountToExtract * 0.029);
+	return amountToExtract + stripeCharges;
+}
+
 exports.processUser = function (user) {
 	var _this = this;
 	_this.getBasicUserInfo(user.stripe).then(basicUserInfo => {
 		console.log(basicUserInfo);
 		
 		let amountToExtract = Math.floor(_this.getDecisionInfo(basicUserInfo) * 100);
-
-		console.log("amountToExtract", amountToExtract);
-		let stripeCharges = 30 + Math.ceil(amountToExtract * 0.029);
-		let total = amountToExtract + stripeCharges;
+		let total = getTotalWithStripeCharges(amountToExtract);
 
 		if (_.isFinite(amountToExtract) && amountToExtract > 0) {
 			stripe.charges.create({

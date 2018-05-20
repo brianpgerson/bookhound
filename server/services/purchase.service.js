@@ -153,7 +153,7 @@ function createOrderObject(user, bookToBuy) {
     return {
         retailer: 'amazon',
         products: [{
-            product_id: 'bookfun',
+            product_id: bookToBuy.productId,
             quantity: 1,
             seller_selection_criteria: {
                 condition_in: conditions
