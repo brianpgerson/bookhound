@@ -10,7 +10,7 @@ const bluebird = require('bluebird'),
 	  	logger = require('../config/logger'),
 	  	Charge = require('../models/charge'),
 	  	stripe = bluebird.promisifyAll(require("stripe")(config.stripe.secret)),
-   plaidClient = new plaid.Client(config.plaid.client, config.plaid.secret, config.plaid.public, plaid.environments.sandbox);
+   plaidClient = new plaid.Client(config.plaid.client, config.plaid.secret, config.plaid.public, plaid.environments.development);
 
 exports.getBasicUserInfo = function (financialData) {
 	let accessToken = financialData.accessToken;
