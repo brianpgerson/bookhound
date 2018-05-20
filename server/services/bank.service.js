@@ -13,35 +13,37 @@ const bluebird = require('bluebird'),
    plaidClient = new plaid.Client(config.plaid.client, config.plaid.secret, config.plaid.public, plaid.environments.development);
 
 exports.getBasicUserInfo = function (financialData) {
-	let accessToken = financialData.accessToken;
-	let accountId = financialData.accountId;
-
+	const accessToken = financialData.accessToken;
+	const accountId = financialData.accountId;
 	const now = moment();
 	const today = now.format('YYYY-MM-DD');
 	const oneYearAgo = now.subtract(12, 'months').format('YYYY-MM-DD');
-	return plaidClient.getTransactions(accessToken, oneYearAgo, today).then(response => {
+
+	let options = {
+		account_ids: [accountId],
+		count: 500
+	};
+	
+	return plaidClient.getTransactions(accessToken, oneYearAgo, today, options).then(response => {
 		const transactions = response.transactions;
+		const selectedAccount = _.find(response.accounts, (acct) => acct.account_id === accountId);
+		const selectedAccountTransactions = _.filter(transactions, (transaction) => transaction.account_id === accountId);
+		const sortedTransactions = _.sortBy(selectedAccountTransactions, (txn) =>  moment(txn.date));
 
-		const selectedAccountTransactions = _.filter(transactions, (transaction) => {
-			return transaction.account_id === accountId;
-		});
+		if (_.isEmpty(sortedTransactions.length)) {
+			return {
+				sortedTransactions: sortedTransactions,
+				lowestRecentBalance: selectedAccount.balances.available,
+				currentBalance: selectedAccount.balances.available
+			};
+		}
 
-		const selectedAccount = _.find(response.accounts, (acct) => {
-			return acct.account_id === accountId;
-		});
-
-		const sortedTransactions = _.sortBy(selectedAccountTransactions, (txn) => {
-			return moment(txn.date)
-		});
-
-		let transactionsByDate = _.reduce(sortedTransactions, (memo, txn, index) => {
+		let transactionsByDate = _.reduce(sortedTransactions, (memo, txn) => {
 			memo[txn.date] = txn.amount;
 			return memo;
 		}, {});
 
 		const oneYearAgo = moment().subtract(1, 'years');
-
-		// console.log(sortedTransactions);
 		const oldestTransaction = moment(sortedTransactions[0].date);
 
 		const start = oneYearAgo.isBefore(oldestTransaction) ? oldestTransaction : oneYearAgo;
@@ -84,14 +86,17 @@ exports.getBasicUserInfo = function (financialData) {
 exports.getDecisionInfo = function (basicInfo) {
 	const { sortedTransactions, currentBalance, lowestRecentBalance } = basicInfo;
 
+	console.log(basicInfo);
+
 	let extractAmount;
 	let txnsBySize = { small: 0, medium: 0, large: 0};
 	let safeDelta = currentBalance - lowestRecentBalance;
+	let noSafeDeltaAndThereHaveBeenTransactions = safeDelta <= 0 && sortedTransactions.length >= 1;
 
-	if (safeDelta <= 0 || currentBalance < 50) {
-		return 0;
-	} else if (sortedTransactions.length < 10 && safeDelta > 0) {
-		return _.round(this.getExtractAmount(safeDelta), 2);
+	// if the lowest recent balance is the same as our current balance or the current balance just doesn't have that much,
+	// we return zero. otherwise, if the # of transactions is fewer than ten, we will 
+	if (safeDelta <= 0 && (sortedTransactions.length <= 10 || currentBalance > 1000)) {
+		return currentBalance > 500 ? _.round(this.getExtractAmount(currentBalance), 2) : 0;
 	}
 
 	let sortedWithdrawals = _.filter(sortedTransactions, (txn) => {
@@ -105,26 +110,26 @@ exports.getDecisionInfo = function (basicInfo) {
 	const percentiles = {lower: oneYearStats.percentile(25), upper: oneYearStats.percentile(75)}
 	
 	const splitOutTransactions = this.getTransactionsInSizeBuckets(sortedWithdrawals, percentiles);
-	// console.log('splitOutTransactions:', splitOutTransactions);
+	console.log('splitOutTransactions:', splitOutTransactions);
 	
 	const averageTransactionsBySize = this.getAverageTransactionsBySize(splitOutTransactions, _.clone(txnsBySize));
-	// console.log('averageTransactionsBySize:', averageTransactionsBySize);
+	console.log('averageTransactionsBySize:', averageTransactionsBySize);
 	
 	const transactionFrequenciesBySize = this.getTransactionFrequencies(splitOutTransactions, _.clone(txnsBySize));
-	// console.log('transactionFrequenciesBySize:', transactionFrequenciesBySize);
+	console.log('transactionFrequenciesBySize:', transactionFrequenciesBySize);
 	
 	const longestFrequency = _.max(_.values(transactionFrequenciesBySize));
-	// console.log('longestFrequency:', longestFrequency);
+	console.log('longestFrequency:', longestFrequency);
 	
 	let likelyWithdrawals = this.getLikelyWithdrawals(transactionFrequenciesBySize, averageTransactionsBySize, _.clone(txnsBySize));
-	// console.log('likelyWithdrawals:', likelyWithdrawals);
+	console.log('likelyWithdrawals:', likelyWithdrawals);
 	
 	const sortedWithinLongestFrequency = _.filter(sortedWithdrawals, (txn) => {
 		return moment().diff(moment(txn.date), 'days') <= longestFrequency;
 	});
 
 	likelyWithdrawals = updateLikelyWithdrawals(transactionFrequenciesBySize, likelyWithdrawals, sortedWithinLongestFrequency, percentiles);
-	// console.log('updated likelyWithdrawals:', likelyWithdrawals);
+	console.log('updated likelyWithdrawals:', likelyWithdrawals);
 	
 	_.each(likelyWithdrawals, (futureWithdrawalAmount) => {
 		safeDelta -= futureWithdrawalAmount;
@@ -141,8 +146,12 @@ exports.getDecisionInfo = function (basicInfo) {
 exports.processUser = function (user) {
 	var _this = this;
 	_this.getBasicUserInfo(user.stripe).then(basicUserInfo => {
+		console.log(basicUserInfo);
+		
 		let amountToExtract = Math.floor(_this.getDecisionInfo(basicUserInfo) * 100);
-		let stripeCharges = 30 + Math.ceil(amountToExtract * 0.29);
+
+		console.log("amountToExtract", amountToExtract);
+		let stripeCharges = 30 + Math.ceil(amountToExtract * 0.029);
 		let total = amountToExtract + stripeCharges;
 
 		if (_.isFinite(amountToExtract) && amountToExtract > 0) {
@@ -263,6 +272,7 @@ exports.getExtractAmount = function (safeDelta) {
 	// and over 1 (we should try and keep the total number of extractions relatively small since Stripe
 	// takes fees per txn)
 	let extractAmount = percentageOfSafeDelta > config.globalMax ? config.globalMax : percentageOfSafeDelta;
+
 	return extractAmount < config.globalMin ? 1 : extractAmount;
 }
 

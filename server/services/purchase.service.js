@@ -56,9 +56,7 @@ exports.buyBook = function (user) {
             return;
         }
         const orderObj = createOrderObject(user, bookToBuy);
-
-        // TODO REMOVE
-        return;
+        logger.info(`ordering for user ${user._id}, ${user.profile.firstName} book: ${bookToBuy}`);
 
         ZincService.order.create(orderObj).then(res => {
             let order = new Order({
@@ -71,7 +69,7 @@ exports.buyBook = function (user) {
             });
 
             order.save()
-                .then(success => logger.log(`Queued order ${order.orderId}`))
+                .then(success => logger.info(`Queued order ${order.orderId}`))
                 .catch(err => logger.error(`Error queuing order: ${order.orderId}. Error: ${err}`));
         }).catch(err => logger.error(`Error creating Zinc order for ${bookToBuy.title}: ${err}`));
     });
@@ -187,9 +185,10 @@ exports.qualifyPurchaser = function (user, startOfMonth) {
         if (purchases.length < maxOrders) {
             const wishlist = user.wishlist;
             if (_.isUndefined(wishlist) || _.isNull(wishlist)) {
+                logger.error(`wishlist was undefined for user ${user}: ${wishlist}`);
                 return false;
             } else {
-                return purchasableBooks(wishlist.items, purchases, user.stripe.balance, parseInt(config.defray, 10)).length > 0
+                return purchasableBooks(wishlist.items, purchases, user.stripe.balance, parseInt(config.defray, 10)).length > 0;
             }
         }
     });
