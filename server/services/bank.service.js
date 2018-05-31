@@ -150,12 +150,11 @@ exports.getTotalWithStripeCharges = function (amountToExtract) {
 }
 
 exports.processUser = function (user) {
-	var _this = this;
-	_this.getBasicUserInfo(user.stripe).then(basicUserInfo => {
+	this.getBasicUserInfo(user.stripe).then(basicUserInfo => {
 		console.log(basicUserInfo);
 		
 		let amountToExtract = Math.floor(_this.getDecisionInfo(basicUserInfo) * 100);
-		let total = getTotalWithStripeCharges(amountToExtract);
+		let total = this.getTotalWithStripeCharges(amountToExtract);
 
 		if (_.isFinite(amountToExtract) && amountToExtract > 0) {
 			stripe.charges.create({
