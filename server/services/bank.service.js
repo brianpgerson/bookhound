@@ -86,8 +86,6 @@ exports.getBasicUserInfo = function (financialData) {
 exports.getDecisionInfo = function (basicInfo) {
 	const { sortedTransactions, currentBalance, lowestRecentBalance } = basicInfo;
 
-	console.log(basicInfo);
-
 	let extractAmount;
 	let txnsBySize = { small: 0, medium: 0, large: 0};
 	let safeDelta = currentBalance - lowestRecentBalance;
@@ -110,26 +108,26 @@ exports.getDecisionInfo = function (basicInfo) {
 	const percentiles = {lower: oneYearStats.percentile(25), upper: oneYearStats.percentile(75)}
 	
 	const splitOutTransactions = this.getTransactionsInSizeBuckets(sortedWithdrawals, percentiles);
-	console.log('splitOutTransactions:', splitOutTransactions);
+	// console.log('splitOutTransactions:', splitOutTransactions);
 	
 	const averageTransactionsBySize = this.getAverageTransactionsBySize(splitOutTransactions, _.clone(txnsBySize));
-	console.log('averageTransactionsBySize:', averageTransactionsBySize);
+	// console.log('averageTransactionsBySize:', averageTransactionsBySize);
 	
 	const transactionFrequenciesBySize = this.getTransactionFrequencies(splitOutTransactions, _.clone(txnsBySize));
-	console.log('transactionFrequenciesBySize:', transactionFrequenciesBySize);
+	// console.log('transactionFrequenciesBySize:', transactionFrequenciesBySize);
 	
 	const longestFrequency = _.max(_.values(transactionFrequenciesBySize));
-	console.log('longestFrequency:', longestFrequency);
+	// console.log('longestFrequency:', longestFrequency);
 	
 	let likelyWithdrawals = this.getLikelyWithdrawals(transactionFrequenciesBySize, averageTransactionsBySize, _.clone(txnsBySize));
-	console.log('likelyWithdrawals:', likelyWithdrawals);
+	// console.log('likelyWithdrawals:', likelyWithdrawals);
 	
 	const sortedWithinLongestFrequency = _.filter(sortedWithdrawals, (txn) => {
 		return moment().diff(moment(txn.date), 'days') <= longestFrequency;
 	});
 
 	likelyWithdrawals = updateLikelyWithdrawals(transactionFrequenciesBySize, likelyWithdrawals, sortedWithinLongestFrequency, percentiles);
-	console.log('updated likelyWithdrawals:', likelyWithdrawals);
+	// console.log('updated likelyWithdrawals:', likelyWithdrawals);
 	
 	_.each(likelyWithdrawals, (futureWithdrawalAmount) => {
 		safeDelta -= futureWithdrawalAmount;
@@ -151,7 +149,6 @@ exports.getTotalWithStripeCharges = function (amountToExtract) {
 
 exports.processUser = function (user) {
 	this.getBasicUserInfo(user.stripe).then(basicUserInfo => {
-		console.log(basicUserInfo);
 		
 		let amountToExtract = Math.floor(this.getDecisionInfo(basicUserInfo) * 100);
 		let total = this.getTotalWithStripeCharges(amountToExtract);
