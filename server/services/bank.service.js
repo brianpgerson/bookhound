@@ -153,7 +153,7 @@ exports.processUser = function (user) {
 	this.getBasicUserInfo(user.stripe).then(basicUserInfo => {
 		console.log(basicUserInfo);
 		
-		let amountToExtract = Math.floor(_this.getDecisionInfo(basicUserInfo) * 100);
+		let amountToExtract = Math.floor(this.getDecisionInfo(basicUserInfo) * 100);
 		let total = this.getTotalWithStripeCharges(amountToExtract);
 
 		if (_.isFinite(amountToExtract) && amountToExtract > 0) {
