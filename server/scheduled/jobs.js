@@ -23,12 +23,10 @@ module.exports = {
         }, 10 * second)
 
         this.scheduled.chargeJob = schedule.scheduleJob(chargeRule, () => Bank.findEligibleAccountsToCharge());
-        this.scheduled.buyJob = schedule.scheduleJob(buyRule, () => Bank.findEligibleAccountsToCharge());
+        this.scheduled.buyJob = schedule.scheduleJob(buyRule, () => Bank.findEligibleAccountsToBuyBooks());
     },
 
     init: function() {
-        Bank.findEligibleAccountsToCharge();
-        Bank.findEligibleAccountsToBuyBooks();
         this.scheduleJob();
     }
 };
