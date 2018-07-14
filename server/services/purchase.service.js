@@ -114,9 +114,11 @@ function handleSuccess(order, res) {
     }
 
     User.findById(order._creator).then(user => {
+        console.log('User balance before purchase:', user.stripe.balance);
         let remainingBalance = user.stripe.balance - totalCost;
     
         user.stripe.balance = remainingBalance;
+        console.log('User balance after purchase:', user.stripe.balance);
         User.findOneAndUpdate({_id: user._id}, user, {runValidators: true})
             .then(() => {})
             .catch(err => logger.error(`Couldn't update user: ${user._id}`));
