@@ -162,6 +162,11 @@ describe('The transaction parser', () => {
 		  	amountToExtract.should.be.belowOrEqual(config.globalMax);
 	  	});
 	});
+
+	it('should calculate stripe fees', () => {
+		BankService.getTotalWithStripeCharges(1500).should.equal(1576);
+		BankService.getTotalWithStripeCharges(100).should.equal(159);
+	});
 });
 
 function getBasicInfo (type) {
