@@ -104,7 +104,7 @@ function waitForResponse (order) {
 
 function handleSuccess(order, res) {
     let totalCost = order.totalCost;
-    let reqId = order.reqId;
+    let reqId = order.orderId;
 
     let costViaZinc = parseInt(config.defray, 10) + res.price_components.total;
 
