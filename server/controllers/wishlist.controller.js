@@ -18,7 +18,7 @@ exports.saveWishlist = function (req, res, next) {
         return;
     }
 
-    als.scrape(wishlist.url).then(list => {
+    scrapeWishlist(wishlist.url).then(list => {
         if (!list) {
             throw new Error(`Couldn't access your wishlist at ${req.body.wishlistUrl}. Try again?`);
             return;
@@ -59,8 +59,12 @@ exports.updateWishlist = function (req, res, next) {
     scrapeAndUpdate(newWishlist, currentUser, res)
 };
 
+exports.scrapeWishlist = (wishlistUrl) => {
+    return als.scrape(wishlistUrl);
+}
+
 function scrapeAndUpdate(wishlist, currentUser, res) {
-    als.scrape(wishlist.url).then(scrapedList => {
+    scrapeWishlist(wishlist.url).then(scrapedList => {
         if (!scrapedList) {
             res.status(500).json({error: `Couldn't access your wishlist at ${req.body.wishlistUrl}. Try again?`});
             return
@@ -79,4 +83,5 @@ function scrapeAndUpdate(wishlist, currentUser, res) {
         })
     }).catch(err => logger.error(`Error with scraping amazon: ${err}`));
 }
+
 

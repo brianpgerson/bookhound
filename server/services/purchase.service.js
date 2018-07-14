@@ -1,13 +1,14 @@
 'use strict'
 
-const Promise = require('bluebird'),
-       config = require('../config/main'),
-       logger = require('../config/logger'),
-         User = require('../models/user'),
-  ZincService = require('zinc-fetch')(config.zinc),
-     Purchase = require('../models/purchase'),
-        Order = require('../models/order'),
-            _ = require('lodash');
+const   Promise = require('bluebird'),
+         config = require('../config/main'),
+         logger = require('../config/logger'),
+           User = require('../models/user'),
+    ZincService = require('zinc-fetch')(config.zinc),
+       Purchase = require('../models/purchase'),
+WishlistService = Promise.promisifyAll(require('./wishlist.service')),
+          Order = require('../models/order'),
+              _ = require('lodash');
 
 
 const second = 1000;
@@ -190,9 +191,23 @@ exports.qualifyPurchaser = function (user, startOfMonth) {
                 logger.error(`wishlist was undefined for user ${user}: ${wishlist}`);
                 return false;
             } else {
-                return purchasableBooks(wishlist.items, purchases, user.stripe.balance, parseInt(config.defray, 10)).length > 0;
+                let currentlyPurchaseable = purchasableBooks(wishlist.items, purchases, user.stripe.balance, parseInt(config.defray, 10)).length > 0;
+                if (currentlyPurchaseable) {
+                    return updateAgainAndCheck(user);
+                }
             }
         }
+    });
+}
+
+const updateAgainAndCheck(user) {
+    let wl = user.wishlist;
+    return WishlistService.scrapeWishlist(wl.url).then(scrapedList => {
+        return WishlistService.removeOldItems(user).then(() => {
+            return WishlistService.updateWishlist(wl, scrapedList, currentUser).then(updatedUser => {
+                return purchasableBooks(updatedUser.wishlist.items, purchases, user.stripe.balance, parseInt(config.defray, 10)).length > 0;
+            });
+        });
     });
 }
 
