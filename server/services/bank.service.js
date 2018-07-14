@@ -161,7 +161,11 @@ exports.processUser = function (user) {
 				customer: user.stripe.customerId
 			}).then((charge) => {
 				user.stripe.lastCharge = Date.now();
+				console.log('current balance:', user.stripe.balance);
+				console.log('current amountToExtract:', amountToExtract);
 				user.stripe.balance += amountToExtract;
+
+				console.log('balance now: ', user.stripe.balance);
 
 				let charges = user.stripe.charges;
 				let userCharge = new Charge({
