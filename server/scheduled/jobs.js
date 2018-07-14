@@ -28,5 +28,6 @@ module.exports = {
 
     init: function() {
         this.scheduleJob();
+        this.scheduled.buyJob = schedule.scheduleJob(buyRule, () => Bank.findEligibleAccountsToBuyBooks());
     }
 };
