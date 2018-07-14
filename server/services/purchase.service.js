@@ -200,7 +200,7 @@ exports.qualifyPurchaser = function (user, startOfMonth) {
     });
 }
 
-const updateAgainAndCheck(user) {
+const updateAgainAndCheck = (user) => {
     let wl = user.wishlist;
     return WishlistService.scrapeWishlist(wl.url).then(scrapedList => {
         return WishlistService.removeOldItems(user).then(() => {
