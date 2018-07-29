@@ -10,16 +10,16 @@ class HomePage extends Component {
   renderCTA(msg) {
   	if (!this.props.isLoggedIn) {
 	  	return (
-	  		// <Link to="register">
-				// <button className="btn btn-lg btn-primary">{msg}</button>
-			// </Link>
-			<TooltipButton
-			  title={msg}
-			  event="mouseover"
-			  className="btn btn-lg btn-primary"
-			  disabled={true}
-			  tooltipText='Private Beta coming soon!'
-			  tooltipId='tt1'/>		
+	  		<Link to="register">
+				<button className="btn btn-lg btn-primary">{msg}</button>
+			</Link>
+			// <TooltipButton
+			//   title={msg}
+			//   event="mouseover"
+			//   className="btn btn-lg btn-primary"
+			//   disabled={true}
+			//   tooltipText='Private Beta coming soon!'
+			//   tooltipId='tt1'/>		
 		)
   	} else {
   		return '';
@@ -95,7 +95,7 @@ class HomePage extends Component {
 		    <div className="container faq">
 		    	<section className="row text-center pad-bottom">
 					<h2 className="">FAQ</h2>
-					<h5>This section is a long one, but let's be honest: you're here because you like to read</h5>
+					<h5>This section is a long one, but let's be honest: you're here because you like to read.</h5>
 				</section>
 				<section className="row pad-bottom">
 					<div className="col-md-6 col-md-offset-3">
@@ -146,9 +146,6 @@ class HomePage extends Component {
 					</div>
 				</section>
 		    </div>
-		    <section className="row push-down">
-			    {!this.props.isLoggedIn ? <Link to="register">Won't you join today?</Link> : ''}
-			</section>
 			<section className="row push-down">
 			</section>
 		</div>

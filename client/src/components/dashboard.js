@@ -45,7 +45,8 @@ class Dashboard extends Component {
       }
       return (
         <li>
-          <p><a href={item.link} target='_blank'>{item.title}</a>: ${this.toCurrency(item.price)}</p>
+          <p><a href={item.link} target='_blank'>{item.title}</a>: ${this.toCurrency(item.price)} 
+          <span className="whisper"> + ${this.toCurrency(item.shipping)} shipping</span></p>
         </li>
 
       );

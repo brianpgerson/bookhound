@@ -18,7 +18,7 @@ exports.saveWishlist = function (req, res, next) {
         return;
     }
 
-    scrapeWishlist(wishlist.url).then(list => {
+    als.scrape(wishlist.url).then(list => {
         if (!list) {
             throw new Error(`Couldn't access your wishlist at ${req.body.wishlistUrl}. Try again?`);
             return;
@@ -64,7 +64,7 @@ exports.scrapeWishlist = (wishlistUrl) => {
 }
 
 function scrapeAndUpdate(wishlist, currentUser, res) {
-    scrapeWishlist(wishlist.url).then(scrapedList => {
+    als.scrape(wishlist.url).then(scrapedList => {
         if (!scrapedList) {
             res.status(500).json({error: `Couldn't access your wishlist at ${req.body.wishlistUrl}. Try again?`});
             return

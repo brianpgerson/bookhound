@@ -13,6 +13,7 @@ WishlistService = Promise.promisifyAll(require('./wishlist.service')),
 
 const second = 1000;
 const minute = second * 60;
+const DEFRAY_COST = parseInt(config.defray, 10);
 const waitingRequests = {};
 
 function isValid(book) {
@@ -49,7 +50,7 @@ exports.orderRequestPoller = function () {
 
 exports.buyBook = function (user) {
     Purchase.find({userId: user._id}).then(purchased => {
-        let candidates = purchasableBooks(user.wishlist.items, purchased, user.stripe.balance, parseInt(config.defray, 10));
+        let candidates = purchasableBooks(user.wishlist.items, purchased, user.stripe.balance, DEFRAY_COST);
         const bookToBuy = _.sample(candidates);
 
         if (!isValid(bookToBuy)) {
@@ -65,7 +66,7 @@ exports.buyBook = function (user) {
                 orderId: res.request_id,
                 title: bookToBuy.title,
                 productId: bookToBuy.productId,
-                totalCost: parseInt(config.defray, 10) + bookToBuy.price + bookToBuy.shipping,
+                totalCost: DEFRAY_COST + bookToBuy.price + bookToBuy.shipping,
                 status: 'IN_PROGRESS'
             });
 
@@ -107,7 +108,7 @@ function handleSuccess(order, res) {
     let totalCost = order.totalCost;
     let reqId = order.orderId;
 
-    let costViaZinc = parseInt(config.defray, 10) + res.price_components.total;
+    let costViaZinc = DEFRAY_COST + res.price_components.total;
 
     if (totalCost != costViaZinc) {
         logger.error(`Cost reported by Zinc was different than cost calculated by bookhound! Zinc: ${costViaZinc}, bookhound: ${totalCost}, order: ${reqId}`)
@@ -191,8 +192,8 @@ exports.qualifyPurchaser = function (user, startOfMonth) {
                 logger.error(`wishlist was undefined for user ${user}: ${wishlist}`);
                 return false;
             } else {
-                let currentlyPurchaseable = purchasableBooks(wishlist.items, purchases, user.stripe.balance, parseInt(config.defray, 10)).length > 0;
-                if (currentlyPurchaseable) {
+                let currentlyPurchaseable = purchasableBooks(wishlist.items, purchases, user.stripe.balance, DEFRAY_COST)
+                if (currentlyPurchaseable.length > 0) {
                     return updateAgainAndCheck(user);
                 }
             }
@@ -205,7 +206,7 @@ const updateAgainAndCheck = (user) => {
     return WishlistService.scrapeWishlist(wl.url).then(scrapedList => {
         return WishlistService.removeOldItems(user).then(() => {
             return WishlistService.updateWishlist(wl, scrapedList, currentUser).then(updatedUser => {
-                return purchasableBooks(updatedUser.wishlist.items, purchases, user.stripe.balance, parseInt(config.defray, 10)).length > 0;
+                return purchasableBooks(updatedUser.wishlist.items, purchases, user.stripe.balance, DEFRAY_COST).length > 0;
             });
         });
     });
@@ -215,7 +216,7 @@ const purchasableBooks = (candidates, purchased, balance, defray) => {
     return _.filter(candidates, (b) => {
         let alreadyPurchased = _.some(purchased, purchase => purchase.productId === b.productId);
         let hasEnoughToBuyBook = ((b.price + b.shipping + defray) < balance);
-
+        logger.info(`Qualified: ${hasEnoughToBuyBook}. price was ${b.price}, shipping was ${b.shipping}, balance is ${balance}`)
         return (hasEnoughToBuyBook) && !alreadyPurchased;
     });
 };

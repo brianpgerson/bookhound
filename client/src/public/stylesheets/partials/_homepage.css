@@ -11,7 +11,7 @@
 .hero-overlay {
   height: 100%;
   width: 100%;
-  background-color: rgba(0,0,0,.5);
+  background-color: rgba(0,0,0,.2);
 }
 
 .panel-heading h3{
@@ -28,7 +28,7 @@
 .hero-unit {
   position: relative;
   height: 500px;
-  background: url("./bookstack.jpg");
+  background: url("./bookreader.jpg");
   background-repeat: no-repeat;
   background-attachment: fixed;
   background-position: bottom;
