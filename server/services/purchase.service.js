@@ -207,7 +207,7 @@ const updateAgainAndCheck = (user) => {
     let wl = user.wishlist;
     return als.scrape(wl.url).then(scrapedList => {
         return WishlistService.removeOldItems(user).then(() => {
-            return WishlistService.updateWishlist(wl, scrapedList, currentUser).then(updatedUser => {
+            return WishlistService.updateWishlist(wl, scrapedList, user).then(updatedUser => {
                 return purchasableBooks(updatedUser.wishlist.items, purchases, user.stripe.balance, DEFRAY_COST).length > 0;
             });
         });
