@@ -6,6 +6,7 @@ const   Promise = require('bluebird'),
            User = require('../models/user'),
     ZincService = require('zinc-fetch')(config.zinc),
        Purchase = require('../models/purchase'),
+            als = new AmazonListScraper(),
 WishlistService = Promise.promisifyAll(require('./wishlist.service')),
           Order = require('../models/order'),
               _ = require('lodash');
@@ -203,7 +204,7 @@ exports.qualifyPurchaser = function (user, startOfMonth) {
 
 const updateAgainAndCheck = (user) => {
     let wl = user.wishlist;
-    return WishlistService.scrapeWishlist(wl.url).then(scrapedList => {
+    return als.scrape(wl.url).then(scrapedList => {
         return WishlistService.removeOldItems(user).then(() => {
             return WishlistService.updateWishlist(wl, scrapedList, currentUser).then(updatedUser => {
                 return purchasableBooks(updatedUser.wishlist.items, purchases, user.stripe.balance, DEFRAY_COST).length > 0;
