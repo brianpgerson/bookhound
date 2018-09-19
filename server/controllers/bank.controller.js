@@ -55,18 +55,41 @@ exports.findEligibleAccountsToCharge = function () {
 
 	User.find({'stripe.lastCharge': {$lte: cutoff.toDate()}})
 		.populate('stripe.charges')
+		.populate('wishlist.items')
 		.then(users => {
 			_.each(users, (user) => {
 				const maxOrders = user.wishlist.maxMonthlyOrderFrequency;
-	    		return Purchase.find({updatedAt : { $gte: startOfMonth} }).then((purchases) => {
-	    			if (purchases.length < maxOrders) {
-						BankService.processUser(user);
-	    			}
-	    		})
+				return Purchase.find({userId: user._id})
+					.then(purchases => checkPurchases(purchases, user))
 			});
 		}).catch(err => {
 			logger.info('Error finding eligible accounts to charge:', err);
 		});
+}
+
+const checkPurchases = (purchases, user) => {
+	let items = user.wishlist.items;
+	if (items.length === 0) {
+		logger.info(`User ${user._id} has no wishlist items!`);	
+		return;
+	}
+
+	let thisMonthsPurchases = _.filter(purchases, (p) => moment(p.createdAt).isAfter(moment().startOf('month')))
+	if (thisMonthsPurchases.length < maxOrders) {
+		logger.info(`User ${user._id} has no wishlist items!`);	
+		return;
+	}
+
+	if (allArePurchased(items, purchases)) {
+		logger.info(`User ${user._id} has no remaining items that haven't been purchased!`);
+	}
+
+	return BankService.processUser(user);
+}
+
+const allArePurchased = (want, bought) => {
+	let boughtIdSet = new Set(_.map(bought, (purchased) => purchased.productId));
+	return _.every(want, (item) => boughtIdSet.has(item.productId));
 }
 
 exports.findEligibleAccountsToBuyBooks = function () {
