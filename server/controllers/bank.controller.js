@@ -58,7 +58,6 @@ exports.findEligibleAccountsToCharge = function () {
 		.populate('wishlist.items')
 		.then(users => {
 			_.each(users, (user) => {
-				const maxOrders = user.wishlist.maxMonthlyOrderFrequency;
 				return Purchase.find({userId: user._id})
 					.then(purchases => checkPurchases(purchases, user))
 			});
@@ -75,6 +74,7 @@ const checkPurchases = (purchases, user) => {
 	}
 
 	let thisMonthsPurchases = _.filter(purchases, (p) => moment(p.createdAt).isAfter(moment().startOf('month')))
+	let maxOrders = user.wishlist.maxMonthlyOrderFrequency;
 	if (thisMonthsPurchases.length < maxOrders) {
 		logger.info(`User ${user._id} has no wishlist items!`);	
 		return;
