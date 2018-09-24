@@ -158,7 +158,7 @@ function createOrderObject(user, bookToBuy) {
     const shippingMethod = bookToBuy.shipping > 0 ? 'cheapest' : 'free';
 
     return {
-        retailer: 'ARFER',
+        retailer: 'amazon',
         products: [{
             product_id: bookToBuy.productId,
             quantity: 1,

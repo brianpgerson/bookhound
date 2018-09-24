@@ -56,14 +56,14 @@ exports.findEligibleAccountsToCharge = function () {
 		.then(users => {
 			_.each(users, (user) => {
 				return Purchase.find({userId: user._id})
-					.then(purchases => checkPurchases(purchases, user))
+					.then(purchases => checkPurchasesAndCharge(purchases, user))
 			});
 		}).catch(err => {
 			logger.info('Error finding eligible accounts to charge:', err);
 		});
 }
 
-const checkPurchases = (purchases, user) => {
+const checkPurchasesAndCharge = (purchases, user) => {
 	let items = user.wishlist.items;
 	if (items.length === 0) {
 		logger.info(`User ${user._id} has no wishlist items!`);	
@@ -76,17 +76,17 @@ const checkPurchases = (purchases, user) => {
 		logger.info(`User ${user._id} has purchased the max amount for this month!`);	
 		return;
 	}
-
-	if (allArePurchased(items, purchases)) {
+	let unpurchased = getUnpurchased(items, purchases);
+	if (unpurchased.length === 0) {
 		logger.info(`User ${user._id} has no remaining items that haven't been purchased!`);
 	}
 
-	return BankService.processUser(user);
+	return BankService.processUser(user, unpurchased);
 }
 
-const allArePurchased = (want, bought) => {
+const getUnpurchased = (want, bought) => {
 	let boughtIdSet = new Set(_.map(bought, (purchased) => purchased.productId));
-	return _.every(want, (item) => boughtIdSet.has(item.productId));
+	return _.filter(want, (item) => !boughtIdSet.has(item.productId));
 }
 
 exports.findEligibleAccountsToBuyBooks = function () {

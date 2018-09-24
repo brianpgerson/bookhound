@@ -147,10 +147,21 @@ exports.getTotalWithStripeCharges = function (amountToExtract) {
 	return amountToExtract + stripeCharges;
 }
 
-exports.processUser = function (user) {
+function getCheapest(items) {
+	if (_.isUndefined(items) || items.length === 0) {
+		logger.info('No items to extract charge for. Returning 0.')
+		return 0;
+	}
+
+	return _.sortBy(items, (item) => (item.price + item.shipping))[0]
+}
+
+exports.processUser = function (user, unpurchased) {
 	this.getBasicUserInfo(user.stripe).then(basicUserInfo => {
-		
 		let amountToExtract = Math.floor(this.getDecisionInfo(basicUserInfo) * 100);
+		let cheapestWishlistItem = getCheapest(unpurchased);
+		amountToExtract = cheapestWishlistItem < amountToExtract ? cheapestWishlistItem : amountToExtract;
+
 		let total = this.getTotalWithStripeCharges(amountToExtract);
 
 		if (_.isFinite(amountToExtract) && amountToExtract > 0) {
