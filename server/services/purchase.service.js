@@ -221,7 +221,7 @@ const purchasableBooks = (candidates, purchased, balance, defray) => {
     return _.filter(candidates, (b) => {
         let alreadyPurchased = _.some(purchased, purchase => purchase.productId === b.productId);
         let hasEnoughToBuyBook = ((b.price + b.shipping + defray) < balance);
-        logger.info(`Qualified: ${hasEnoughToBuyBook}. price was ${b.price}, shipping was ${b.shipping}, balance is ${balance}`)
+        logger.info(`Purchaseable book: ${hasEnoughToBuyBook}. price was ${b.price}, shipping was ${b.shipping}, balance is ${balance}`)
         return (hasEnoughToBuyBook) && !alreadyPurchased;
     });
 };
