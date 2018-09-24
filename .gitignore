@@ -35,6 +35,7 @@ client/dist
 node_modules
 jspm_packages
 client/node_modules
+.vscode
 server/node_modules
 
 # Optional npm cache directory

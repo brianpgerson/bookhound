@@ -93,7 +93,7 @@ class Dashboard extends Component {
   }
 
   toCurrency(amt) {
-    return (amt/100).toFixed(2);
+    return parseFloat((amt/100).toFixed(2));
   }
 
   renderBank(bank, charges) {

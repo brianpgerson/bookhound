@@ -7,6 +7,7 @@ const   Promise = require('bluebird'),
     ZincService = require('zinc-fetch')(config.zinc),
        Purchase = require('../models/purchase'),
             AWL = require('amazon-list-scraper'),
+         moment = require('moment'),
             als = new AWL(),
 WishlistService = Promise.promisifyAll(require('./wishlist.service')),
           Order = require('../models/order'),
@@ -157,7 +158,7 @@ function createOrderObject(user, bookToBuy) {
     const shippingMethod = bookToBuy.shipping > 0 ? 'cheapest' : 'free';
 
     return {
-        retailer: 'amazon',
+        retailer: 'ARFER',
         products: [{
             product_id: bookToBuy.productId,
             quantity: 1,
@@ -205,13 +206,15 @@ exports.qualifyPurchaser = function (user, startOfMonth) {
 
 const updateAgainAndCheck = (user) => {
     let wl = user.wishlist;
-    return als.scrape(wl.url).then(scrapedList => {
-        return WishlistService.removeOldItems(user).then(() => {
-            return WishlistService.updateWishlist(wl, scrapedList, user).then(updatedUser => {
+    return als.scrape(wl.url)
+        .then(scrapedList => WishlistService.removeOldItems(user)
+        .then(() => WishlistService.updateWishlist(wl, scrapedList, user)
+        .then(updatedUser => {
+            const startOfMonth = moment().startOf('month').toDate();
+            return Purchase.find({updatedAt : { $gte: startOfMonth} }).then((purchases) => {
                 return purchasableBooks(updatedUser.wishlist.items, purchases, user.stripe.balance, DEFRAY_COST).length > 0;
-            });
-        });
-    });
+            });    
+        })));
 }
 
 const purchasableBooks = (candidates, purchased, balance, defray) => {

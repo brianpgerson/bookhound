@@ -49,13 +49,10 @@ exports.refund = function (req, res) {
 
 exports.findEligibleAccountsToCharge = function () {
 	const cutoff = moment().startOf('day').subtract(3, 'days');
-	const startOfMonth = moment().startOf('month').toDate();
-	
 	logger.info('Finding users to charge');
 
 	User.find({'stripe.lastCharge': {$lte: cutoff.toDate()}})
-		.populate('stripe.charges')
-		.populate('wishlist.items')
+		.populate('stripe.charges wishlist.items')
 		.then(users => {
 			_.each(users, (user) => {
 				return Purchase.find({userId: user._id})
@@ -75,8 +72,8 @@ const checkPurchases = (purchases, user) => {
 
 	let thisMonthsPurchases = _.filter(purchases, (p) => moment(p.createdAt).isAfter(moment().startOf('month')))
 	let maxOrders = user.wishlist.maxMonthlyOrderFrequency;
-	if (thisMonthsPurchases.length < maxOrders) {
-		logger.info(`User ${user._id} has no wishlist items!`);	
+	if (thisMonthsPurchases.length && thisMonthsPurchases < maxOrders) {
+		logger.info(`User ${user._id} has purchased the max amount for this month!`);	
 		return;
 	}
 
