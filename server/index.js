@@ -57,7 +57,7 @@ app.use((req, res, next) => {
 router(app);
 
 // Start scheduled jobs
-if (!process.env.NODE_ENV && process.env.NODE_ENV != config.test_env) {
+if (!process.env.NODE_ENV || process.env.NODE_ENV !== config.test_env) {
   console.log('do a thing!');
   scheduleJobs.init();
 }
