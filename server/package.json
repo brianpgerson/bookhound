@@ -43,7 +43,7 @@
     "stripe": "^4.19.1",
     "winston": "^2.4.0",
     "xoauth2": "^1.2.0",
-    "zinc-fetch": "^1.2.8"
+    "zinc-fetch": "^1.3.0"
   },
   "devDependencies": {
     "should": "^11.2.0",
