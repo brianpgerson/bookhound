@@ -186,7 +186,6 @@ function createOrderObject(user, bookToBuy) {
 }
 
 exports.qualifyPurchaser = function (user, startOfMonth) {
-    const _this = this;
     const maxOrders = user.wishlist.maxMonthlyOrderFrequency;
     return Purchase.find({updatedAt : { $gte: startOfMonth} }).then((purchases) => {
         if (purchases.length < maxOrders) {

@@ -159,9 +159,12 @@ function getCheapest(items) {
 exports.processUser = function (user, unpurchased) {
 	this.getBasicUserInfo(user.stripe).then(basicUserInfo => {
 		let amountToExtract = Math.floor(this.getDecisionInfo(basicUserInfo) * 100);
-		let cheapestWishlistItem = getCheapest(unpurchased);
-		amountToExtract = cheapestWishlistItem < amountToExtract ? cheapestWishlistItem : amountToExtract;
-
+    let { price, shipping } = getCheapest(unpurchased);
+    let cheapestPrice = price + shipping;
+    
+    console.log(`allowed to extract ${amountToExtract}, cheapest item: ${cheapestPrice}`);
+    let priceGap = cheapestPrice - user.stripe.balance
+    amountToExtract = priceGap < amountToExtract ? priceGap : amountToExtract;
 		let total = this.getTotalWithStripeCharges(amountToExtract);
 
 		if (_.isFinite(amountToExtract) && amountToExtract > 0) {
