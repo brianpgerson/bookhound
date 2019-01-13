@@ -26,15 +26,15 @@ function setDatesOnData(initial) {
 
 			// ensures that it's always at least one month before "now"
 			let monthDelta = originalFirstMonth - origDate.month() + 1;
-			let yearDelta = originalFirstYear - origDate.year();
+			let yearDelta = originalFirstYear - origDate.year() || 1;
 			// eg, it's feb (1) and the delta is 5 months from the originalFirstMonth
 			// we would want it to be 1 - 5, or -4, which is not valid. now add 12 to give 
 			// 8, and modulo to handle positive numbers and you still get 8. if it were the other way around
 			// (it's june, or 5, and we have a delta of 1 to give 4, plus 12 is 16, which module 12 is 4 again)
 			let newMonth = (12 + (now.month() - monthDelta)) % 12;
-			let newYear = now.year() - yearDelta;
-
-			let offsetDate = origDate.year(newYear).month(newMonth);
+      let newYear = now.year() - yearDelta;
+      
+      let offsetDate = origDate.year(newYear).month(newMonth);
 
 			// handle days of the month changing
 			if (offsetDate.date() > offsetDate.daysInMonth()) {
@@ -60,21 +60,14 @@ describe('The transaction parser', () => {
 
   	it('should parse an extremely basic set of financial data', () => {
   		const basicInfo = getBasicInfo('small');
-	  	const safeDelta = basicInfo.currentBalance - basicInfo.lowestRecentBalance;
 	  	const amountToExtract = BankService.getDecisionInfo(basicInfo);
-	  	console.log(amountToExtract);
-
 	  	amountToExtract.should.be.a.Number();
-	  	amountToExtract.should.be.aboveOrEqual(config.globalMin);
-	  	amountToExtract.should.be.belowOrEqual(config.globalMax);
+	  	amountToExtract.should.equal(0);
 	});
 
 	it('should parse an somewhat less basic set of financial data', () => {
   		const basicInfo = getBasicInfo('medium');
-	  	const safeDelta = basicInfo.currentBalance - basicInfo.lowestRecentBalance;
 	  	const amountToExtract = BankService.getDecisionInfo(basicInfo);
-	  	console.log(amountToExtract);
-
 	  	amountToExtract.should.be.a.Number();
 	  	amountToExtract.should.be.aboveOrEqual(config.globalMin);
 	  	amountToExtract.should.be.belowOrEqual(config.globalMax);
@@ -82,10 +75,7 @@ describe('The transaction parser', () => {
 
 	it('should parse a more intense set of transactions', () => {
 		const basicInfo = getBasicInfo('big');
-	  	const safeDelta = basicInfo.currentBalance - basicInfo.lowestRecentBalance;
 	  	const amountToExtract = BankService.getDecisionInfo(basicInfo);
-	  	console.log(amountToExtract);
-
 	  	amountToExtract.should.be.a.Number();
 	  	amountToExtract.should.be.aboveOrEqual(config.globalMin);
 	  	amountToExtract.should.be.belowOrEqual(config.globalMax);
@@ -93,7 +83,6 @@ describe('The transaction parser', () => {
 
 	it('should parse a somewhat less basic set of transactions many times successfully', () => {
 		const basicInfo = getBasicInfo('medium');
-	  	const safeDelta = basicInfo.currentBalance - basicInfo.lowestRecentBalance;
 
 	  	let nums = [];
 	  	_.times(100, (i) => {
@@ -112,7 +101,6 @@ describe('The transaction parser', () => {
 
 		testAccountData.mediumCurrentBalance = 200;
 		const basicInfo = getBasicInfo('medium');
-	  	const safeDelta = basicInfo.currentBalance - basicInfo.lowestRecentBalance;
 
 	  	let nums = [];
 	  	_.times(100, (i) => {
@@ -132,7 +120,6 @@ describe('The transaction parser', () => {
 
 		testAccountData.mediumCurrentBalance = 100;
 		const basicInfo = getBasicInfo('medium');
-		const safeDelta = basicInfo.currentBalance - basicInfo.lowestRecentBalance;
 
 	  	let nums = [];
 	  	_.times(100, (i) => {
@@ -149,7 +136,6 @@ describe('The transaction parser', () => {
 
 	it('should parse a more intense set of transactions many times successfully', () => {
 		const basicInfo = getBasicInfo('big');
-	  	const safeDelta = basicInfo.currentBalance - basicInfo.lowestRecentBalance;
 
 	  	let nums = [];
 	  	_.times(100, (i) => {
@@ -164,8 +150,8 @@ describe('The transaction parser', () => {
 	});
 
 	it('should calculate stripe fees', () => {
-		BankService.getTotalWithStripeCharges(1500).should.equal(1576);
-		BankService.getTotalWithStripeCharges(100).should.equal(159);
+		BankService.getTotalWithStripeCharges(1500).should.equal(1574);
+		BankService.getTotalWithStripeCharges(100).should.equal(133);
 	});
 });
 

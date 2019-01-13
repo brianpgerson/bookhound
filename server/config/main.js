@@ -33,8 +33,8 @@ module.exports = {
 	},
 	zinc: process.env.ZINC_KEY,
 	defray: process.env.DEFRAY,
-	globalMax: 15,
-	globalMin: 1,
+	globalMax: 1500,
+	globalMin: 100,
 	billing: {
 		address: {
 		    first_name: process.env.BILLING_FIRST_NAME,
