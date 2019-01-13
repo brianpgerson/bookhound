@@ -54,12 +54,15 @@ exports.findEligibleAccountsToCharge = function () {
 	User.find({'stripe.lastCharge': {$lte: cutoff.toDate()}})
 		.populate('stripe.charges wishlist.items')
 		.then(users => {
+      logger.info(`found ${users.length} users to charge`);
 			_.each(users, (user) => {
+        logger.info(`checking purchases and conditionally charging ${user.email}`);
 				return Purchase.find({userId: user._id})
-					.then(purchases => checkPurchasesAndCharge(purchases, user))
+          .then(purchases => checkPurchasesAndCharge(purchases, user))
+          .catch(err => logger.info(`couldn't check purchases or charge ${user}. Error: ${err}`));
 			});
 		}).catch(err => {
-			logger.info('Error finding eligible accounts to charge:', err);
+			logger.info('Error finding eligible accounts to charge', err);
 		});
 }
 

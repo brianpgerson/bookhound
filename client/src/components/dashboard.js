@@ -37,7 +37,7 @@ class Dashboard extends Component {
     const items = wishlist ? wishlist.items : purchases;
     if (items.length === 0) {
       return (wishlist ? (<li>No items in this wishlist yet! Add some then click 'Refresh'</li>) :
-                          <li>No purchases yet.</li>);
+                          <li className="whisper">No purchases yet</li>);
     }
     return _.map(items, (item) => {
       if (item.unavailable) {
@@ -107,6 +107,7 @@ class Dashboard extends Component {
           <p><strong>Charges</strong></p>
           <ul className="scroller-medium">
             {
+              charges && charges.length > 0 ?
               _.map(charges, (item) => {
                 item.balance = bank.balance;
                 let refundThing = item.refund.amount === item.amount ?
@@ -117,7 +118,7 @@ class Dashboard extends Component {
                     <strong>{moment(item.createdAt).format('MMM D, Y')}:</strong>........${this.toCurrency(item.amount)} 
                     { refundThing }
                   </li>);
-              })
+              }) : <span className="whisper">No charges yet!</span>
             }
           </ul>
           <p><Link to='bank'><button className='btn btn-default'>Update Bank</button></Link></p>

@@ -13,7 +13,9 @@ const form = reduxForm({
 class Login extends Component {
   handleFormSubmit(formProps) {
     this.props.loginUser(formProps).then(res => {
-      browserHistory.push('/dashboard');
+      if (!this.props.errorMessage && this.props.authenticated) {
+        browserHistory.push('/dashboard');
+      }
     })
   }
 
