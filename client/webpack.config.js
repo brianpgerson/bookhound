@@ -11,14 +11,18 @@ const config = {
     publicPath: '/',
   },
   module: {
-    loaders: [
+    rules: [
     {
       exclude: /node_modules/,
       test: /\.(js|jsx)$/,
-      loader: 'babel',
+      loader: 'babel-loader',
     },
     { test: /\.scss$/,
-      loader: ExtractTextPlugin.extract('css!sass') },
+      loader: ExtractTextPlugin.extract({
+        fallbackLoader: 'style-loader',
+        loader: ['css-loader', 'sass-loader'],
+      })},
+
     { test: /\.css$/, loader: "style-loader!css-loader" },
     { test: /\.(png|jpg|jpeg)$/,
       loader: "file-loader?name=[name].[ext]" }
@@ -31,8 +35,6 @@ const config = {
   },
   plugins: [
     new webpack.DefinePlugin({ 'process.env': { NODE_ENV: JSON.stringify('production') } }),
-    new webpack.optimize.DedupePlugin(),
-    new webpack.optimize.OccurenceOrderPlugin(),
     new webpack.optimize.UglifyJsPlugin({
       compress: { warnings: false },
       compress: false,
@@ -43,7 +45,7 @@ const config = {
       minimize: false,
       // mangle: { except: ['$super', '$', 'exports', 'require', '$q', '$ocLazyLoad'] },
     }),
-    new ExtractTextPlugin('src/public/stylesheets/app.css', {
+    new ExtractTextPlugin({filename: 'src/public/stylesheets/app.css', 
       allChunks: true,
     }),
   ],
