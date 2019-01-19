@@ -38,7 +38,7 @@
   },
   "scripts": {
     "start-dev": "./node_modules/webpack-dev-server/bin/webpack-dev-server.js --inline --hot",
-    "build": "webpack --progress -p"
+    "build": "webpack --progress"
   },
   "author": "brian",
   "license": "MIT"
