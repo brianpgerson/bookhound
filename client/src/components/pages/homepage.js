@@ -4,6 +4,8 @@ import TooltipButton from 'react-bootstrap-tooltip-button';
 import { Link } from 'react-router';
 
 const doggy = require('../../public/stylesheets/doggy.png');
+const mainLogo = require('../../public/stylesheets/bookhound-main-white.png');
+const smallBlackDog = require('../../public/stylesheets/small-dog.png');
 
 class HomePage extends Component {
 
@@ -33,19 +35,19 @@ class HomePage extends Component {
 	  			<div className="hero-overlay flex-center">
 		  			<div className="hero-border flex-center">
 						<div className="container">
-							<h1>bookhound</h1>
-							<p className="lead">Build Your Bookshelf</p>
+              <img src={mainLogo} id="main" className="img-responsive" />
+							<p className="lead is-josefin">Build Your Bookshelf</p>
 						</div>
 					</div>
 				</div>
 			</section>
 			<div className="container">
 				<section className="row push-down pad-bottom">
-					<div className="col-md-4 col-md-offset-1">
-						<img src={doggy} id="doggy" className="left img-responsive" />
+					<div className="col-md-4">
+						<img src={smallBlackDog} id="doggy" className="right img-responsive" />
 					</div>
 					<div className="col-md-6 center-when-small">
-						<h3>Welcome to bookhound!</h3>
+						<h3 className="is-josefin">Welcome to bookhound!</h3>
 						<p>bookhound is a simple, straightforward way to build your barkshelf...er, bookshelf! The app works quietly behind the scenes to pick out, order, and deliver all the fresh literature you want, right to your doorstep. Choose from curated wishlists, create your own, or let bookhound simply pick your next favorite book.
 						</p>
 						{this.renderCTA("Let's Go!")}

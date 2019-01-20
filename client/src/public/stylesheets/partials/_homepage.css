@@ -1,7 +1,13 @@
+@import url('https://fonts.googleapis.com/css?family=Josefin+Sans');
+
 #banner {
   border-bottom: none;
   margin-top: -20px;
   color: white;
+}
+
+#doggy {
+  max-height: 200px;
 }
 
 #banner h1 {
@@ -11,7 +17,7 @@
 .hero-overlay {
   height: 100%;
   width: 100%;
-  background-color: rgba(0,0,0,.2);
+  background-color: rgba(0,0,0,.5);
 }
 
 .panel-heading h3{
@@ -35,6 +41,10 @@
   background-size: cover;
   text-align: center;
   text-shadow: 0 1px 0 rgba(0, 0, 0, 0.1);
+}
+
+.is-josefin {
+  font-family: 'Josefin Sans', Courier, monospace;
 }
 
 .hero-image {

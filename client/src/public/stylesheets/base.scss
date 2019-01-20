@@ -1,5 +1,6 @@
 // Google Fonts
 @import url(https://fonts.googleapis.com/css?family=Open+Sans:400,600,300,700,400italic);
+@import url(https://fonts.googleapis.com/css?family=Josefin+Sans:400,600,300,700,400italic);
 
 // Modals
 @import "partials/modal";
@@ -56,6 +57,10 @@ body {
 
 .left {
   float: left;
+}
+
+.right {
+  float: right;
 }
 
 .header-padded {
