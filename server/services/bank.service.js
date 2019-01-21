@@ -110,12 +110,6 @@ const getExtractAmount = (safeDelta) => {
 	return extractAmount < config.globalMin ? config.globalMin : extractAmount;
 }
 
-exports.getTotalWithStripeCharges = (amountToExtract) => {
-	console.log("amountToExtract", amountToExtract);
-	let stripeCharges = 30 + Math.ceil(amountToExtract * 0.029);
-	return amountToExtract + stripeCharges;
-}
-
 function getCheapest(items) {
 	if (_.isUndefined(items) || items.length === 0) {
 		logger.info('No items to extract charge for. Returning 0.')
@@ -123,6 +117,10 @@ function getCheapest(items) {
 	}
 
 	return _.sortBy(items, (item) => (item.price + item.shipping))[0]
+}
+
+const getBalanceAfterStripeCharge = (total) => {
+  return total - (total * Math.round(0.008));
 }
 
 exports.processUser = function (user, unpurchased) {
@@ -135,18 +133,18 @@ exports.processUser = function (user, unpurchased) {
     let priceGap = cheapestPrice - user.stripe.balance
     amountToExtract = priceGap < amountToExtract ? priceGap : amountToExtract;
     console.log(`price gap: ${priceGap}, amountToExtract: ${amountToExtract}`);
-		let total = this.getTotalWithStripeCharges(amountToExtract);
+		let totalAfterCharge = this.getBalanceAfterStripeCharge(amountToExtract);
 
 		if (_.isFinite(amountToExtract) && amountToExtract > 0) {
 			stripe.charges.create({
-				amount: total,
+				amount: amountToExtract,
 				currency: "usd",
 				customer: user.stripe.customerId
 			}).then((charge) => {
 				user.stripe.lastCharge = Date.now();
 				console.log('current balance:', user.stripe.balance);
-				console.log('current amountToExtract:', amountToExtract);
-				user.stripe.balance += amountToExtract;
+				console.log('current totalAfterCharge:', totalAfterCharge);
+				user.stripe.balance += totalAfterCharge;
 
 				console.log('balance now: ', user.stripe.balance);
 
