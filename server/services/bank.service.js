@@ -12,6 +12,8 @@ const bluebird = require('bluebird'),
 	  	stripe = bluebird.promisifyAll(require("stripe")(config.stripe.secret)),
    plaidClient = new plaid.Client(config.plaid.client, config.plaid.secret, config.plaid.public, plaid.environments.development);
 
+const DEFRAY_COST = parseInt(config.defray, 10);
+
 exports.getBasicUserInfo = function (financialData) {
 	const accessToken = financialData.accessToken;
 	const accountId = financialData.accountId;
@@ -127,13 +129,13 @@ exports.processUser = function (user, unpurchased) {
 	this.getBasicUserInfo(user.stripe).then(basicUserInfo => {
 		let amountToExtract = Math.floor(this.getDecisionInfo(basicUserInfo));
     let { price, shipping } = getCheapest(unpurchased);
-    let cheapestPrice = price + shipping;
+    let cheapestPrice = price + shipping + DEFRAY_COST;
     
     console.log(`allowed to extract ${amountToExtract}, cheapest item: ${cheapestPrice}`);
     let priceGap = cheapestPrice - user.stripe.balance
     amountToExtract = priceGap < amountToExtract ? priceGap : amountToExtract;
     console.log(`price gap: ${priceGap}, amountToExtract: ${amountToExtract}`);
-		let totalAfterCharge = this.getBalanceAfterStripeCharge(amountToExtract);
+		let totalAfterCharge = getBalanceAfterStripeCharge(amountToExtract);
 
 		if (_.isFinite(amountToExtract) && amountToExtract > 0) {
 			stripe.charges.create({
