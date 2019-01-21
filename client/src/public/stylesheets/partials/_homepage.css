@@ -63,6 +63,14 @@
     display: none;
   }
 
+  .hero-unit {
+    background-attachment: scroll;
+  }
+
+  .flex-baseline {
+    align-items: center !important;
+  }
+
   .stack-when-small {
     flex-direction: column-reverse;
   }
