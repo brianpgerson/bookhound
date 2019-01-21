@@ -18,22 +18,14 @@ class RefundModal extends Component {
     getRefundAmount(charge) {
         if (this.isOpen()) {
             let chargeAmount = parseInt(charge.amount, 10);
-
-            // lets say total charge is 2.88. 
-            // 288 - 30c stripe flat fee = 258
-            // 2.9% fee = 288 * .29 = 8.352
-            // total = 258 - 8.352 = 249.65
-            chargeAmount -= 30;
-            let potentialMax = chargeAmount / 1.029;
-            let amount = potentialMax > charge.balance ? charge.balance : potentialMax;
-
+            let amount = chargeAmount - Math.round(chargeAmount * 0.008);
             return (amount /100).toFixed(2);
         }
     }
 
     refundMessage(item) {
         return item.refundAmount > 0 ? (<div>
-            <p>You can refund this charge for the amount of ${item.refundAmount} (We unfortunately cannot refund Stripe fees at this time).</p>
+            <p>You can refund this charge for the amount of ${item.refundAmount} (We unfortunately cannot refund the Stripe fee of 0.80% at this time).</p>
             <p>Once you initiate the refund, you will not be able to undo the request. The refund will be sent to the same account you've connected to bookhound.</p>
         </div>) : (<p>You need a positive balance to initate a refund!</p>)
     }
