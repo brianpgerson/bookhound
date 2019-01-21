@@ -35,7 +35,7 @@
 .hero-unit {
   position: relative;
   height: 500px;
-  background: url("./bookreader.jpg");
+  background: url("./bookreader-smaller.jpg");
   background-repeat: no-repeat;
   background-attachment: fixed;
   background-position: bottom;
