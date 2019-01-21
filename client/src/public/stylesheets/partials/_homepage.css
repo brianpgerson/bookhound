@@ -12,6 +12,7 @@
 
 #banner h1 {
   letter-spacing: 1px;
+  font-weight: 100;
 }
 
 .hero-overlay {
@@ -51,15 +52,19 @@
   max-height: 300px;
 }
 
-@media (min-width: 600px) { 
+@media (min-width: 800px) { 
   #banner h1 {
-    font-size: 6em;
+    font-size: 8em;
   }
 }
 
-@media (max-width: 600px) {
+@media (max-width: 800px) {
   #doggy {
-    float: none;
+    display: none;
+  }
+
+  .stack-when-small {
+    flex-direction: column-reverse;
   }
   
   .center-when-small {

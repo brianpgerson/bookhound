@@ -47,6 +47,10 @@ body {
   padding-right: 15px;
 }
 
+.slight-margin-right {
+  margin-right: 2%;
+}
+
 .wrapper {
   min-height: 100%;
 }
@@ -129,10 +133,18 @@ body {
   border-color: white;
 }
 
+.max-height-150 {
+  max-height: 150px;
+}
+
 .flex-center {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.flex-baseline {
+  align-items: baseline;
 }
 
 .navbar-default .navbar-nav>li>a:hover {
