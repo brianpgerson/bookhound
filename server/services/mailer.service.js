@@ -7,18 +7,6 @@ const nodemailer = require('nodemailer'),
           config = require('../config/main');
 
 
-// const transporter = nodemailer.createTransport({
-//     service: 'Gmail',
-//     auth: {
-//         type: 'OAuth2',
-//         user: `${config.gmail.mailUser}`,
-//         clientId: `${config.gmail.clientId}`,
-//         clientSecret: `${config.gmail.clientSecret}`,
-//         refreshToken: `${config.gmail.refreshToken}`,
-//         accessToken: `${config.gmail.accessToken}`
-//     }
-// });
-
 const transport = nodemailer.createTransport({
     service: 'Gmail',
     auth: {
