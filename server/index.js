@@ -37,7 +37,7 @@ switch (process.env.ENV) {
     winston.log(`Your server is running on port ${config.port} in DEVELOPMENT MODE.`);
 } 
 
-const whitelist = ['http://www.bookhound.co', 'http://localhost:8080', 'localhost:3000']
+const whitelist = ['https://www.bookhound.co', 'http://localhost:8080', 'localhost:3000']
 const corsOptions = {
   origin: function (origin, callback) {
     if (whitelist.indexOf(origin) !== -1) {
