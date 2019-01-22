@@ -1,10 +1,8 @@
 import axios from 'axios';
 import * as _ from 'lodash';
 import cookie from 'react-cookie';
-import { browserHistory } from 'react-router';
-import {API_URL, CLIENT_ROOT_URL} from '../constants/constants';
+import {API_URL} from '../constants/constants';
 import { receiveError } from './error-actions';
-import { getUserSetup } from './setup-actions';
 import { RECEIVE_REFUND_CONFIRMATION,
          RECEIVE_PLAID_CONFIG } from './types';
 
