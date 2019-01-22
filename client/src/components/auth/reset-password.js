@@ -48,6 +48,9 @@ class ResetPassword extends Component {
   componentWillUpdate(nextProps) {
     if (nextProps.authenticated) {
       browserHistory.push('/dashboard');
+    } else if (nextProps.resetComplete) {
+      console.log('arf!');
+      browserHistory.push('/login');
     }
   }
 
@@ -107,7 +110,12 @@ class ResetPassword extends Component {
 }
 
 function mapStateToProps(state) {
-  return { errorMessage: state.auth.error, message: state.auth.resetMessage };
+  return { 
+    errorMessage: state.auth.error, 
+    message: state.auth.resetMessage,
+    authenticated: state.auth.authenticated,
+    resetComplete: state.auth.resetComplete,
+  };
 }
 
 export default connect(mapStateToProps, { resetPassword })(form(ResetPassword));

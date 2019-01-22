@@ -3,7 +3,7 @@ import cookie from 'react-cookie';
 import {API_URL} from '../constants/constants';
 import { receiveError } from './error-actions';
 import { AUTH_USER,
-         RESET_PASSWORD_REQUEST,
+         RESET_PASSWORD_COMPLETE,
          FORGOT_PASSWORD_REQUEST,
          ERROR,
          PROTECTED_TEST,
@@ -62,12 +62,20 @@ export function resetPassword(token, { password }) {
     return axios.post(`${API_URL}/auth/reset-password/${token}`, { password })
     .then((response) => {
       dispatch({
-        type: RESET_PASSWORD_REQUEST,
-        payload: response.data.success,
+        type: RESET_PASSWORD_COMPLETE,
+        payload: {
+          success: true
+        },
       });
     })
     .catch((error) => {
       receiveError(dispatch, error.response, ERROR);
+      dispatch({
+        type: RESET_PASSWORD_COMPLETE,
+        payload: {
+          success: false
+        },
+      });
     });
   };
 }
