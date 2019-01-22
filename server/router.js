@@ -8,6 +8,7 @@ const AuthenticationController = require('./controllers/authentication.controlle
                           path = require('path'),
                passportService = require('./config/passport'),
                       passport = require('passport'),
+                      config = require('./config/main'),
                    ROLE_NORMAL = require('./constants').ROLE_NORMAL,
                     ROLE_ADMIN = require('./constants').ROLE_ADMIN;
 
@@ -21,7 +22,7 @@ module.exports = function(app) {
     // Initializing route groups
     const apiRoutes = express.Router(),
          authRoutes = express.Router(),
-        clientRoute = express.Router(),
+         sslRoutes = express.Router(),
         setupRoutes = express.Router(),
          bankRoutes = express.Router();
 
@@ -66,6 +67,14 @@ module.exports = function(app) {
   bankRoutes.post('/exchange-token', requireAuth, addUserToReq, BankController.exchange);
   bankRoutes.post('/refund', requireAuth, addUserToReq, BankController.refund);
   bankRoutes.get('/plaid', requireAuth, BankController.getPlaidConfig);
+
+  const serveEncrypt = (req, res) => {
+    console.log('cool!');
+    res.status(218).send(config.encrypt.fileString)
+  };
+  
+  sslRoutes.get(`/acme-challenge/${config.encrypt.id}`, serveEncrypt);
+  app.use(`/.well-known`, sslRoutes);
   
   // Set url for API group routes
   app.use('/api', apiRoutes);

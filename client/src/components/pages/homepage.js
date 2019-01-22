@@ -79,7 +79,6 @@ class HomePage extends Component {
 				            <div className="panel-body">
 				            	Want a preset list of books? Create one with your Amazon account and bookhound will pull from that.
 				            	Feeling a little more <em>laissez faire</em>? Pick a few genres and let bookhound pick your next favorite book.
-				            	Confirm picks before the purchase, or pre-approve choices and enjoy the surprise.
 				            </div>
 				          </div>
 				        </div>
@@ -106,7 +105,7 @@ class HomePage extends Component {
 					<div className="col-md-6 col-md-offset-3">
 						<h4 className="text-center">Why does this exist?</h4>
 						<p>
-							Because humans are creatures of convenience, not of habit. And, while there are plenty of companies out there more than happy to parlay that need into on-demand valet services or laundry pickup, bookhound seeks to be a little more aspirational. If it is constantly, surprisingly, delightfully convenient to have and read new books, I know I will read more. My hope is that you will too.
+							Because humans are creatures of convenience, and while there are plenty of companies out there more than happy to parlay that need into on-demand valet services or laundry pickup, bookhound seeks to be a little more aspirational. If it is constantly, surprisingly, delightfully convenient to have and read new books, I know I will read more. My bet is that you will too.
 						</p>
 					</div>
 				</section>

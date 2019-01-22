@@ -2,7 +2,11 @@
 
 module.exports = {
 	port: process.env.PORT || 3000,
-	host: process.env.HOST,
+  host: process.env.HOST,
+  encrypt: {
+    id: process.env.ENCRYPT_ID,
+    fileString: process.env.ENCRYPT_FILE
+  },
 	test_port: 3001,
   	test_db: 'bookhound-test',
 	test_env: 'test',
