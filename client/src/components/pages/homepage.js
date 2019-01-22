@@ -145,7 +145,7 @@ class HomePage extends Component {
 					<div className="col-md-6 col-md-offset-3">
 						<h4 className="text-center">Who are you, anyways?</h4>
 						<p>
-							I'm Brian! I love reading, building software, and surprises, so bookhound is really just expression of something I wanted for myself. But I sincerely hope you like it too. And if you have ideas, questions, or suggestions, please let me know. You can reach me at <a href="mailto:brian@bookhound.com" target="_blank">brian@bookhound.com.</a>
+							I'm Brian! I love reading, building software, and surprises, so bookhound is really just expression of something I wanted for myself. But I sincerely hope you like it too. And if you have ideas, questions, or suggestions, please let me know. You can reach me at <a href="mailto:brian@bookhound.com" target="_blank">brian@bookhound.co.</a>
 						</p>
 					</div>
 				</section>
