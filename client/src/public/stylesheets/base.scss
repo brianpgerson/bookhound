@@ -57,6 +57,9 @@ body {
 
 .panel {
   min-height: 270px;
+  -webkit-box-shadow: 6px 8px 18px -1px rgba(0,0,0,0.75);
+  -moz-box-shadow: 6px 8px 18px -1px rgba(0,0,0,0.75);
+  box-shadow: 6px 8px 18px -1px rgba(0,0,0,0.75);
 }
 
 .left {
@@ -73,6 +76,10 @@ body {
 
 .pad-bottom {
   padding-bottom: 30px;
+}
+
+.pad-left {
+  padding-left: 15px;
 }
 
 .blue {
