@@ -43,10 +43,10 @@ class Bank extends Component {
     const { bank } = this.props;
     return (
       <div>
-        <h1 className='text-center'>{bank ? 'Update Your Bank' : 'Connect Your Bank'}</h1>
+        <h1 className='text-center is-josefin margin-bottom-20'>{bank ? 'Update Your Bank' : 'Connect Your Bank'}</h1>
         <section className='container'>
           <div className='row text-center'>
-            <div className='col-md-4 col-md-offset-4 is-white-background form-panel'>
+            <div className='col-md-4 col-md-offset-4 is-white-background no-min-height pad-50 panel'>
               <div className='row'>
                 <div>
                   bookhound uses Plaid to securely and conveniently connect to bank accounts without the need for microdeposits.

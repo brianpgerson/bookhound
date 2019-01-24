@@ -27,16 +27,28 @@ $white: #fff;
 $hover-background: #E7E7E7;
 $hover-text: #555;
 
-html {
-  height: 100%;
-  box-sizing: border-box;
+html, body{ 
+  min-height: 100vh;
+  overflow: auto;
 }
 
 body {
-  background: $main-background;
-  padding-top: 70px;
-  min-height: 100%;
   position: relative;
+  padding-top: 51px;
+}
+
+.gradient {
+  background-color: #b8c6db;
+  background-image: linear-gradient(315deg, #b8c6db 0%, #f5f7fa 74%);  background-repeat: no-repeat;
+  background-size: auto;
+}
+
+.gradient-2 {
+  background-color: #b8c6db;
+  background-image: linear-gradient(315deg, #b8c6db 0%, #f5f7fa 74%);
+  background-repeat: no-repeat;
+  background-size: auto;
+  margin-top: -20px;
 }
 
 .faq {
@@ -51,15 +63,33 @@ body {
   margin-right: 2%;
 }
 
+.margin-left {
+  margin-left: 5%;
+}
+
+.margin-bottom-20 {
+  margin-bottom: 20px;
+}
+
+.margin-top-40 {
+  margin-top: 40px;
+}
+
+.panel.no-min-height {
+  min-height: 0;
+}
+
 .wrapper {
   min-height: 100%;
+  margin-top: 20px;
 }
 
 .panel {
-  min-height: 270px;
-  -webkit-box-shadow: 6px 8px 18px -1px rgba(0,0,0,0.75);
-  -moz-box-shadow: 6px 8px 18px -1px rgba(0,0,0,0.75);
-  box-shadow: 6px 8px 18px -1px rgba(0,0,0,0.75);
+  min-height: 320px;
+  -webkit-box-shadow: 6px 8px 18px -1px rgba(0,0,0,0.25);
+  -moz-box-shadow: 6px 8px 18px -1px rgba(0,0,0,0.25);
+  box-shadow: 6px 8px 18px -1px rgba(0,0,0,0.25);
+  padding: 15px;
 }
 
 .left {
@@ -80,6 +110,14 @@ body {
 
 .pad-left {
   padding-left: 15px;
+}
+
+.pad-25 {
+  padding: 25px;
+}
+
+.pad-50 {
+  padding: 50px;
 }
 
 .blue {
@@ -150,8 +188,17 @@ body {
   justify-content: center;
 }
 
+.clear-center {
+  clear: both;
+  text-align: center;
+}
+
 .flex-baseline {
   align-items: baseline;
+}
+
+.navbar-default {
+  margin-bottom: 0;
 }
 
 .navbar-default .navbar-nav>li>a:hover {

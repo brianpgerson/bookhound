@@ -103,10 +103,10 @@ class Wishlist extends Component {
     const isUpdating = _.get(wishlist, 'url', false);
     return (
       <div>
-        <h1 className='text-center'>{isUpdating ? 'Update Wishlist' : 'Enter a Wishlist'}</h1>
+        <h1 className='text-center is-josefin margin-bottom-20'>{isUpdating ? 'Update Wishlist' : 'Enter a Wishlist'}</h1>
         <section className='container'>
           <div className='row'>
-            <div className='col-md-6 col-md-offset-3 is-white-background form-panel'>
+            <div className='col-md-6 col-md-offset-3 is-white-background pad-50 panel'>
               <div className='row'>
                 <div>
                   This part is important to get right. First, make sure you have a <a href='https://www.amazon.com/gp/help/customer/display.html?nodeId=501094' target='_blank'>public wishlist</a> for bookhound to use, and ensure that it has at least a few books. Then, when you're sure it's ready to go, add the URL here. It should look like: <em>www.amazon.com/gp/registry/wishlist/295PIKOOQBKVU</em>.

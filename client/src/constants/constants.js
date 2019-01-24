@@ -1,5 +1,5 @@
-export const API_URL = 'https://www.bookhound.co/api';
-// export const API_URL = 'http://localhost:3000/api';
+// export const API_URL = 'https://www.bookhound.co/api';
+export const API_URL = 'http://localhost:3000/api';
 
 export const states = [
     {

@@ -95,10 +95,10 @@ class Address extends Component {
 
     return (
       <div>
-        <h1 className="text-center">{!!address.streetAddressOne ? 'Update Your Address' : 'Enter Your Address'}</h1>
+        <h1 className="text-center margin-bottom-20 no-min-height is-josefin">{!!address.streetAddressOne ? 'Update Your Address' : 'Enter Your Address'}</h1>
         <section className="container">
           <div className="row">
-            <div className="col-md-6 col-md-offset-3 is-white-background form-panel">
+            <div className="col-md-6 col-md-offset-3 is-white-background pad-50 panel">
               <div className="row">
                 <div>
                   Let us know where to ship your books. You can always update this later, but for now, try and pick a place where you don't need to know about deliveries in advance. Please note that bookhound only ships to US states and territories currently.

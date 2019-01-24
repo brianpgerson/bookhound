@@ -53,11 +53,13 @@ class HomePage extends Component {
 						<h3 className="is-josefin">Welcome to bookhound!</h3>
 						<p>bookhound is a simple, straightforward way to build your barkshelf...er, bookshelf! The app works quietly behind the scenes to pick out, order, and deliver all the fresh literature you want, right to your doorstep. Choose from curated wishlists, create your own, or let bookhound simply pick your next favorite book.
 						</p>
-						{this.renderCTA("Let's Go!")}
 					</div>
+          <div className="clear-center">
+            {this.renderCTA("Let's Go!")}
+          </div>
 				</section>
 			</div>
-			<div className="is-gray-background">
+			<div>
 				<div className="container">
 					<section className="row">
 						<h2 className="text-center header-padded is-josefin">How It Works</h2>
@@ -91,14 +93,11 @@ class HomePage extends Component {
 				          </div>
 				        </div>
 				    </section>
-				    <section className="row flex-center pad-bottom">
-							{this.renderCTA("I'm Sold!")}
-					</section>
 			    </div>
 		    </div>
 		    <div className="container faq">
 		    	<section className="row text-center pad-bottom">
-					<h2 className="">FAQ</h2>
+					<h2 className="is-josefin">FAQ</h2>
 					<h5>This section is a long one, but let's be honest: you're here because you like to read.</h5>
 				</section>
 				<section className="row pad-bottom">

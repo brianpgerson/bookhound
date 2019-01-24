@@ -79,10 +79,10 @@ class Register extends Component {
 
     return (
        <div>
-        <h1 className="text-center">Sign Up</h1>
+        <h1 className="text-center is-josefin margin-bottom-20">Sign Up</h1>
         <section className="container">
           <div className="row">
-            <div className="col-md-4 col-md-offset-4 is-white-background form-panel">
+            <div className="col-md-4 col-md-offset-4 is-white-background pad-50 panel">
               <div className="row">
                 <div>
                   Welcome to bookhound!

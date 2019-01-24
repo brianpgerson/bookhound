@@ -1,7 +1,5 @@
 import React, { Component } from 'react';
-import { Link, browserHistory } from 'react-router';
-import { Field, reduxForm } from 'redux-form';
-import Modal from 'react-modal';
+import { Link } from 'react-router';
 import { connect } from 'react-redux';
 const moment = require('moment');
 import { getUserSetup, refreshWishlistItems, setShowPurchases, refreshWishlist } from '../actions/setup-actions';
@@ -66,20 +64,20 @@ class Dashboard extends Component {
   renderAddress(address) {
     if (address.streetAddressOne) {
       return (
-        <div className='col-md-4'>
+        <div className='col-md-6 panel pad-25'>
           <h4>Current Shipping Address</h4>
           <p><strong>Street Address One: </strong>{address.streetAddressOne}</p>
           { address.streetAddressTwo ?
               <p><strong>Street Address Two: </strong>{address.streetAddressTwo}</p> : '' }
           <p><strong>City: </strong>{address.city}</p>
           <p><strong>State: </strong>{address.state}</p>
-          <p><strong>Zip: </strong>{address.zip}</p>
+          <p className="margin-bottom-20"><strong>Zip: </strong>{address.zip}</p>
           <p><Link to='address'><button className='btn btn-default'>Update Address</button></Link></p>
         </div>
       );
     } else {
       return (
-        <div className='col-md-4'>
+        <div className='col-md-6 panel pad-25'>
           <h4>Current Shipping Address</h4>
           <p className='bad-text'>You haven't set a shipping address yet!</p>
           <p><Link to='address'><button className='btn btn-default'>Add Address</button></Link></p>
@@ -99,7 +97,7 @@ class Dashboard extends Component {
   renderBank(bank, charges) {
     if (bank.connected) {
       return (
-        <div className='col-md-4'>
+        <div className='col-md-6 panel pad-25'>
           <h4>Bank Account Information</h4>
           <p className='good-text'>Your bank account is currently connected</p>
 
@@ -125,7 +123,7 @@ class Dashboard extends Component {
         </div>
       )
     } else {
-      return <div className='col-md-4'>
+      return <div className='col-md-6 panel pad-25'>
         <h4>Bank Account Information</h4>
         <p className='bad-text'>You haven't connected a bank account yet!</p>
         <p><Link to='bank'><button className='btn btn-default'>Connect Bank</button></Link></p>
@@ -166,7 +164,7 @@ class Dashboard extends Component {
     if (wishlist && wishlist.url && !wishlist.updating) {
       const wishlistUrl = wishlist.url;
       return (
-        <div className='col-md-6'>
+        <div className='col-md-6 panel pad-25'>
           <h4>Wishlist Information</h4>
           {this.props.setup.showPurchases ? this.renderPurchases(purchases) : this.renderItems(wishlist)}
           <p><strong>Preferences</strong></p>
@@ -177,18 +175,18 @@ class Dashboard extends Component {
           </ul>
           <p>
             <Link to='wishlist'><button className='btn btn-default'>Change Wishlist</button></Link>
-            <button onClick={() => {this.refreshWishlist(wishlistUrl)}} className='btn btn-default'>Refresh Items</button>
+            <button onClick={() => {this.refreshWishlist(wishlistUrl)}} className='btn btn-default margin-left'>Refresh Items</button>
           </p>
         </div>
       )
     } else if (_.get(wishlist, 'updating')) {
-      return <div className='col-md-4'>
+      return <div className='col-md-6 panel pad-25'>
         <h4>WishList Information</h4>
         <p className='bad-text'>Hang tight! We're updating your wishlist connection</p>
         <p><button disabled className='btn btn-default'>Add Wishlist</button></p>
       </div>
     } else {
-      return <div className='col-md-4'>
+      return <div className='col-md-6 panel pad-25'>
         <h4>WishList Information</h4>
         <p className='bad-text'>You haven't added a wishlist yet!</p>
         <p><Link to='wishlist'><button className='btn btn-default'>Add Wishlist</button></Link></p>
@@ -199,20 +197,20 @@ class Dashboard extends Component {
   render() {
     const {user, address, bank, charges, wishlist, purchases, preferences} = this.props.setup;
     return (
-      <div>
+      <div className="gradient-2">
         <RefundModal type={REFUND} />
         <div className='container'>
-        <section className='row pad-bottom pad-left'>
-          <h1>Welcome to your Dashboard, {user.profile.firstName}</h1>
+        <section className='row pad-bottom pad-left clear-center'>
+          <h1 className="is-josefin margin-top-40">Welcome to your Dashboard, {_.upperFirst(user.profile.firstName)}</h1>
           <p>Here's where you can see your current settings and update anything that needs changing!</p>
         </section>
-        <section className='row pad-bottom'>
+        <section className='row pad-bottom flex-center'>
           {this.renderAddress(address)}
         </section>
-        <section className='row pad-bottom'>
+        <section className='row pad-bottom flex-center'>
           {this.renderBank(bank, charges)}
         </section>
-        <section className='row pad-bottom'>
+        <section className='row pad-bottom flex-center'>
           {this.renderWishlist(wishlist, purchases)}
         </section>
         <section className='row push-down'>

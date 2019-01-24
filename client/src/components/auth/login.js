@@ -39,7 +39,7 @@ class Login extends Component {
     return (
       <section className="container">
         <div className="row">
-          <h1 className="text-center">Log In</h1>
+          <h1 className="is-josefin margin-bottom-20 text-center">Log In</h1>
         </div>
         <div className="row">
           <div className="col-md-6 col-md-offset-3">
