@@ -1,12 +1,10 @@
 'use strict'
 
-const AuthController = require('./authentication.controller'),
-	  		 Promise = require('bluebird'),
-	  		  config = require('../config/main'),
-	  			   _ = require('lodash'),
-	  	 BankService = Promise.promisifyAll(require('../services/bank.service')),
-  	 WishlistService = Promise.promisifyAll(require('../services/wishlist.service')),
-  	 PurchaseService = Promise.promisifyAll(require('../services/purchase.service')),
+const Promise = require('bluebird'),
+       config = require('../config/main'),
+            _ = require('lodash'),
+   BankService = Promise.promisifyAll(require('../services/bank.service')),
+PurchaseService = Promise.promisifyAll(require('../services/purchase.service')),
 	  			User = require('../models/user'),
 	  		Purchase = require('../models/purchase'),
 	  		  Charge = require('../models/charge'),
@@ -14,7 +12,7 @@ const AuthController = require('./authentication.controller'),
 	  	      moment = require('moment'),
 	  	      logger = require('../config/logger'),
 	  	      stripe = Promise.promisifyAll(require("stripe")(config.stripe.secret)),
-	     plaidClient = new plaid.Client(config.plaid.client, config.plaid.secret, config.plaid.public, plaid.environments.sandbox);
+	     plaidClient = new plaid.Client(config.plaid.client, config.plaid.secret, config.plaid.public, plaid.environments.development);
 
 exports.getPlaidConfig = function (req, res) {
 	 res.status(200).json({public: config.plaid.public});
@@ -48,6 +46,7 @@ exports.refund = function (req, res) {
 }
 
 exports.findEligibleAccountsToCharge = function () {
+  return;
 	const cutoff = moment().startOf('day').subtract(3, 'days');
 	logger.info('Finding users to charge');
 
