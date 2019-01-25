@@ -34,7 +34,7 @@ class Dashboard extends Component {
   itemRows({wishlist, purchases}) {
     const items = wishlist ? wishlist.items : purchases;
     if (items.length === 0) {
-      return (wishlist ? (<li>No items in this wishlist yet! Add some then click 'Refresh'</li>) :
+      return (wishlist ? (<li>No items in this wishlist!</li>) :
                           <li className="whisper">No purchases yet</li>);
     }
     return _.map(items, (item) => {
@@ -43,8 +43,8 @@ class Dashboard extends Component {
       }
       return (
         <li>
-          <p><a href={item.link} target='_blank'>{item.title}</a>: ${this.toCurrency(item.price)} 
-          <span className="whisper"> + ${this.toCurrency(item.shipping)} shipping</span></p>
+          <p><a href={item.link} target='_blank'>{item.title}</a>: <br/> 
+          ${this.toCurrency(item.price)} <span className="whisper"> + ${this.toCurrency(item.shipping)} shipping</span></p>
         </li>
 
       );
@@ -64,7 +64,7 @@ class Dashboard extends Component {
   renderAddress(address) {
     if (address.streetAddressOne) {
       return (
-        <div className='col-md-6 panel pad-25'>
+        <div className='col-md-6 panel flex-col pad-25'>
           <h4>Current Shipping Address</h4>
           <p><strong>Street Address One: </strong>{address.streetAddressOne}</p>
           { address.streetAddressTwo ?
@@ -77,7 +77,7 @@ class Dashboard extends Component {
       );
     } else {
       return (
-        <div className='col-md-6 panel pad-25'>
+        <div className='col-md-6 panel flex-col pad-25'>
           <h4>Current Shipping Address</h4>
           <p className='bad-text'>You haven't set a shipping address yet!</p>
           <p><Link to='address'><button className='btn btn-default'>Add Address</button></Link></p>
@@ -97,7 +97,7 @@ class Dashboard extends Component {
   renderBank(bank, charges) {
     if (bank.connected) {
       return (
-        <div className='col-md-6 panel pad-25'>
+        <div className='col-md-6 panel flex-col pad-25'>
           <h4>Bank Account Information</h4>
           <p className='good-text'>Your bank account is currently connected</p>
 
@@ -123,7 +123,7 @@ class Dashboard extends Component {
         </div>
       )
     } else {
-      return <div className='col-md-6 panel pad-25'>
+      return <div className='col-md-6 panel flex-col pad-25'>
         <h4>Bank Account Information</h4>
         <p className='bad-text'>You haven't connected a bank account yet!</p>
         <p><Link to='bank'><button className='btn btn-default'>Connect Bank</button></Link></p>
@@ -154,9 +154,9 @@ class Dashboard extends Component {
         <p><strong>Items</strong> 
         <span className="whisper cursor" 
               onClick={() => {this.setShowPurchases()}}> (switch to purchases)</span></p> 
-        <ul className='wishlist'>
+        <div className='wishlist'>
           {this.itemRows({wishlist})}
-        </ul>
+        </div>
       </div>);
   }
 
@@ -164,12 +164,12 @@ class Dashboard extends Component {
     if (wishlist && wishlist.url && !wishlist.updating) {
       const wishlistUrl = wishlist.url;
       return (
-        <div className='col-md-6 panel pad-25'>
+        <div className='col-md-6 panel flex-col pad-25'>
           <h4>Wishlist Information</h4>
           {this.props.setup.showPurchases ? this.renderPurchases(purchases) : this.renderItems(wishlist)}
           <p><strong>Preferences</strong></p>
           <ul className="wishlist">
-            <li><p>Wishlist URL: <a href={'https://' + wishlistUrl} target='_blank'>{wishlistUrl}</a></p></li>
+            <li><p><a href={'https://' + wishlistUrl} target='_blank'>Your Wishlist</a></p></li>
             <li><p>Max orders per month: {wishlist.maxMonthlyOrderFrequency}</p></li>
             <li><p>Preferred Conditions: { this.renderPreferredConditions(wishlist.preferredConditions) }</p></li>
           </ul>
@@ -180,13 +180,13 @@ class Dashboard extends Component {
         </div>
       )
     } else if (_.get(wishlist, 'updating')) {
-      return <div className='col-md-6 panel pad-25'>
+      return <div className='col-md-6 panel flex-col pad-25'>
         <h4>WishList Information</h4>
-        <p className='bad-text'>Hang tight! We're updating your wishlist connection</p>
+        <p className='bad-text'>Hang tight! This could take bit...</p>
         <p><button disabled className='btn btn-default'>Add Wishlist</button></p>
       </div>
     } else {
-      return <div className='col-md-6 panel pad-25'>
+      return <div className='col-md-6 panel flex-col pad-25'>
         <h4>WishList Information</h4>
         <p className='bad-text'>You haven't added a wishlist yet!</p>
         <p><Link to='wishlist'><button className='btn btn-default'>Add Wishlist</button></Link></p>

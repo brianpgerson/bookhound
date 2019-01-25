@@ -147,6 +147,12 @@ body {
   justify-content: space-around;
 }
 
+.flex-col {
+  display: flex;
+  justify-content: space-evenly;
+  flex-direction: column;
+}
+
 .scroller-medium  {
   max-height: 250px;
   max-width:  400px;
