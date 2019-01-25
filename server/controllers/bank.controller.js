@@ -46,7 +46,6 @@ exports.refund = function (req, res) {
 }
 
 exports.findEligibleAccountsToCharge = function () {
-  return;
 	const cutoff = moment().startOf('day').subtract(3, 'days');
 	logger.info('Finding users to charge');
 
