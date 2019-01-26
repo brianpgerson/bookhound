@@ -12,16 +12,16 @@ class HomePage extends Component {
   renderCTA(msg) {
   	if (!this.props.isLoggedIn) {
 	  	return (
-	  		<Link to="register">
-				<button className="btn btn-lg btn-primary">{msg}</button>
-			</Link>
-			// <TooltipButton
-			//   title={msg}
-			//   event="mouseover"
-			//   className="btn btn-lg btn-primary"
-			//   disabled={true}
-			//   tooltipText='Private Beta coming soon!'
-			//   tooltipId='tt1'/>		
+	  	// 	<Link to="register">
+			// 	<button className="btn btn-lg btn-primary">{msg}</button>
+			// </Link>
+		  <TooltipButton
+		    title={msg}
+		    event="mouseover"
+		    className="btn btn-lg btn-primary"
+		    disabled={true}
+		    tooltipText='Private Beta coming soon!'
+		    tooltipId='tt1'/>		
 		)
   	} else {
   		return '';
