@@ -7,7 +7,9 @@
 }
 
 #doggy {
-  max-height: 200px;
+  position: relative;
+  max-height: 125px;
+  top: 40px;
 }
 
 #banner h1 {
@@ -58,11 +60,13 @@
   }
 }
 
-@media (max-width: 800px) {
+@media (max-width: 900px) {
   #doggy {
     display: none;
   }
+}
 
+@media (max-width: 800px) {
   .hero-unit {
     background-attachment: scroll;
   }
