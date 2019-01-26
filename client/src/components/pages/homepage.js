@@ -18,7 +18,7 @@ class HomePage extends Component {
 		  <TooltipButton
 		    title={msg}
 		    event="mouseover"
-		    className="btn btn-lg btn-primary"
+		    className="btn btn-lg btn-primary margin-top-20"
 		    disabled={true}
 		    tooltipText='Private Beta coming soon!'
 		    tooltipId='tt1'/>		
@@ -54,7 +54,7 @@ class HomePage extends Component {
 						<p>bookhound is a simple, straightforward way to build your barkshelf...er, bookshelf! The app works quietly behind the scenes to pick out, order, and deliver all the fresh literature you want, right to your doorstep. Choose from curated wishlists, create your own, or let bookhound simply pick your next favorite book.
 						</p>
 					</div>
-          <div className="clear-center margin-top-20">
+          <div className="clear-center">
             {this.renderCTA("Let's Go!")}
           </div>
 				</section>
