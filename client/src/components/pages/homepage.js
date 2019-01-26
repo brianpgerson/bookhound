@@ -54,7 +54,7 @@ class HomePage extends Component {
 						<p>bookhound is a simple, straightforward way to build your barkshelf...er, bookshelf! The app works quietly behind the scenes to pick out, order, and deliver all the fresh literature you want, right to your doorstep. Choose from curated wishlists, create your own, or let bookhound simply pick your next favorite book.
 						</p>
 					</div>
-          <div className="clear-center">
+          <div className="clear-center margin-top-20">
             {this.renderCTA("Let's Go!")}
           </div>
 				</section>
