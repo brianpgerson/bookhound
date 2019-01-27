@@ -181,13 +181,13 @@ class Dashboard extends Component {
       )
     } else if (_.get(wishlist, 'updating')) {
       return <div className='col-md-6 panel flex-col pad-25'>
-        <h4>WishList Information</h4>
+        <h4>Wishlist Information</h4>
         <p className='bad-text'>Hang tight! This could take bit...</p>
         <p><button disabled className='btn btn-default'>Add Wishlist</button></p>
       </div>
     } else {
       return <div className='col-md-6 panel flex-col pad-25'>
-        <h4>WishList Information</h4>
+        <h4>Wishlist Information</h4>
         <p className='bad-text'>You haven't added a wishlist yet!</p>
         <p><Link to='wishlist'><button className='btn btn-default'>Add Wishlist</button></Link></p>
       </div>
