@@ -45,7 +45,7 @@ class HomePage extends Component {
 				</div>
 			</section>
 			<div className="container">
-				<section className="row push-down pad-bottom">
+				<section className="row push-down pad-bottom flex-center">
 					<div className="col-md-4">
 						<img src={smallBlackDog} id="doggy" className="right img-responsive" />
 					</div>
