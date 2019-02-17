@@ -31,8 +31,6 @@ function validate(formProps) {
 
   if (!formProps.wishlistUrl) {
     errors.wishlistUrl = 'Please enter a valid wishlist ID';
-  } else if (formProps.wishlistUrl.length !== 13) {
-    errors.wishlistUrl = 'Please ensure you\'ve entered a properly formatted wishlist ID (13 characters from the end of your wishlist URL, NOT including anything after a "?" mark.';
   }
 
   if (_.isUndefined(formProps.new) && _.isUndefined(formProps.used)) {
