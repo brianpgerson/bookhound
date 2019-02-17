@@ -12,16 +12,16 @@ class HomePage extends Component {
   renderCTA(msg) {
   	if (!this.props.isLoggedIn) {
 	  	return (
-	  	// 	<Link to="register">
-			// 	<button className="btn btn-lg btn-primary">{msg}</button>
-			// </Link>
-		  <TooltipButton
-		    title={msg}
-		    event="mouseover"
-		    className="btn btn-lg btn-primary margin-top-20"
-		    disabled={true}
-		    tooltipText='Private Beta coming soon!'
-		    tooltipId='tt1'/>		
+	  		<Link to="register">
+				<button className="btn btn-lg btn-primary">{msg}</button>
+			</Link>
+		  // <TooltipButton
+		  //   title={msg}
+		  //   event="mouseover"
+		  //   className="btn btn-lg btn-primary margin-top-20"
+		  //   disabled={true}
+		  //   tooltipText='Private Beta coming soon!'
+		  //   tooltipId='tt1'/>		
 		)
   	} else {
   		return '';
@@ -45,19 +45,21 @@ class HomePage extends Component {
 				</div>
 			</section>
 			<div className="container">
-				<section className="row push-down pad-bottom flex-center">
-					<div className="col-md-4">
+				<section className="row flex-center push-down">
+					<div className="col-md-2">
 						<img src={smallBlackDog} id="doggy" className="right img-responsive" />
 					</div>
-					<div className="col-md-6 center-when-small">
-						<h3 className="is-josefin">Welcome to bookhound!</h3>
+					<div className="col-md-5 center-when-small">
+						<h2 className="is-josefin">Welcome to bookhound!</h2>
 						<p>bookhound is a simple, straightforward way to build your barkshelf...er, bookshelf! The app works quietly behind the scenes to pick out, order, and deliver all the fresh literature you want, right to your doorstep. Choose from curated wishlists, create your own, or let bookhound simply pick your next favorite book.
 						</p>
 					</div>
+				</section>
+        <section className="row push-down pad-bottom">
           <div className="clear-center">
             {this.renderCTA("Let's Go!")}
           </div>
-				</section>
+        </section>
 			</div>
 			<div>
 				<div className="container">

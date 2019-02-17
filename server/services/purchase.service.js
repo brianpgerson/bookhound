@@ -177,7 +177,7 @@ function createOrderObject(user, bookToBuy) {
             country: 'US',
             phone_number: config.billing.address.phone_number
         },
-        shipping_method: shippingMethod,
+        shipping_method: 'cheapest',
         billing_address: config.billing.address,
         retailer_credentials: config.billing.retailer_credentials,
         payment_method: config.billing.payment_method,
@@ -188,18 +188,20 @@ function createOrderObject(user, bookToBuy) {
 exports.qualifyPurchaser = function (user, startOfMonth) {
     const maxOrders = user.wishlist.maxMonthlyOrderFrequency;
     return Purchase.find({updatedAt : { $gte: startOfMonth} }).then((purchases) => {
-        if (purchases.length < maxOrders) {
-            const wishlist = user.wishlist;
-            if (_.isUndefined(wishlist) || _.isNull(wishlist)) {
-                logger.error(`wishlist was undefined for user ${user}: ${wishlist}`);
-                return false;
-            } else {
-                let currentlyPurchaseable = purchasableBooks(wishlist.items, purchases, user.stripe.balance, DEFRAY_COST)
-                if (currentlyPurchaseable.length > 0) {
-                    return updateAgainAndCheck(user);
-                }
+      return Order.find({status: 'IN_PROGRESS'}).then(inProgress => {
+        if (purchases.length < maxOrders && (!inProgress || inProgress.length === 0)) {
+          const wishlist = user.wishlist;
+          if (_.isUndefined(wishlist) || _.isNull(wishlist)) {
+            logger.error(`wishlist was undefined for user ${user}: ${wishlist}`);
+            return false;
+          } else {
+            let currentlyPurchaseable = purchasableBooks(wishlist.items, purchases, user.stripe.balance, DEFRAY_COST)
+            if (currentlyPurchaseable.length > 0) {
+                return updateAgainAndCheck(user);
             }
+          }
         }
+      })
     });
 }
 
@@ -219,7 +221,7 @@ const updateAgainAndCheck = (user) => {
 const purchasableBooks = (candidates, purchased, balance, defray) => {
     return _.filter(candidates, (b) => {
         let alreadyPurchased = _.some(purchased, purchase => purchase.productId === b.productId);
-        let hasEnoughToBuyBook = ((b.price + b.shipping + defray) < balance);
+        let hasEnoughToBuyBook = ((b.price + b.shipping + defray) <= balance);
         logger.info(`Purchaseable book: ${hasEnoughToBuyBook}. price was ${b.price}, shipping was ${b.shipping}, balance is ${balance}`)
         return (hasEnoughToBuyBook) && !alreadyPurchased;
     });

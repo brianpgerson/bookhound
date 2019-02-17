@@ -46,7 +46,7 @@ exports.refund = function (req, res) {
 }
 
 exports.findEligibleAccountsToCharge = function () {
-	const cutoff = moment().startOf('day').subtract(1, 'days');
+	const cutoff = moment().startOf('day').subtract(2, 'days');
 	logger.info('Finding users to charge');
 
 	User.find({'stripe.lastCharge': {$lte: cutoff.toDate()}})
