@@ -186,23 +186,23 @@ function createOrderObject(user, bookToBuy) {
 }
 
 exports.qualifyPurchaser = function (user, startOfMonth) {
-    const maxOrders = user.wishlist.maxMonthlyOrderFrequency;
-    return Purchase.find({updatedAt : { $gte: startOfMonth} }).then((purchases) => {
-      return Order.find({status: 'IN_PROGRESS'}).then(inProgress => {
-        if (purchases.length < maxOrders && (!inProgress || inProgress.length === 0)) {
-          const wishlist = user.wishlist;
-          if (_.isUndefined(wishlist) || _.isNull(wishlist)) {
-            logger.error(`wishlist was undefined for user ${user}: ${wishlist}`);
-            return false;
-          } else {
-            let currentlyPurchaseable = purchasableBooks(wishlist.items, purchases, user.stripe.balance, DEFRAY_COST)
-            if (currentlyPurchaseable.length > 0) {
-                return updateAgainAndCheck(user);
-            }
+  const maxOrders = user.wishlist.maxMonthlyOrderFrequency;
+  return Purchase.find({updatedAt : { $gte: startOfMonth} }).then((purchases) => {
+    return Order.find({status: 'IN_PROGRESS'}).then(inProgress => {
+      if (purchases.length < maxOrders && (!inProgress || inProgress.length === 0)) {
+        const wishlist = user.wishlist;
+        if (_.isUndefined(wishlist) || _.isNull(wishlist)) {
+          logger.error(`wishlist was undefined for user ${user}: ${wishlist}`);
+          return false;
+        } else {
+          let currentlyPurchaseable = purchasableBooks(wishlist.items, purchases, user.stripe.balance, DEFRAY_COST)
+          if (currentlyPurchaseable.length > 0) {
+              return updateAgainAndCheck(user);
           }
         }
-      })
-    });
+      }
+    })
+  });
 }
 
 const updateAgainAndCheck = (user) => {
