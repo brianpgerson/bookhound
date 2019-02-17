@@ -44,7 +44,7 @@ class Dashboard extends Component {
       return (
         <li>
           <p><a href={item.link} target='_blank'>{item.title}</a>: <br/> 
-          ${this.toCurrency(item.price)} <span className="whisper"> + ${this.toCurrency(item.shipping)} shipping</span></p>
+      ${this.toCurrency(item.price)} { wishlist && <span className="whisper"> + ${this.toCurrency(item.shipping)} shipping</span>}</p> 
         </li>
 
       );
@@ -148,7 +148,10 @@ class Dashboard extends Component {
       </div>);
   }
 
-  renderItems(wishlist) {
+  renderItems(wishlist, purchases) {
+    const boughtIdSet = new Set(_.map(purchases, 'productId'));
+    console.log(boughtIdSet);
+    wishlist.items = wishlist.items.filter(({ productId }) =>!boughtIdSet.has(productId))
     return (
       <div>
         <p><strong>Items</strong> 
@@ -166,7 +169,7 @@ class Dashboard extends Component {
       return (
         <div className='col-md-6 panel flex-col pad-25'>
           <h4>Wishlist Information</h4>
-          {this.props.setup.showPurchases ? this.renderPurchases(purchases) : this.renderItems(wishlist)}
+          {this.props.setup.showPurchases ? this.renderPurchases(purchases) : this.renderItems(wishlist, purchases)}
           <p><strong>Preferences</strong></p>
           <ul className="wishlist">
             <li><p><a href={'https://' + wishlistUrl} target='_blank'>Your Wishlist</a></p></li>
@@ -195,26 +198,29 @@ class Dashboard extends Component {
   }
 
   render() {
-    const {user, address, bank, charges, wishlist, purchases, preferences} = this.props.setup;
+    const { user, address, bank, charges, wishlist, purchases, showWelcome } = this.props.setup;
     return (
       <div className="gradient-2">
         <RefundModal type={REFUND} />
         <div className='container'>
-        <section className='row pad-bottom pad-left clear-center'>
-          <h1 className="is-josefin margin-top-40">Welcome to your Dashboard, {_.upperFirst(user.profile.firstName)}</h1>
-          <p>Here's where you can see your current settings and update anything that needs changing!</p>
-        </section>
-        <section className='row pad-bottom flex-center'>
-          {this.renderAddress(address)}
-        </section>
-        <section className='row pad-bottom flex-center'>
-          {this.renderBank(bank, charges)}
-        </section>
-        <section className='row pad-bottom flex-center'>
-          {this.renderWishlist(wishlist, purchases)}
-        </section>
-        <section className='row push-down'>
-        </section>
+          <section className='row pad-bottom pad-left clear-center'>
+            <h1 className="is-josefin margin-top-40">Welcome to your Dashboard, {_.upperFirst(user.profile.firstName)}</h1>
+            { showWelcome ? 
+              (<p className="col-md-6 col-md-offset-3">Thanks for setting everything up! You can check back here anytime you want to see what's going on with your account. In the meantime, we'll start putting aside some spare cash to buy you some nice books very soon.</p> ) : 
+              (<p>Here's where you can see your current settings and update anything that needs changing!</p>)
+            }
+          </section>
+          <section className='row pad-bottom flex-center'>
+            {this.renderAddress(address)}
+          </section>
+          <section className='row pad-bottom flex-center'>
+            {this.renderBank(bank, charges)}
+          </section>
+          <section className='row pad-bottom flex-center'>
+            {this.renderWishlist(wishlist, purchases)}
+          </section>
+          <section className='row push-down'>
+          </section>
       </div>
       </div>
     );

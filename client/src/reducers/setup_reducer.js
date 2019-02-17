@@ -12,10 +12,11 @@ const _ = require('lodash');
 const INITIAL_STATE = {
 	showPurchases: false,
 	user: {
+    showWelcome: false,
 		email: '',
 		profile: {
 			firstName: '',
-			lastName: ''
+      lastName: ''
 		}
 	},
 	address: {
@@ -83,18 +84,19 @@ export default function (state = INITIAL_STATE, action) {
             }
 
      	case RECEIVE_USER_SETUP:
-     		return { ...state,
+         return { ...state,
+          showWelcome: action.payload.showWelcome,
      			address: action.payload.address,
      			user: action.payload.user,
      			bank: action.payload.bank,
-				purchases: action.payload.purchases,
-				charges: action.payload.charges,
-     			wishlist: {
-     				url: _.get(action.payload.wishlist, 'url', ''),
-					items: _.get(action.payload.wishlist, 'items', []),
-					preferredConditions: action.payload.wishlist.preferredConditions,
-     				maxMonthlyOrderFrequency: action.payload.wishlist.maxMonthlyOrderFrequency,
-					updating: state.wishlist.updating
+          purchases: action.payload.purchases,
+          charges: action.payload.charges,
+            wishlist: {
+              url: _.get(action.payload.wishlist, 'url', ''),
+            items: _.get(action.payload.wishlist, 'items', []),
+            preferredConditions: action.payload.wishlist.preferredConditions,
+              maxMonthlyOrderFrequency: action.payload.wishlist.maxMonthlyOrderFrequency,
+            updating: state.wishlist.updating
      			},
      		}
 	}

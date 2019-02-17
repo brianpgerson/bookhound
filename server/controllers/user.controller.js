@@ -14,10 +14,8 @@ const AuthController = require('./authentication.controller'),
 exports.getSetup = function (req, res) {
     const currentUser = req.currentUser;
     const userId = currentUser._id.toString();
-    const date = moment(currentUser.lastCharge);
     
-    let userSetup = _.assign({}, {user: _.pick(currentUser, ['email', 'profile'])});
-
+    let userSetup = _.assign({}, {user: _.pick(currentUser, ['email', 'profile', 'firstMessageShown'])});
     Purchase.find({userId: userId}).then(purchases => {
         Charge.find({_creator: userId}).then(charges => {
             userSetup.address = _.pick(currentUser.address, ['streetAddressOne', 'streetAddressTwo', 'state', 'city', 'zip']);
@@ -28,7 +26,20 @@ exports.getSetup = function (req, res) {
                 connected: !!currentUser.stripe.customerId,
                 balance: currentUser.stripe.balance
             };
+
+            const showWelcome = (
+              _.has(userSetup, ['address', 'streetAddressOne']) &&
+              _.has(userSetup, 'wishlist') &&
+              userSetup.bank.connected &&
+              !userSetup.user.firstMessageShown
+            );
+
+            userSetup.showWelcome = showWelcome
         
+            if (showWelcome) {
+              User.findByIdAndUpdate(userId, {firstMessageShown: true}, { new: true }).then(u => console.log(u))
+            }
+                        
             res.status(200).json(userSetup);
         });
     });

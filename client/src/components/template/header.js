@@ -23,7 +23,7 @@ class HeaderTemplate extends Component {
           <Link to="login">Login</Link>
         </li>,
         <li key={3}>
-          <Link to="/">Beta Coming Soon</Link>
+          <Link to="register">Sign Up</Link>
         </li>,
       ];
     }

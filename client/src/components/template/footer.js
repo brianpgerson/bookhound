@@ -25,9 +25,9 @@ class FooterTemplate extends Component {
         <li key={2}>
           <Link to="login">Login</Link>
         </li>,
-        // <li key={3}>
-        //   <Link to="register">Register</Link>
-        // </li>,
+        <li key={3}>
+          <Link to="register">Sign Up</Link>
+        </li>,
       ];
     }
   }
