@@ -92,7 +92,7 @@ exports.getDecisionInfo = (basicInfo) => {
   let safeDelta = (currentBalance - lowestRecentBalance) * 100;
   let extractAmount = safeDelta && safeDelta > 10000 ? 
     getExtractAmount(safeDelta) :
-    currentBalance > 500 ? config.globalMin : 0;
+    currentBalance > 500 ? (config.globalMin + _.random(1, 99)) : 0;
     
   return Math.round(extractAmount);
 }
