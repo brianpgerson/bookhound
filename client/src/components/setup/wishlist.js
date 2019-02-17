@@ -30,9 +30,9 @@ function validate(formProps) {
   const errors = {};
 
   if (!formProps.wishlistUrl) {
-    errors.wishlistUrl = 'Please enter a valid URL';
-  } else if (!formProps.wishlistUrl.split('www.amazon.com/gp/registry/wishlist/')[1]) {
-    errors.wishlistUrl = 'Please ensure you\'ve entered a properly formatted URL';
+    errors.wishlistUrl = 'Please enter a valid wishlist ID';
+  } else if (formProps.wishlistUrl.length !== 13) {
+    errors.wishlistUrl = 'Please ensure you\'ve entered a properly formatted wishlist ID (13 characters from the end of your wishlist URL, NOT including anything after a "?" mark.';
   }
 
   if (_.isUndefined(formProps.new) && _.isUndefined(formProps.used)) {
@@ -59,7 +59,7 @@ class Wishlist extends Component {
     let next;
 
     const wishlistRequest = {
-      wishlistUrl: formProps.wishlistUrl,
+      wishlistUrl: `www.amazon.com/registry/wishlist/${formProps.wishlistUrl}`,
       preferredConditions: {
         new: formProps.new,
         used: formProps.used
@@ -108,21 +108,40 @@ class Wishlist extends Component {
           <div className='row'>
             <div className='col-md-6 col-md-offset-3 is-white-background pad-50 panel'>
               <div className='row'>
-                <div>
-                  This part is important to get right. First, make sure you have a <a href='https://www.amazon.com/gp/help/customer/display.html?nodeId=501094' target='_blank'>public wishlist</a> for bookhound to use, and ensure that it has at least a few books. Then, when you're sure it's ready to go, add the URL here. It should look like: <em>www.amazon.com/gp/registry/wishlist/295PIKOOQBKVU</em>.
-                </div>
+                <p>
+                  This part is important to get right!
+                </p>
+                <p>
+                  First, make sure you have a <a href='https://www.amazon.com/gp/help/customer/display.html?nodeId=501094' target='_blank'> public wishlist </a> 
+                  for bookhound to use, and ensure that it has at least a few books.
+                </p>
+                <p>
+                  (FYI, if you have things that aren't
+                  books in the list, for now, bookhound may also purchase those items, so you probably just want a bookhound list
+                  to be safe!)
+                </p>
+                <p>
+                  Then, when you're sure it's ready to go, add the wishlist ID here. 
+                  It's the 13 characters at the end of your URL. 
+                  If your wishlist was at: 
+                  <br />
+                  <em>www.amazon.com/gp/registry/wishlist/295PIKOOQBKVU</em>
+                </p>
+                <p>
+                  ...it would be "295PIKOOQBKVU". 
+                </p>
               </div>
               <hr />
               <div className='row'>
                 <form onSubmit={handleSubmit(this.handleFormSubmit.bind(this))}>
                 {this.renderAlert()}
                 <div className='form-group'>
-                  <label>URL to your Amazon Wishlist</label>
+                  <label>ID for your Amazon Wishlist</label>
                   <Field name='wishlistUrl' className='form-control' component={renderField} type='text' />
                 </div>
 
                 <div className='form-group'>
-                  <p><strong>Preferred Conditions (at least one must be checked):</strong></p>
+                  <p><strong>Preferred Conditions:</strong></p>
                   <div className='form-check'>
                       <Field name='new' component={renderCheckbox} type='checkbox'/>
                   </div>
