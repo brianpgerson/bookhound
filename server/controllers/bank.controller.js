@@ -72,7 +72,9 @@ const checkPurchasesAndCharge = (purchases, user) => {
 	}
 
 	let thisMonthsPurchases = _.filter(purchases, (p) => moment(p.createdAt).isAfter(moment().startOf('month')))
-	let maxOrders = user.wishlist.maxMonthlyOrderFrequency;
+  let maxOrders = user.wishlist.maxMonthlyOrderFrequency;
+  
+  logger.info(`user ${user.profile.firstName} mas orders: ${maxOrders}, this month purchased: ${thisMonthsPurchases}`);
 	if (thisMonthsPurchases.length && thisMonthsPurchases < maxOrders) {
 		logger.info(`User ${user._id} has purchased the max amount for this month!`);	
 		return;

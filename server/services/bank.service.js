@@ -107,7 +107,7 @@ const getExtractAmount = (safeDelta) => {
 	// let's just make sure it's both under 15 (shouldn't go over that ever in one extraction to buy a book)
 	// and over 1 (we should try and keep the total number of extractions relatively small since Stripe
 	// takes fees per txn)
-	let extractAmount = percentageOfSafeDelta > config.globalMax ? config.globalMax : percentageOfSafeDelta;
+	let extractAmount = percentageOfSafeDelta > config.globalMax ? (_.random(.01, .5) * config.globalMax) : percentageOfSafeDelta;
 
 	return extractAmount < config.globalMin ? config.globalMin : extractAmount;
 }
