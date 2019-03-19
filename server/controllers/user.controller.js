@@ -16,7 +16,7 @@ exports.getSetup = function (req, res) {
     const userId = currentUser._id.toString();
     
     let userSetup = _.assign({}, {user: _.pick(currentUser, ['email', 'profile', 'firstMessageShown'])});
-    Purchase.find({userId: userId}).then(purchases => {
+    Purchase.find({userId: userId}, null, {sort: {createdAt: -1}}).then(purchases => {
         Charge.find({_creator: userId}).then(charges => {
             userSetup.address = _.pick(currentUser.address, ['streetAddressOne', 'streetAddressTwo', 'state', 'city', 'zip']);
             userSetup.wishlist = currentUser.wishlist;
