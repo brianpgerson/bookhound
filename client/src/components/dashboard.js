@@ -86,10 +86,6 @@ class Dashboard extends Component {
     }
   }
 
-  refund(item) {
-    console.log(item.id);
-  }
-
   toCurrency(amt) {
     return parseFloat((amt/100).toFixed(2));
   }
@@ -106,15 +102,15 @@ class Dashboard extends Component {
           <ul className="scroller-medium">
             {
               charges && charges.length > 0 ?
-              _.map(charges, (item) => {
+              _.map(_.sortBy(charges, ['createdAt']).reverse(), (item) => {
                 item.balance = bank.balance;
-                let refundThing = item.refund.amount === item.amount ?
+                let toRefund = item.refund.amount === item.amount ?
                       (<span className="whisper">  (refunded ${this.toCurrency(item.refund.amount)})</span>) :
                       (<span onClick={() => this.openModal(item)} className="whisper cursor"> ?</span>)
                 return (
                   <li className="margin-bottom-small">
                     <strong>{moment(item.createdAt).format('MMM D, Y')}:</strong>........${this.toCurrency(item.amount)} 
-                    { refundThing }
+                    { toRefund }
                   </li>);
               }) : <span className="whisper">No charges yet!</span>
             }
