@@ -133,7 +133,7 @@ exports.processUser = function (user, unpurchased) {
     
     console.log(`allowed to extract ${amountToExtract}, cheapest item: ${cheapestPrice}`);
     let priceGap = cheapestPrice - user.stripe.balance
-    amountToExtract = priceGap < amountToExtract ? priceGap : amountToExtract;
+    amountToExtract = priceGap > amountToExtract ? amountToExtract : priceGap <= 50 ? amountToExtract :  priceGap;
     console.log(`price gap: ${priceGap}, amountToExtract: ${amountToExtract}`);
 		let totalAfterCharge = getBalanceAfterStripeCharge(amountToExtract);
 
