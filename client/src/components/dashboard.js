@@ -200,7 +200,7 @@ class Dashboard extends Component {
         <RefundModal type={REFUND} />
         <div className='container'>
           <section className='row pad-bottom pad-left clear-center'>
-            <h1 className="is-josefin margin-top-40">Welcome to your Dashboard, {_.upperFirst(user.profile.firstName)}</h1>
+            <h1 className="is-josefin margin-top-40">Welcome to your dashboard, {_.upperFirst(user.profile.firstName)}</h1>
             { showWelcome ? 
               (<p className="col-md-6 col-md-offset-3">Thanks for setting everything up! You can check back here anytime you want to see what's going on with your account. In the meantime, we'll start putting aside some spare cash to buy you some nice books very soon.</p> ) : 
               (<p>Here's where you can see your current settings and update anything that needs changing!</p>)
