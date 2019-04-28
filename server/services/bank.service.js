@@ -137,6 +137,11 @@ exports.processUser = function (user, unpurchased) {
     console.log(`price gap: ${priceGap}, amountToExtract: ${amountToExtract}`);
 		let totalAfterCharge = getBalanceAfterStripeCharge(amountToExtract);
 
+    if (priceGap <= 0) {
+      logger.info(`user ${user.profile.firstName} already has enough to buy a book`);
+      return;
+    }
+
 		if (_.isFinite(amountToExtract) && amountToExtract > 0) {
 			stripe.charges.create({
 				amount: amountToExtract,

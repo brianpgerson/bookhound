@@ -119,11 +119,11 @@ function handleSuccess(order, res) {
     }
 
     User.findById(order._creator).then(user => {
-        console.log('User balance before purchase:', user.stripe.balance);
+        logger.info('User balance before purchase:', user.stripe.balance);
         let remainingBalance = user.stripe.balance - totalCost;
     
         user.stripe.balance = remainingBalance;
-        console.log('User balance after purchase:', user.stripe.balance);
+        logger.info('User balance after purchase:', user.stripe.balance);
         User.findOneAndUpdate({_id: user._id}, user, {runValidators: true})
             .then(() => {})
             .catch(err => logger.error(`Couldn't update user: ${user._id}`));
@@ -186,18 +186,24 @@ function createOrderObject(user, bookToBuy) {
 }
 
 exports.qualifyPurchaser = function (user, startOfMonth) {
+  const name = user.profile.firstName;
   const maxOrders = user.wishlist.maxMonthlyOrderFrequency;
   return Purchase.find({updatedAt : { $gte: startOfMonth} }).then((purchases) => {
+    logger.info(`${purchases.length} purchases this month for ${name}`)
     return Order.find({status: 'IN_PROGRESS'}).then(inProgress => {
+      logger.info(`any in progress: ${inProgress} for ${name}`)
       if (purchases.length < maxOrders && (!inProgress || inProgress.length === 0)) {
         const wishlist = user.wishlist;
         if (_.isUndefined(wishlist) || _.isNull(wishlist)) {
           logger.error(`wishlist was undefined for user ${user}: ${wishlist}`);
           return false;
         } else {
+          logger.info(`finding purchaseable books for ${name}`);
+          
           let currentlyPurchaseable = purchasableBooks(wishlist.items, purchases, user.stripe.balance, DEFRAY_COST)
+          logger.info(`initially found ${currentlyPurchaseable.length} purchaseable books for ${name}`);
           if (currentlyPurchaseable.length > 0) {
-              return updateAgainAndCheck(user);
+              return updateAgainAndCheck(user, purchases);
           }
         }
       }
@@ -205,16 +211,18 @@ exports.qualifyPurchaser = function (user, startOfMonth) {
   });
 }
 
-const updateAgainAndCheck = (user) => {
+const updateAgainAndCheck = (user, purchases) => {
     let wl = user.wishlist;
-    return als.scrape(wl.url)
+    let { url } = wl;
+
+    logger.info(`scraping ${url} for ${user.profile.firstName}`);
+    
+    return als.scrape(url)
         .then(scrapedList => WishlistService.removeOldItems(user)
         .then(() => WishlistService.updateWishlist(wl, scrapedList, user)
         .then(updatedUser => {
-            const startOfMonth = moment().startOf('month').toDate();
-            return Purchase.find({updatedAt : { $gte: startOfMonth} }).then((purchases) => {
-                return purchasableBooks(updatedUser.wishlist.items, purchases, user.stripe.balance, DEFRAY_COST).length > 0;
-            });    
+            logger.info(`updated user after rescraping: ${JSON.stringify(updatedUser)}`);
+            return purchasableBooks(updatedUser.wishlist.items, purchases, user.stripe.balance, DEFRAY_COST).length > 0;
         })));
 }
 

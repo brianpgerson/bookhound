@@ -52,6 +52,7 @@ exports.findEligibleAccountsToCharge = function () {
 	User.find({'stripe.lastCharge': {$lte: cutoff.toDate()}})
 		.populate('stripe.charges wishlist.items')
 		.then(users => {
+
       logger.info(`found ${users.length} users to charge`);
 			_.each(users, (user) => {
         logger.info(`checking purchases and conditionally charging ${user.email}`);
@@ -74,17 +75,26 @@ const checkPurchasesAndCharge = (purchases, user) => {
 	let thisMonthsPurchases = _.filter(purchases, (p) => moment(p.createdAt).isAfter(moment().startOf('month')))
   let maxOrders = user.wishlist.maxMonthlyOrderFrequency;
   
-  logger.info(`user ${user.profile.firstName} mas orders: ${maxOrders}, this month purchased: ${thisMonthsPurchases}`);
+  logger.info(`user ${user.profile.firstName} max orders: ${maxOrders}, this month purchased: ${thisMonthsPurchases}`);
 	if (thisMonthsPurchases.length && thisMonthsPurchases < maxOrders) {
 		logger.info(`User ${user._id} has purchased the max amount for this month!`);	
 		return;
 	}
 	let unpurchased = getUnpurchased(items, purchases);
 	if (unpurchased.length === 0) {
-		logger.info(`User ${user._id} has no remaining items that haven't been purchased!`);
-	}
+    logger.info(`User ${user._id} has no remaining items that haven't been purchased!`);
+    return;
+  }
+  
+  if (anyUnderBalance(unpurchased, user.stripe.balance)) {
+    logger.warn(`user ${user.profile.firstName} has books that cost less than the balance.`)
+  }
 
 	return BankService.processUser(user, unpurchased);
+}
+
+const anyUnderBalance = (unpurchased, balance) => {
+  return _.some(unpurchased, book => book.price <= balance);
 }
 
 const getUnpurchased = (want, bought) => {
