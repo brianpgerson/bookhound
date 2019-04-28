@@ -188,9 +188,9 @@ function createOrderObject(user, bookToBuy) {
 exports.qualifyPurchaser = function (user, startOfMonth) {
   const name = user.profile.firstName;
   const maxOrders = user.wishlist.maxMonthlyOrderFrequency;
-  return Purchase.find({updatedAt : { $gte: startOfMonth} }).then((purchases) => {
+  return Purchase.find({ userId: user._id, updatedAt : { $gte: startOfMonth } }).then((purchases) => {
     logger.info(`${purchases.length} purchases this month for ${name}`)
-    return Order.find({status: 'IN_PROGRESS'}).then(inProgress => {
+    return Order.find({ _creator: user._id, status: 'IN_PROGRESS'}).then(inProgress => {
       logger.info(`any in progress: ${inProgress} for ${name}`)
       if (purchases.length < maxOrders && (!inProgress || inProgress.length === 0)) {
         const wishlist = user.wishlist;

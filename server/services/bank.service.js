@@ -131,7 +131,7 @@ exports.processUser = function (user, unpurchased) {
     let { price, shipping } = getCheapest(unpurchased);
     let cheapestPrice = price + shipping + DEFRAY_COST;
     
-    console.log(`allowed to extract ${amountToExtract}, cheapest item: ${cheapestPrice}`);
+    console.log(`allowed to extract ${amountToExtract}, cheapest item: ${cheapestPrice} for ${user.profile.firstName}`);
     let priceGap = cheapestPrice - user.stripe.balance
     amountToExtract = priceGap > amountToExtract ? amountToExtract : priceGap <= 50 ? amountToExtract :  priceGap;
     console.log(`price gap: ${priceGap}, amountToExtract: ${amountToExtract}`);
