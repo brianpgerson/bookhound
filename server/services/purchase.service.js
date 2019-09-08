@@ -198,7 +198,7 @@ exports.qualifyPurchaser = function (user, startOfMonth) {
           logger.error(`wishlist was undefined for user ${user}: ${wishlist}`);
           return false;
         } else {
-          logger.info(`finding purchaseable books for ${name}`);
+          logger.info(`finding purchaseable books for ${name}. wishlist: ${JSON.stringify(wishlist.items)}`);
           
           let currentlyPurchaseable = purchasableBooks(wishlist.items, purchases, user.stripe.balance, DEFRAY_COST)
           logger.info(`initially found ${currentlyPurchaseable.length} purchaseable books for ${name}`);
