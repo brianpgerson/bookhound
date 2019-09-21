@@ -109,7 +109,8 @@ exports.findEligibleAccountsToBuyBooks = function () {
 
 	User.find({'stripe.balance': {$gte: 100}})
 		.populate('wishlist.items')
-		.populate('stripe.charges')
+    .populate('stripe.charges')
+    .exec()
 		.then(users => {
       _.forEach(users, (user) => {
         console.log(JSON.stringify(user))
