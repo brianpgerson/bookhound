@@ -48,8 +48,8 @@ exports.saveWishlist = function (wishlist, list, currentUser) {
 }
 
 exports.removeOldItems = function (currentUser) {
-    return WishlistItem.find({_creator: currentUser._id}).then(items => {
-        _.forEach(items, item => item.remove())
+    return WishlistItem.deleteMany({_creator: currentUser._id}).then(res => {
+      console.log(`deleted ${res.deletedCount} for ${currentUser._id}`);
     });
 }
 
@@ -63,6 +63,7 @@ exports.updateWishlist = function (newWishlist, listOfItems, currentUser) {
         currentUser.wishlist = newWishlist;
         currentUser.wishlist.items = items;
         currentUser.wishlist.preferredConditions = preferences;
+
         
         if (_.isEmpty(items)) {
             return currentUser.save();

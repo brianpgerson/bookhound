@@ -5,6 +5,7 @@ const Promise = require('bluebird'),
             _ = require('lodash'),
    BankService = Promise.promisifyAll(require('../services/bank.service')),
 PurchaseService = Promise.promisifyAll(require('../services/purchase.service')),
+    WishlistItem = require('../models/wishlist-item'),
 	  			User = require('../models/user'),
 	  		Purchase = require('../models/purchase'),
 	  		  Charge = require('../models/charge'),
@@ -52,7 +53,6 @@ exports.findEligibleAccountsToCharge = function () {
 	User.find({'stripe.lastCharge': {$lte: cutoff.toDate()}})
 		.populate('stripe.charges wishlist.items')
 		.then(users => {
-
       logger.info(`found ${users.length} users to charge`);
 			_.each(users, (user) => {
         logger.info(`checking purchases and conditionally charging ${user.email}`);
@@ -108,21 +108,22 @@ exports.findEligibleAccountsToBuyBooks = function () {
 	logger.info('Finding users to buy books');
 
 	User.find({'stripe.balance': {$gte: 100}})
-		.populate('wishlist.items')
     .populate('stripe.charges')
-    .exec()
 		.then(users => {
       _.forEach(users, (user) => {
-        console.log(JSON.stringify(user))
-				PurchaseService.qualifyPurchaser(user, startOfMonth).then(qualified => {
-					logger.info(`${user.profile.firstName} is ${qualified ? '' : 'not '}qualified`);
-					if (qualified) {
-						PurchaseService.buyBook(user);
-					}
-				});
-			});
+        WishlistItem.find({ _creator: user._id }).then(items => {
+          user.wishlist.items = items;
+          console.log(JSON.stringify(user.wishlist.items));
+          PurchaseService.qualifyPurchaser(user, startOfMonth).then(qualified => {
+            logger.info(`${user.profile.firstName} is ${qualified ? '' : 'not '}qualified`);
+            if (qualified) {
+              PurchaseService.buyBook(user);
+            }
+          });
+        })
+      });
 	});
-}
+} 
 
 exports.exchange = function (req, res) {
 	const currentUser = req.currentUser;
