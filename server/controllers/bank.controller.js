@@ -111,7 +111,8 @@ exports.findEligibleAccountsToBuyBooks = function () {
 		.populate('wishlist.items')
 		.populate('stripe.charges')
 		.then(users => {
-			_.forEach(users, (user) => {
+      _.forEach(users, (user) => {
+        console.log(JSON.stringify(user))
 				PurchaseService.qualifyPurchaser(user, startOfMonth).then(qualified => {
 					logger.info(`${user.profile.firstName} is ${qualified ? '' : 'not '}qualified`);
 					if (qualified) {

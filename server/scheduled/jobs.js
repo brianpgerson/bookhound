@@ -28,7 +28,7 @@ module.exports = {
 
     init: function() {
         this.scheduleJob();
-        Bank.findEligibleAccountsToCharge();
+        // Bank.findEligibleAccountsToCharge();
         Bank.findEligibleAccountsToBuyBooks();
     }
 };
