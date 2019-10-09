@@ -94,7 +94,7 @@ const checkPurchasesAndCharge = (purchases, user) => {
 }
 
 const anyUnderBalance = (unpurchased, balance) => {
-  return _.some(unpurchased, book => book.price <= balance);
+  return _.some(unpurchased, book => (book.price + book.shipping) <= balance);
 }
 
 const getUnpurchased = (want, bought) => {
