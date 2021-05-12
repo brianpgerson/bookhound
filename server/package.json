@@ -31,7 +31,7 @@
     "morgan": "^1.9.1",
     "node-fetch": "^1.6.3",
     "node-schedule": "^1.2.2",
-    "nodemailer": "^2.7.2",
+    "nodemailer": "^6.4.16",
     "nodemon": "^1.14.11",
     "passport": "^0.3.2",
     "passport-jwt": "^4.0.0",
